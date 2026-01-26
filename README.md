@@ -77,7 +77,11 @@ A minimal IRL repository looks like this:
 ```
 project/
 ├── 01-plans/
-│   └── main-plan.md           # Your control surface: intent, constraints, acceptance criteria
+│   ├── main-plan.md           # Your control surface: intent, constraints, acceptance criteria
+│   └── templates/             # Plan templates for different use cases
+│       ├── irl-basic-template.md
+│       ├── scientific-abstract.md
+│       └── meeting-abstract.md
 ├── 02-data/
 │   ├── raw/                   # Original data files
 │   └── derived/               # Processed data
@@ -105,21 +109,26 @@ This structure is intentionally generic. You can adapt it to your tools and need
 
 2. **Read the associated manuscript** to understand the full framework and design rationale
 
-3. **Customize the structure** for your domain and tools:
-   - Replace `executed.qmd` with your preferred executable format (Python scripts, R markdown, Jupyter notebooks, etc.)
+3. **Choose a template**: Start with one of the templates in `01-plans/templates/`:
+   - `irl-basic-template.md` - General purpose IRL template
+   - `scientific-abstract.md` - For writing scientific journal abstracts
+   - `meeting-abstract.md` - For writing conference/meeting abstracts
+
+4. **Customize the structure** for your domain and tools:
+   - Copy your chosen template to `01-plans/main-plan.md` or create your own
    - Adjust the directory structure as needed
-   - Set up your environment specification
+   - Set up your environment specification in `05-env/`
 
-4. **Start with `01-plans/main-plan.md`**: Write your first plan specifying what you want to accomplish, any constraints, and how you'll know when it's done. See `01-plans/templates/irl-basic-template.md` for a template.
+5. **Start with `01-plans/main-plan.md`**: Write your first plan specifying what you want to accomplish, any constraints, and how you'll know when it's done.
 
-5. **Run iterations**: Each iteration follows this pattern:
+6. **Run iterations**: Each iteration follows this pattern:
    - Edit `01-plans/main-plan.md` with your objectives
    - AI reads the plan and executes tasks
    - Outputs are rendered and logs are updated
    - Review the results and diffs
    - Accept, revise the plan, or rerun
 
-6. **Maintain provenance**: Commit after each iteration with clear messages linked to your plan objectives
+7. **Maintain provenance**: Commit after each iteration with clear messages linked to your plan objectives
 
 ## Key Benefits
 
@@ -139,6 +148,7 @@ This structure is intentionally generic. You can adapt it to your tools and need
 ## Getting Help
 
 - Review the associated manuscript for detailed explanations and case studies
+- Check the `01-plans/templates/` directory for example plan templates
 - Check the `04-logs/` directory for examples of activity and decision tracking
 - Adapt the structure to your needs—IRL is a pattern, not a rigid prescription
 
