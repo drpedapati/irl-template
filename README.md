@@ -92,8 +92,6 @@ project/
 ├── 04-logs/
 │   ├── activity_log.md        # What happened in each iteration
 │   └── decision_log.csv       # Decisions and rationale
-├── 05-env/
-│   └── environment.yml        # Environment specification (Conda, renv, etc.)
 └── README.md                  # This file
 ```
 
@@ -117,7 +115,7 @@ This structure is intentionally generic. You can adapt it to your tools and need
 4. **Customize the structure** for your domain and tools:
    - Copy your chosen template to `01-plans/main-plan.md` or create your own
    - Adjust the directory structure as needed
-   - Set up your environment specification in `05-env/`
+   - Set up your environment specification as needed for your project
 
 5. **Start with `01-plans/main-plan.md`**: Write your first plan specifying what you want to accomplish, any constraints, and how you'll know when it's done.
 
