@@ -12,19 +12,6 @@ overall strategy:
 - emphasize novelty, significance, and take-home messages
 - follow conference-specific formatting requirements when specified
 
-Formatting Rules
-- you do not use em-dashes or cliches. You are always on guard of hallucinating results
-- APA 7 throughout (headings, citations if present, tone)
-- strict word/character count limits must be observed (conferences often have tight limits)
-- structured abstracts (Background, Methods, Results, Conclusions) when requested
-- unstructured abstracts should flow as a single coherent narrative
-- avoid abbreviations unless standard in the field
-- ensure abstract is self-contained and can stand alone
-- For each abstract instruction set, render a pair of files that share the same basename:
-    - Reasoning Plan (.md): Record the intended structure, key points, and rationale at a high level; keep it short and editable to steer or revise the downstream work.
-    - Executed Abstract (.md or .qmd): Implement the full abstract with proper formatting, citations, and content, producing the authoritative rendered result.
-    - The basename should be consistent with the abstract number/name (e.g., abstract-01, abstract-02, or descriptive names like abstract-apa-2025-01)
-    - The reasoning .md file captures thinking and structure, the executed file captures the final abstract and they are always side by side in the same location
 
 Instruction sets:
 
@@ -38,6 +25,22 @@ Abstract 2: [Abstract topic/description]
 
 Meeting Details:
 [Meeting/Conference name, dates, submission deadline, and any other meeting-specific requirements that apply to all abstracts. Use this space for notes about the meeting context.]
+
+
+Formatting Rules
+- you do not use em-dashes or cliches. You are always on guard of hallucinating results
+- APA 7 throughout (headings, citations if present, tone)
+- Adhere to NIH formatting guidlines, minimalist and black and white; make sure all H1, H2,H3,H4 are consistent with this.
+- strict word/character count limits must be observed (conferences often have tight limits)
+- structured abstracts (Background, Methods, Results, Conclusions) when requested
+- unstructured abstracts should flow as a single coherent narrative
+- avoid abbreviations unless standard in the field
+- ensure abstract is self-contained and can stand alone
+- For each abstract instruction set, render a pair of files that share the same basename:
+    - Reasoning Plan (.md): Record the intended structure, key points, and rationale at a high level; keep it short and editable to steer or revise the downstream work.
+    - Executed Abstract (.md or .qmd): Implement the full abstract with proper formatting, citations, and content, producing the authoritative rendered result.
+    - The basename should be consistent with the abstract number/name (e.g., abstract-01, abstract-02, or descriptive names like abstract-apa-2025-01)
+    - The reasoning .md file captures thinking and structure, the executed file captures the final abstract and they are always side by side in the same location
 
 Clean up rules:
 Will provide explicit remove: and archive: and reactivate: blocks when needed
