@@ -40,6 +40,15 @@ Abstract 2: [Abstract description/topic]
     - Conference: [specify if applicable]
     - Format: [structured/unstructured]
 
+Meeting Details (applies to all abstracts above):
+- Meeting/Conference Name: [e.g., American Psychiatric Association Annual Meeting 2025]
+- Meeting Dates: [e.g., May 3-7, 2025]
+- Submission Deadline: [e.g., January 15, 2025]
+- General Word/Character Limit: [e.g., 250 words or 1500 characters]
+- Format Requirements: [e.g., unstructured, single paragraph, no citations]
+- Submission Platform: [e.g., online portal, email, etc.]
+- Additional Guidelines: [Any other meeting-specific requirements that apply to all abstracts]
+
 
 Clean up rules:
 Will provide explicit remove: and archive: and reactivate: blocks when needed
