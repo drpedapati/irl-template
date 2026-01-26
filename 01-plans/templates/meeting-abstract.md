@@ -28,17 +28,13 @@ Formatting Rules
 
 Instruction sets:
 
-Abstract 1: [Abstract description/topic]
-    - [Specific instructions for this abstract]
-    - Target word/character count: [specify]
-    - Conference: [specify if applicable]
-    - Format: [structured/unstructured]
+Abstract 1: [Abstract topic/description]
+    Task 1: [Task description]
+    Task 2: [Task description]
 
-Abstract 2: [Abstract description/topic]
-    - [Specific instructions for this abstract]
-    - Target word/character count: [specify]
-    - Conference: [specify if applicable]
-    - Format: [structured/unstructured]
+Abstract 2: [Abstract topic/description]
+    Task 1: [Task description]
+    Task 2: [Task description]
 
 Meeting Details:
 [Meeting/Conference name, dates, submission deadline, and any other meeting-specific requirements that apply to all abstracts. Use this space for notes about the meeting context.]
