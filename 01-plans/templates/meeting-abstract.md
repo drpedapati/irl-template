@@ -39,7 +39,6 @@ Abstract 2: [Abstract topic/description]
 Meeting Details:
 [Meeting/Conference name, dates, submission deadline, and any other meeting-specific requirements that apply to all abstracts. Use this space for notes about the meeting context.]
 
-
 Clean up rules:
 Will provide explicit remove: and archive: and reactivate: blocks when needed
 - Archive: move instruction set and output to archive folder
