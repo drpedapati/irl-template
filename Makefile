@@ -1,13 +1,11 @@
 # IRL Template Project Generator
 # Usage:
-#   make                    - Show this welcome message
-#   make IRL                - Create a new IRL project with default settings
-#   make IRL NAME=my-project - Create a project with custom name
-#   make IRL TEMPLATE=scientific-abstract NAME=my-abstract - Use specific template
+#   make                    - Show welcome message
+#   make irl project-name   - Create a new IRL project
+#   make irl project-name TEMPLATE=scientific-abstract - Use specific template
 
 TEMPLATE_DIR := 01-plans/templates
 DEFAULT_TEMPLATE := irl-basic-template
-DEFAULT_NAME := irl-project
 
 # Colors for beautiful output
 BLUE := \033[0;34m
@@ -17,6 +15,10 @@ YELLOW := \033[0;33m
 MAGENTA := \033[0;35m
 BOLD := \033[1m
 RESET := \033[0m
+
+# Get project name from arguments (everything after 'irl')
+PROJECT_NAME := $(word 2,$(MAKECMDGOALS))
+TEMPLATE := $(or $(TEMPLATE),$(DEFAULT_TEMPLATE))
 
 # Default target - show welcome message
 .PHONY: default
@@ -34,9 +36,8 @@ default:
 	@echo ""
 	@echo "${BOLD}${YELLOW}Quick Start:${RESET}"
 	@echo ""
-	@echo "  ${GREEN}make IRL${RESET}                    ${CYAN}→ Create project 'irl-project' with default template${RESET}"
-	@echo "  ${GREEN}make IRL NAME=my-project${RESET}    ${CYAN}→ Create project with custom name${RESET}"
-	@echo "  ${GREEN}make IRL TEMPLATE=meeting-abstract NAME=conference${RESET}"
+	@echo "  ${GREEN}make irl my-project${RESET}              ${CYAN}→ Create project with default template${RESET}"
+	@echo "  ${GREEN}make irl my-project TEMPLATE=meeting-abstract${RESET}"
 	@echo "                                      ${CYAN}→ Use specific template${RESET}"
 	@echo ""
 	@echo "${BOLD}${YELLOW}Available Templates:${RESET}"
@@ -52,53 +53,56 @@ default:
 	@echo ""
 	@echo "${CYAN}📚 Documentation: https://github.com/drpedapati/irl-template/wiki${RESET}"
 	@echo ""
-	@echo "${BOLD}${GREEN}Ready to start? Run: ${BOLD}make IRL${RESET}"
+	@echo "${BOLD}${GREEN}Ready to start? Run: ${BOLD}make irl my-project${RESET}"
 	@echo ""
 
-# Main IRL target
-.PHONY: IRL
-IRL: $(or $(NAME),$(DEFAULT_NAME))
-	@echo ""
-	@echo "${BOLD}${GREEN}✓${RESET} ${BOLD}Created IRL project:${RESET} ${CYAN}$(or $(NAME),$(DEFAULT_NAME))${RESET}"
-	@echo "${BOLD}${GREEN}✓${RESET} ${BOLD}Template used:${RESET} ${CYAN}$(or $(TEMPLATE),$(DEFAULT_TEMPLATE))${RESET}"
-	@echo ""
-	@echo "${BOLD}${YELLOW}Next steps:${RESET}"
-	@echo ""
-	@echo "  ${CYAN}cd${RESET} ${GREEN}$(or $(NAME),$(DEFAULT_NAME))${RESET}"
-	@echo "  ${CYAN}# Edit 01-plans/main-plan.md to customize your plan${RESET}"
-	@echo "  ${CYAN}# Start your first iteration!${RESET}"
-	@echo ""
-
-# Create new IRL project
-$(DEFAULT_NAME): $(or $(NAME),$(DEFAULT_NAME))
-	@true
-
-# Pattern rule for named projects
-%:
-	@if [ -d "$@" ]; then \
-		echo "${BOLD}${YELLOW}⚠${RESET} ${BOLD}Error:${RESET} Directory '${CYAN}$@${RESET}' already exists"; \
+# Main irl target
+.PHONY: irl
+irl:
+	@if [ -z "$(PROJECT_NAME)" ]; then \
+		echo "${BOLD}${YELLOW}Usage:${RESET} ${GREEN}make irl project-name${RESET}"; \
+		echo ""; \
+		echo "Example: ${GREEN}make irl my-research-project${RESET}"; \
+		exit 1; \
+	fi
+	@if [ -d "$(PROJECT_NAME)" ]; then \
+		echo "${BOLD}${YELLOW}⚠${RESET} ${BOLD}Error:${RESET} Directory '${CYAN}$(PROJECT_NAME)${RESET}' already exists"; \
 		exit 1; \
 	fi
 	@echo ""
-	@echo "${BOLD}${CYAN}Creating IRL project:${RESET} ${GREEN}$@${RESET}"
-	@mkdir -p "$@"
+	@echo "${BOLD}${CYAN}Creating IRL project:${RESET} ${GREEN}$(PROJECT_NAME)${RESET}"
+	@mkdir -p "$(PROJECT_NAME)"
 	@echo "${CYAN}Copying template files...${RESET}"
-	@cp -r . "$@"/ 2>/dev/null || \
+	@cp -r . "$(PROJECT_NAME)"/ 2>/dev/null || \
 		(echo "${BOLD}${YELLOW}⚠${RESET} ${BOLD}Error:${RESET} Could not copy template files" && exit 1)
-	@cd "$@" && \
+	@cd "$(PROJECT_NAME)" && \
 		rm -rf .git && \
 		git init -q && \
 		git add -A && \
 		git commit -q -m "Initial commit from IRL template"
-	@echo "${CYAN}Setting up template:${RESET} ${GREEN}$(or $(TEMPLATE),$(DEFAULT_TEMPLATE))${RESET}"
-	@if [ -f "$@/$(TEMPLATE_DIR)/$(or $(TEMPLATE),$(DEFAULT_TEMPLATE)).md" ]; then \
-		cp "$@/$(TEMPLATE_DIR)/$(or $(TEMPLATE),$(DEFAULT_TEMPLATE)).md" "$@/01-plans/main-plan.md"; \
+	@echo "${CYAN}Setting up template:${RESET} ${GREEN}$(TEMPLATE)${RESET}"
+	@if [ -f "$(PROJECT_NAME)/$(TEMPLATE_DIR)/$(TEMPLATE).md" ]; then \
+		cp "$(PROJECT_NAME)/$(TEMPLATE_DIR)/$(TEMPLATE).md" "$(PROJECT_NAME)/01-plans/main-plan.md"; \
 		echo "${BOLD}${GREEN}✓${RESET} Template applied"; \
 	else \
-		echo "${BOLD}${YELLOW}⚠${RESET} Warning: Template '$(or $(TEMPLATE),$(DEFAULT_TEMPLATE))' not found, using default"; \
-		cp "$@/$(TEMPLATE_DIR)/$(DEFAULT_TEMPLATE).md" "$@/01-plans/main-plan.md" 2>/dev/null || true; \
+		echo "${BOLD}${YELLOW}⚠${RESET} Warning: Template '$(TEMPLATE)' not found, using default"; \
+		cp "$(PROJECT_NAME)/$(TEMPLATE_DIR)/$(DEFAULT_TEMPLATE).md" "$(PROJECT_NAME)/01-plans/main-plan.md" 2>/dev/null || true; \
 	fi
 	@echo "${BOLD}${GREEN}✓${RESET} Project initialized"
+	@echo ""
+	@echo "${BOLD}${GREEN}✓${RESET} ${BOLD}Created IRL project:${RESET} ${CYAN}$(PROJECT_NAME)${RESET}"
+	@echo "${BOLD}${GREEN}✓${RESET} ${BOLD}Template used:${RESET} ${CYAN}$(TEMPLATE)${RESET}"
+	@echo ""
+	@echo "${BOLD}${YELLOW}Next steps:${RESET}"
+	@echo ""
+	@echo "  ${CYAN}cd${RESET} ${GREEN}$(PROJECT_NAME)${RESET}"
+	@echo "  ${CYAN}# Edit 01-plans/main-plan.md to customize your plan${RESET}"
+	@echo "  ${CYAN}# Start your first iteration!${RESET}"
+	@echo ""
+
+# Prevent make from treating project names as targets
+%:
+	@:
 
 # Help target
 .PHONY: help
@@ -109,9 +113,8 @@ help:
 	@echo "${BOLD}${YELLOW}Usage:${RESET}"
 	@echo ""
 	@echo "  ${GREEN}make${RESET}                        ${CYAN}Show welcome message${RESET}"
-	@echo "  ${GREEN}make IRL${RESET}                    ${CYAN}Create project with default name 'irl-project'${RESET}"
-	@echo "  ${GREEN}make IRL NAME=my-project${RESET}    ${CYAN}Create project with custom name${RESET}"
-	@echo "  ${GREEN}make IRL TEMPLATE=scientific-abstract NAME=my-abstract${RESET}"
+	@echo "  ${GREEN}make irl project-name${RESET}       ${CYAN}Create project with default template${RESET}"
+	@echo "  ${GREEN}make irl project-name TEMPLATE=scientific-abstract${RESET}"
 	@echo "                                      ${CYAN}Create project with specific template${RESET}"
 	@echo ""
 	@echo "${BOLD}${YELLOW}Available Templates:${RESET}"
@@ -122,9 +125,9 @@ help:
 	@echo ""
 	@echo "${BOLD}${YELLOW}Examples:${RESET}"
 	@echo ""
-	@echo "  ${GREEN}make IRL${RESET}"
-	@echo "  ${GREEN}make IRL NAME=conference-abstracts${RESET}"
-	@echo "  ${GREEN}make IRL TEMPLATE=meeting-abstract NAME=apa-2025${RESET}"
+	@echo "  ${GREEN}make irl my-research${RESET}"
+	@echo "  ${GREEN}make irl conference-abstracts${RESET}"
+	@echo "  ${GREEN}make irl apa-2025 TEMPLATE=meeting-abstract${RESET}"
 	@echo ""
 
 # List available templates
