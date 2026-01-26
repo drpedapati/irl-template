@@ -110,7 +110,7 @@ This structure is intentionally generic. You can adapt it to your tools and need
    - Adjust the directory structure as needed
    - Set up your environment specification
 
-4. **Start with `01-plans/main-plan.md`**: Write your first plan specifying what you want to accomplish, any constraints, and how you'll know when it's done. See `01-plans/irl-basic-template.md` for a template.
+4. **Start with `01-plans/main-plan.md`**: Write your first plan specifying what you want to accomplish, any constraints, and how you'll know when it's done. See `01-plans/templates/irl-basic-template.md` for a template.
 
 5. **Run iterations**: Each iteration follows this pattern:
    - Edit `01-plans/main-plan.md` with your objectives
