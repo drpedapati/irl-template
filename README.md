@@ -4,7 +4,7 @@ This repository is a template implementation of the **Idempotent Research Loop (
 
 ## What is IRL?
 
-IRL is a document-centric approach to working with AI assistants. Instead of relying on chat conversations that can drift and be hard to track, IRL uses a **plan document** (`plans/main-plan.md`) as your control surface. You edit the plan to specify what you want done; the AI reads it, executes tasks, and produces structured outputs that are versioned and reviewable.
+IRL is a document-centric approach to working with AI assistants. Instead of relying on chat conversations that can drift and be hard to track, IRL uses a **plan document** (`01-plans/main-plan.md`) as your control surface. You edit the plan to specify what you want done; the AI reads it, executes tasks, and produces structured outputs that are versioned and reviewable.
 
 Think of it like this: rather than having a conversation where context can get lost, you maintain a living document that serves as both your instructions and your record of intent. The AI acts as an executor that follows your plan and produces artifacts you can review, rerun, and share.
 
@@ -32,7 +32,7 @@ The manuscript provides the theoretical foundation, design rationale, and detail
 
 ## Core Concepts
 
-### 1. The Plan Document (`plans/main-plan.md`)
+### 1. The Plan Document (`01-plans/main-plan.md`)
 
 This is your control surface. You edit it to specify:
 - What you want to accomplish
@@ -45,7 +45,7 @@ The AI reads this document but doesn't modify it (unless explicitly permitted). 
 ### 2. Paired Artifacts
 
 IRL separates reasoning from execution:
-- **Plan document** (`plans/main-plan.md`): Human-editable intent and constraints
+- **Plan document** (`01-plans/main-plan.md`): Human-editable intent and constraints
 - **Executed analysis** (`executed.qmd` or similar): The actual code and analysis that produces results
 
 This separation means you can adjust your plan without diving into code, and the executed document can be regenerated and rerun.
@@ -76,20 +76,19 @@ A minimal IRL repository looks like this:
 
 ```
 project/
-├── plans/
+├── 01-plans/
 │   └── main-plan.md           # Your control surface: intent, constraints, acceptance criteria
-├── executed.qmd               # Executable analysis document (or .py, .R, etc.)
-├── data/
+├── 02-data/
 │   ├── raw/                   # Original data files
 │   └── derived/               # Processed data
-├── outputs/
+├── 03-outputs/
 │   ├── report.html            # Rendered outputs
 │   ├── report.pdf
 │   └── figures/               # Generated figures
-├── logs/
+├── 04-logs/
 │   ├── activity_log.md        # What happened in each iteration
 │   └── decision_log.csv       # Decisions and rationale
-├── env/
+├── 05-env/
 │   └── environment.yml        # Environment specification (Conda, renv, etc.)
 └── README.md                  # This file
 ```
@@ -111,10 +110,10 @@ This structure is intentionally generic. You can adapt it to your tools and need
    - Adjust the directory structure as needed
    - Set up your environment specification
 
-4. **Start with `plans/main-plan.md`**: Write your first plan specifying what you want to accomplish, any constraints, and how you'll know when it's done. See `plans/irl-basic-template.md` for a template.
+4. **Start with `01-plans/main-plan.md`**: Write your first plan specifying what you want to accomplish, any constraints, and how you'll know when it's done. See `01-plans/irl-basic-template.md` for a template.
 
 5. **Run iterations**: Each iteration follows this pattern:
-   - Edit `plans/main-plan.md` with your objectives
+   - Edit `01-plans/main-plan.md` with your objectives
    - AI reads the plan and executes tasks
    - Outputs are rendered and logs are updated
    - Review the results and diffs
@@ -140,7 +139,7 @@ This structure is intentionally generic. You can adapt it to your tools and need
 ## Getting Help
 
 - Review the associated manuscript for detailed explanations and case studies
-- Check the `logs/` directory for examples of activity and decision tracking
+- Check the `04-logs/` directory for examples of activity and decision tracking
 - Adapt the structure to your needs—IRL is a pattern, not a rigid prescription
 
 ## Contributing
