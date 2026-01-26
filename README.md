@@ -1,5 +1,7 @@
 # IRL Template: A Practical Framework for AI-Assisted Research
 
+> **Template Repository**: Click "Use this template" on GitHub to create a new repository from this template.
+
 This repository is a template implementation of the **Idempotent Research Loop (IRL)**, a workflow pattern designed to help researchers use AI coding assistants (like terminal-based agents) in ways that are reproducible, auditable, and aligned with scientific best practices.
 
 ## What is IRL?
