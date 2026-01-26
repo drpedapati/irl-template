@@ -11,6 +11,7 @@ overall strategy:
 - meeting abstracts are typically shorter and more focused than journal abstracts
 - emphasize novelty, significance, and take-home messages
 - follow conference-specific formatting requirements when specified
+- instead of rm -rf use trash command instead
 
 
 Instruction sets:
