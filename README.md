@@ -4,6 +4,8 @@
 
 This repository is a template implementation of the **Idempotent Research Loop (IRL)**, a workflow pattern designed to help researchers use AI coding assistants (like terminal-based agents) in ways that are reproducible, auditable, and aligned with scientific best practices.
 
+![IRL Diagram](irl-diagram.png)
+
 ## What is IRL?
 
 IRL is a document-centric approach to working with AI assistants. Instead of relying on chat conversations that can drift and be hard to track, IRL uses a **plan document** (`01-plans/main-plan.md`) as your control surface. You edit the plan to specify what you want done; the AI reads it, executes tasks, and produces structured outputs that are versioned and reviewable.
