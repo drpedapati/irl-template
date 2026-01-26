@@ -1,6 +1,7 @@
 # IRL Template: A Practical Framework for AI-Assisted Research
 
-> **Template Repository**: Click "Use this template" on GitHub to create a new repository from this template.
+> **Template Repository**: Click "Use this template" on GitHub to create a new repository from this template.  
+> **Quick Start**: If you have this repo cloned locally, use `make IRL` in the parent directory for the fastest setup. See [[Makefile Guide|wiki]] for details.
 
 This repository is a template implementation of the **Idempotent Research Loop (IRL)**, a workflow pattern designed to help researchers use AI coding assistants (like terminal-based agents) in ways that are reproducible, auditable, and aligned with scientific best practices.
 
@@ -204,9 +205,11 @@ If you have the `irl-template` repository cloned locally, use the Makefile in th
 
 ## Getting Help
 
+- **Quick Start**: Use `make IRL` for fastest project creation (see [[Makefile Guide|wiki]])
 - Review the associated manuscript for detailed explanations and case studies
 - Check the `01-plans/templates/` directory for example plan templates
 - Check the `04-logs/` directory for examples of activity and decision tracking
+- Visit the [wiki](https://github.com/drpedapati/irl-template/wiki) for guides, best practices, and FAQ
 - Adapt the structure to your needs—IRL is a pattern, not a rigid prescription
 
 ## Contributing
