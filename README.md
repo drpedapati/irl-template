@@ -110,7 +110,7 @@ This structure is intentionally generic. You can adapt it to your tools and need
    - Adjust the directory structure as needed
    - Set up your environment specification
 
-4. **Start with `plan.md`**: Write your first plan specifying what you want to accomplish, any constraints, and how you'll know when it's done
+4. **Start with `plan.md`**: Write your first plan specifying what you want to accomplish, any constraints, and how you'll know when it's done. See `example_plans/basic-irl.md` for a template and `example_plans/example-filled.md` for a complete example.
 
 5. **Run iterations**: Each iteration follows this pattern:
    - Edit `plan.md` with your objectives
