@@ -6,12 +6,19 @@ overall strategy:
 - [Describe your high-level approach, tools, and formatting preferences]
 - [Specify output formats and organization]
 - [Define coding standards if applicable]
+- For each instruction set, render a pair of files that share the same basename:
+    - Reasoning Plan (.md): Record the intended instructions, their order, and the rationale at a high level, without results or execution details; keep it short and editable to steer or revise the downstream work.
+    - Executed Document (.qmd, .py, .R, etc.): Implement and execute the full instruction set, including code, analysis, and outputs, producing the authoritative rendered result.
+    - The basename should be consistent with the task number/name (e.g., task-01, task-02, or descriptive names like analysis-cohort-01)
+    - The .md file captures thinking and order, the executed file captures execution and results and they are always side by side in the same location
 
 Instruction sets:
 
-[Task 1]
+Task 1: [Task description]
+    - [Specific instructions for this task]
 
-[Task 2]
+Task 2: [Task description]
+    - [Specific instructions for this task]
 
 
 Clean up rules:
@@ -22,6 +29,7 @@ Will provide explicit remove: and archive: and reactivate: blocks when needed
 
 
 Post Instruction hooks:
+- For each completed task, update the paired reasoning plan (.md) with a high-level outline reflecting the current executed document structure, including all major sections, subsections, and tables/figures so that this reasoning plan can be edited to steer downstream work. User comments/revisions from previous edits should be moved to "revision notes" section at the end with instructions to ignore on rerun.
 - [Update outputs/indexes as needed]
 - give direct, essential feedback to user for edits needed to align the current file based on your actions.
     - obsolete or outdated instructions

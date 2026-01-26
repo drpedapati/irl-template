@@ -20,12 +20,25 @@ Formatting Rules
 - unstructured abstracts should flow as a single coherent narrative
 - avoid abbreviations unless standard in the field
 - ensure abstract is self-contained and can stand alone
+- For each abstract instruction set, render a pair of files that share the same basename:
+    - Reasoning Plan (.md): Record the intended structure, key points, and rationale at a high level; keep it short and editable to steer or revise the downstream work.
+    - Executed Abstract (.md or .qmd): Implement the full abstract with proper formatting, citations, and content, producing the authoritative rendered result.
+    - The basename should be consistent with the abstract number/name (e.g., abstract-01, abstract-02, or descriptive names like abstract-apa-2025-01)
+    - The reasoning .md file captures thinking and structure, the executed file captures the final abstract and they are always side by side in the same location
 
 Instruction sets:
 
-[Abstract 1]
+Abstract 1: [Abstract description/topic]
+    - [Specific instructions for this abstract]
+    - Target word/character count: [specify]
+    - Conference: [specify if applicable]
+    - Format: [structured/unstructured]
 
-[Abstract 2]
+Abstract 2: [Abstract description/topic]
+    - [Specific instructions for this abstract]
+    - Target word/character count: [specify]
+    - Conference: [specify if applicable]
+    - Format: [structured/unstructured]
 
 
 Clean up rules:
@@ -36,6 +49,7 @@ Will provide explicit remove: and archive: and reactivate: blocks when needed
 
 
 Post Instruction hooks:
+- For each completed abstract, update the paired reasoning plan (.md) with a high-level outline reflecting the current executed abstract structure, including key sections and points so that this reasoning plan can be edited to steer downstream work. User comments/revisions from previous edits should be moved to "revision notes" section at the end with instructions to ignore on rerun.
 - verify all references have valid pubmed IDs
 - verify word/character count meets conference requirements
 - give direct, essential feedback to user for edits needed to align the current file based on your actions.
