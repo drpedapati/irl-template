@@ -32,6 +32,7 @@ default:
 	@echo ""
 	@echo "${BOLD}${YELLOW}Quick Start:${RESET}"
 	@echo ""
+	@echo "  ${GREEN}make irl${RESET}                        ${CYAN}→ Interactive setup (recommended)${RESET}"
 	@echo "  ${GREEN}make irl my-project${RESET}              ${CYAN}→ Create project with default template${RESET}"
 	@echo "  ${GREEN}make irl my-project -t meeting-abstract${RESET}"
 	@echo "                                      ${CYAN}→ Use specific template${RESET}"
@@ -49,7 +50,7 @@ default:
 	@echo ""
 	@echo "${CYAN}📚 Documentation: https://github.com/drpedapati/irl-template/wiki${RESET}"
 	@echo ""
-	@echo "${BOLD}${GREEN}Ready to start? Run: ${BOLD}make irl my-project${RESET}"
+	@echo "${BOLD}${GREEN}Ready to start? Run: ${BOLD}make irl${RESET} ${CYAN}(interactive)${RESET}"
 	@echo ""
 
 # Prevent make from treating arguments as targets (must come before irl target)
@@ -60,13 +61,14 @@ default:
 %:
 	@true
 
-# Main irl target - parse arguments in shell
+# Main irl target - interactive or parse arguments
 .PHONY: irl
 irl:
 	@PROJECT_NAME=""; \
-	TEMPLATE="$(DEFAULT_TEMPLATE)"; \
+	TEMPLATE=""; \
 	TEMPLATE_FLAG=0; \
-	for arg in $(filter-out irl,$(MAKECMDGOALS)); do \
+	ARGS="$(filter-out irl,$(MAKECMDGOALS))"; \
+	for arg in $$ARGS; do \
 		if [ "$$arg" = "-t" ] || [ "$$arg" = "--t" ]; then \
 			TEMPLATE_FLAG=1; \
 		elif [ "$$TEMPLATE_FLAG" = "1" ]; then \
@@ -77,11 +79,44 @@ irl:
 		fi; \
 	done; \
 	if [ -z "$$PROJECT_NAME" ]; then \
-		echo "${BOLD}${YELLOW}Usage:${RESET} ${GREEN}make irl project-name${RESET}"; \
 		echo ""; \
-		echo "Example: ${GREEN}make irl my-research-project${RESET}"; \
-		echo "         ${GREEN}make irl my-project -t meeting-abstract${RESET}"; \
-		exit 1; \
+		echo "${BOLD}${CYAN}Interactive IRL Project Setup${RESET}"; \
+		echo ""; \
+		printf "${CYAN}Project name:${RESET} "; \
+		read PROJECT_NAME; \
+		if [ -z "$$PROJECT_NAME" ]; then \
+			echo "${BOLD}${YELLOW}⚠${RESET} Project name cannot be empty"; \
+			exit 1; \
+		fi; \
+		echo ""; \
+		echo "${BOLD}${YELLOW}Available Templates:${RESET}"; \
+		echo ""; \
+		echo "  ${MAGENTA}0${RESET} ${BOLD}No template${RESET} (start with empty main-plan.md)"; \
+		TEMPLATE_NUM=1; \
+		for template in $$(ls -1 $(TEMPLATE_DIR)/*.md 2>/dev/null | sed 's|.*/||' | sed 's|\.md$$||' | sort); do \
+			TEMPLATE_DESC=""; \
+			case "$$template" in \
+				irl-basic-template) TEMPLATE_DESC="General purpose IRL template" ;; \
+				scientific-abstract) TEMPLATE_DESC="For journal article abstracts" ;; \
+				meeting-abstract) TEMPLATE_DESC="For conference/meeting abstracts" ;; \
+				*) TEMPLATE_DESC="Template" ;; \
+			esac; \
+			echo "  ${MAGENTA}$$TEMPLATE_NUM${RESET} ${BOLD}$$template${RESET}      ${CYAN}$$TEMPLATE_DESC${RESET}"; \
+			TEMPLATE_NUM=$$((TEMPLATE_NUM + 1)); \
+		done; \
+		echo ""; \
+		printf "${CYAN}Select template [0-$$((TEMPLATE_NUM - 1))]:${RESET} "; \
+		read SELECTION; \
+		if [ "$$SELECTION" = "0" ] || [ -z "$$SELECTION" ]; then \
+			TEMPLATE=""; \
+		else \
+			TEMPLATE_LIST=$$(ls -1 $(TEMPLATE_DIR)/*.md 2>/dev/null | sed 's|.*/||' | sed 's|\.md$$||' | sort); \
+			TEMPLATE=$$(echo "$$TEMPLATE_LIST" | sed -n "$$SELECTION p"); \
+			if [ -z "$$TEMPLATE" ]; then \
+				echo "${BOLD}${YELLOW}⚠${RESET} Invalid selection, using no template"; \
+				TEMPLATE=""; \
+			fi; \
+		fi; \
 	fi; \
 	if [ -d "$$PROJECT_NAME" ]; then \
 		echo "${BOLD}${YELLOW}⚠${RESET} ${BOLD}Error:${RESET} Directory '${CYAN}$$PROJECT_NAME${RESET}' already exists"; \
@@ -104,18 +139,25 @@ irl:
 		git init -q && \
 		git add -A && \
 		git commit -q -m "Initial commit from IRL template"; \
-	echo "${CYAN}Setting up template:${RESET} ${GREEN}$$TEMPLATE${RESET}"; \
-	if [ -f "$$PROJECT_NAME/$(TEMPLATE_DIR)/$$TEMPLATE.md" ]; then \
-		cp "$$PROJECT_NAME/$(TEMPLATE_DIR)/$$TEMPLATE.md" "$$PROJECT_NAME/01-plans/main-plan.md"; \
-		echo "${BOLD}${GREEN}✓${RESET} Template applied"; \
+	if [ -n "$$TEMPLATE" ]; then \
+		echo "${CYAN}Setting up template:${RESET} ${GREEN}$$TEMPLATE${RESET}"; \
+		if [ -f "$$PROJECT_NAME/$(TEMPLATE_DIR)/$$TEMPLATE.md" ]; then \
+			cp "$$PROJECT_NAME/$(TEMPLATE_DIR)/$$TEMPLATE.md" "$$PROJECT_NAME/01-plans/main-plan.md"; \
+			echo "${BOLD}${GREEN}✓${RESET} Template applied"; \
+		else \
+			echo "${BOLD}${YELLOW}⚠${RESET} Warning: Template '$$TEMPLATE' not found, starting with empty plan"; \
+		fi; \
 	else \
-		echo "${BOLD}${YELLOW}⚠${RESET} Warning: Template '$$TEMPLATE' not found, using default"; \
-		cp "$$PROJECT_NAME/$(TEMPLATE_DIR)/$(DEFAULT_TEMPLATE).md" "$$PROJECT_NAME/01-plans/main-plan.md" 2>/dev/null || true; \
+		echo "${CYAN}Starting with empty plan document${RESET}"; \
 	fi; \
 	echo "${BOLD}${GREEN}✓${RESET} Project initialized"; \
 	echo ""; \
 	echo "${BOLD}${GREEN}✓${RESET} ${BOLD}Created IRL project:${RESET} ${CYAN}$$PROJECT_NAME${RESET}"; \
-	echo "${BOLD}${GREEN}✓${RESET} ${BOLD}Template used:${RESET} ${CYAN}$$TEMPLATE${RESET}"; \
+	if [ -n "$$TEMPLATE" ]; then \
+		echo "${BOLD}${GREEN}✓${RESET} ${BOLD}Template used:${RESET} ${CYAN}$$TEMPLATE${RESET}"; \
+	else \
+		echo "${BOLD}${GREEN}✓${RESET} ${BOLD}Template:${RESET} ${CYAN}None (empty plan)${RESET}"; \
+	fi; \
 	echo ""; \
 	echo "${BOLD}${YELLOW}Next steps:${RESET}"; \
 	echo ""; \
