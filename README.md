@@ -50,9 +50,11 @@ The AI reads this document but doesn't modify it (unless explicitly permitted). 
 
 IRL separates reasoning from execution:
 - **Plan document** (`01-plans/main-plan.md`): Human-editable intent and constraints
-- **Executed analysis** (`executed.qmd` or similar): The actual code and analysis that produces results
+- **Executed analysis** (`.qmd`, `.py`, `.R`, or similar): The actual code and analysis that produces results
 
 This separation means you can adjust your plan without diving into code, and the executed document can be regenerated and rerun.
+
+**Quarto** is a recommended tool for executed analysis documents. It combines code, narrative, and outputs into reproducible documents that render to multiple formats (HTML, PDF, Word). See [[Quarto Guide|the wiki]] for more information.
 
 ### 3. Versioned Artifacts
 
@@ -120,6 +122,7 @@ This structure is intentionally generic. You can adapt it to your tools and need
    - Copy your chosen template to `01-plans/main-plan.md` or create your own
    - Adjust the directory structure as needed
    - Set up your environment specification as needed for your project
+   - Consider using [Quarto](https://quarto.org/) for executable documents (see [[Quarto Guide|wiki]] for details)
 
 5. **Start with `01-plans/main-plan.md`**: Write your first plan specifying what you want to accomplish, any constraints, and how you'll know when it's done.
 

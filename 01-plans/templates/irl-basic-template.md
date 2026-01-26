@@ -11,6 +11,7 @@ overall strategy:
     - Executed Document (.qmd, .py, .R, etc.): Implement and execute the full instruction set, including code, analysis, and outputs, producing the authoritative rendered result.
     - The basename should be consistent with the task number/name (e.g., task-01, task-02, or descriptive names like analysis-cohort-01)
     - The .md file captures thinking and order, the executed file captures execution and results and they are always side by side in the same location
+- [Quarto](https://quarto.org/) is recommended for executable documents (.qmd) as it supports code execution, narrative text, and multi-format rendering (HTML, PDF, Word). See the [Quarto Guide](https://github.com/drpedapati/irl-template/wiki/Quarto-Guide) for details.
 
 Instruction sets:
 
