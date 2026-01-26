@@ -175,6 +175,7 @@ help:
 	@echo "${BOLD}${YELLOW}Usage:${RESET}"
 	@echo ""
 	@echo "  ${GREEN}make${RESET}                        ${CYAN}Show welcome message${RESET}"
+	@echo "  ${GREEN}make irl${RESET}                    ${CYAN}Interactive setup (recommended)${RESET}"
 	@echo "  ${GREEN}make irl project-name${RESET}       ${CYAN}Create project with default template${RESET}"
 	@echo "  ${GREEN}make irl project-name -t scientific-abstract${RESET}"
 	@echo "                                      ${CYAN}Create project with specific template${RESET}"
