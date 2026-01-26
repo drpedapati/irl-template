@@ -73,8 +73,14 @@ irl:
 	@echo "${BOLD}${CYAN}Creating IRL project:${RESET} ${GREEN}$(PROJECT_NAME)${RESET}"
 	@mkdir -p "$(PROJECT_NAME)"
 	@echo "${CYAN}Copying template files...${RESET}"
-	@cp -r . "$(PROJECT_NAME)"/ 2>/dev/null || \
-		(echo "${BOLD}${YELLOW}⚠${RESET} ${BOLD}Error:${RESET} Could not copy template files" && exit 1)
+	@for file in $$(ls -A | grep -v "^$(PROJECT_NAME)$$" | grep -v "^\.git$$"); do \
+		if [ -d "$$file" ] && [ -d "$$file/.git" ]; then \
+			cp -r "$$file" "$(PROJECT_NAME)"/ 2>/dev/null && \
+			rm -rf "$(PROJECT_NAME)/$$file/.git" 2>/dev/null || true; \
+		else \
+			cp -r "$$file" "$(PROJECT_NAME)"/ 2>/dev/null || true; \
+		fi; \
+	done
 	@cd "$(PROJECT_NAME)" && \
 		rm -rf .git && \
 		git init -q && \
