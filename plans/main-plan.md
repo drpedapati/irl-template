@@ -1,3 +1,3 @@
 # IRL Plan
 
-[Your plan document goes here. See `plans/irl-basic-template.md` for a template.]
+[Your plan document goes here. See `templates/irl-basic-template.md` for a template.]
