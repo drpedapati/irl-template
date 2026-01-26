@@ -107,33 +107,85 @@ This structure is intentionally generic. You can adapt it to your tools and need
 - Durable rendered outputs
 - Versioned history with logs
 
+## Quick Start (Recommended)
+
+The **simplest way** to get started is using the Makefile in the parent directory:
+
+```bash
+# Create a new IRL project with default settings
+make IRL
+
+# Create a project with a custom name
+make IRL NAME=my-research-project
+
+# Create a project with a specific template
+make IRL TEMPLATE=meeting-abstract NAME=conference-2025
+
+# See all available options
+make help
+```
+
+This will:
+- Copy the template repository to a new directory
+- Initialize a fresh git repository
+- Apply your chosen template to `01-plans/main-plan.md`
+- Set up the complete directory structure
+
+Then simply:
+```bash
+cd your-project-name
+# Edit 01-plans/main-plan.md and start your first iteration!
+```
+
+See the [[Makefile Guide|wiki]] for detailed documentation.
+
 ## How to Use This Template
 
-1. **Clone or fork this repository** to start your own IRL project
+### Option 1: Using the Makefile (Recommended)
 
-2. **Read the associated manuscript** to understand the full framework and design rationale
+If you have the `irl-template` repository cloned locally, use the Makefile in the parent directory (see Quick Start above).
 
-3. **Choose a template**: Start with one of the templates in `01-plans/templates/`:
+### Option 2: Using GitHub Template
+
+1. **Click "Use this template"** on the GitHub repository page to create a new repository
+
+2. **Clone your new repository**:
+   ```bash
+   git clone https://github.com/your-username/your-repo-name.git
+   cd your-repo-name
+   ```
+
+3. **Choose a template**: Copy one from `01-plans/templates/`:
+   ```bash
+   cp 01-plans/templates/irl-basic-template.md 01-plans/main-plan.md
+   ```
+
+### Next Steps (Both Options)
+
+1. **Read the associated manuscript** to understand the full framework and design rationale
+
+2. **Choose a template**: Start with one of the templates in `01-plans/templates/`:
    - `irl-basic-template.md` - General purpose IRL template
    - `scientific-abstract.md` - For writing scientific journal abstracts
    - `meeting-abstract.md` - For writing conference/meeting abstracts
 
-4. **Customize the structure** for your domain and tools:
-   - Copy your chosen template to `01-plans/main-plan.md` or create your own
-   - Adjust the directory structure as needed
-   - Set up your environment specification as needed for your project
+3. **Customize your plan**: Edit `01-plans/main-plan.md` with:
+   - Your project objectives
+   - Constraints and requirements
+   - Acceptance criteria
+   - Task instructions
+
+4. **Set up your environment**: Configure dependencies as needed for your project
    - Consider using [Quarto](https://quarto.org/) for executable documents (see [[Quarto Guide|wiki]] for details)
 
-5. **Start with `01-plans/main-plan.md`**: Write your first plan specifying what you want to accomplish, any constraints, and how you'll know when it's done.
-
-6. **Run iterations**: Each iteration follows this pattern:
+5. **Run iterations**: Each iteration follows this pattern:
    - Edit `01-plans/main-plan.md` with your objectives
    - AI reads the plan and executes tasks
    - Outputs are rendered and logs are updated
    - Review the results and diffs
    - Accept, revise the plan, or rerun
 
-7. **Maintain provenance**: Commit after each iteration with clear messages linked to your plan objectives
+6. **Maintain provenance**: Commit after each iteration with clear messages linked to your plan objectives
 
 ## Key Benefits
 
