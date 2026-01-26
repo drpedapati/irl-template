@@ -25,6 +25,10 @@ node_modules/
 venv/
 env/
 .venv/
+# Allow environment specification files
+!env/environment.yml
+!env/requirements.txt
+!env/renv.lock
 
 # Build outputs
 dist/

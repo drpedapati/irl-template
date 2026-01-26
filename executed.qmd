@@ -1,0 +1,8 @@
+---
+title: "Executed Analysis"
+format: html
+---
+
+# Executed Analysis
+
+[Your executable analysis document goes here. This can be Quarto (.qmd), Python (.py), R (.R), or any other executable format.]
