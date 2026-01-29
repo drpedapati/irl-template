@@ -107,11 +107,12 @@ func runInit(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("directory '%s' already exists", projectPath)
 	}
 
-	// Select template
+	// Select template (prompt unless -t flag provided)
 	var selectedTemplate string
 	if templateFlag != "" {
 		selectedTemplate = templateFlag
-	} else if isInteractive {
+	} else {
+		// Always offer template selection if no -t flag
 		templateList, err := templates.ListTemplates()
 		if err != nil {
 			fmt.Println("Warning: could not fetch templates, using basic")
@@ -235,10 +236,17 @@ func getOrAskDefaultDirectory() string {
 }
 
 func expandPath(path string) string {
+	path = strings.TrimSpace(path)
+	home, _ := os.UserHomeDir()
+
+	// Handle bare ~ or ~/path
+	if path == "~" {
+		return home
+	}
 	if strings.HasPrefix(path, "~/") {
-		home, _ := os.UserHomeDir()
 		return filepath.Join(home, path[2:])
 	}
+
 	if !filepath.IsAbs(path) {
 		abs, err := filepath.Abs(path)
 		if err == nil {
