@@ -185,6 +185,12 @@ func runInit(cmd *cobra.Command, args []string) error {
 	fmt.Printf("\nNext:\n")
 	fmt.Printf("  cd %s\n", projectPath)
 	fmt.Printf("  # Edit 01-plans/main-plan.md\n")
+	fmt.Printf("\nOpen in your IDE:\n")
+	fmt.Printf("  cursor %s\n", projectPath)
+	fmt.Printf("  code %s\n", projectPath)
+	fmt.Printf("  positron %s\n", projectPath)
+	fmt.Printf("\nTip: If a command isn't found, open the IDE and run\n")
+	fmt.Printf("     Cmd+Shift+P → \"Shell Command: Install ... in PATH\"\n")
 
 	return nil
 }
