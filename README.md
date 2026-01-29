@@ -30,9 +30,6 @@ This template repository accompanies the manuscript:
 
 **"The Idempotent Research Loop (IRL): A Document-Centric Framework for AI-Assisted Scientific Analysis"**
 
-The full manuscript is available at:
-`/Users/ernie/Dropbox/DEEPPROJECTS/Idempotent Research Loop/IRL_Patterns_Download_Package/IRL_Patterns_Manuscript_Only.pdf`
-
 The manuscript provides the theoretical foundation, design rationale, and detailed case studies. This repository provides a practical starting point you can adapt for your own work.
 
 ## Core Concepts
