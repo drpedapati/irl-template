@@ -29,82 +29,76 @@ func init() {
 }
 
 func runDoctor(cmd *cobra.Command, args []string) {
-	fmt.Println("┌─────────────────────────────────────────────────────────────┐")
-	fmt.Println("│                     IRL Doctor                              │")
-	fmt.Println("└─────────────────────────────────────────────────────────────┘")
+	fmt.Println()
+	fmt.Println("IRL Doctor")
+	fmt.Println(strings.Repeat("═", 65))
 
-	// System Info
-	printSystemInfo()
+	// System info - single line
+	printSystemInfoCompact()
 
-	// Core tools
-	printSection("Core Tools")
+	// Two-column layout for tools
 	coreTools := []tool{
 		{"Git", "git", "brew install git"},
 		{"Quarto", "quarto", "brew install --cask quarto"},
 		{"R", "R", "brew install r"},
 		{"Python", "python3", "brew install python"},
 	}
-	printToolTable(coreTools)
 
-	// AI tools
-	printSection("AI Assistants")
 	aiTools := []tool{
 		{"Claude Code", "claude", "npm i -g @anthropic-ai/claude-code"},
 		{"Aider", "aider", "pip install aider-chat"},
 		{"Copilot CLI", "gh copilot", "gh extension install github/gh-copilot"},
 		{"Ollama", "ollama", "brew install ollama"},
 	}
-	printToolTable(aiTools)
 
-	// IDEs
-	printSection("IDEs")
 	ideTools := []tool{
 		{"Positron", "positron", "brew install --cask positron"},
 		{"VS Code", "code", "brew install --cask visual-studio-code"},
 		{"Cursor", "cursor", "brew install --cask cursor"},
 		{"RStudio", "rstudio", "brew install --cask rstudio"},
 	}
-	printToolTable(ideTools)
 
-	// Sandbox
-	printSection("Sandbox")
 	sandboxTools := []tool{
 		{"Docker", "docker", "brew install --cask docker"},
 	}
-	printToolTable(sandboxTools)
 
-	// Recommendations box
+	// Print two columns: Core Tools | AI Assistants
 	fmt.Println()
-	fmt.Println("┌─────────────────────────────────────────────────────────────┐")
-	fmt.Println("│ Sandbox Commands                                            │")
-	fmt.Println("├─────────────────────────────────────────────────────────────┤")
+	fmt.Printf("%-32s %s\n", "Core Tools", "AI Assistants")
+	fmt.Printf("%-32s %s\n", strings.Repeat("─", 30), strings.Repeat("─", 30))
+	printTwoColumns(coreTools, aiTools)
+
+	// Print two columns: IDEs | Sandbox
+	fmt.Println()
+	fmt.Printf("%-32s %s\n", "IDEs", "Sandbox")
+	fmt.Printf("%-32s %s\n", strings.Repeat("─", 30), strings.Repeat("─", 30))
+	printTwoColumns(ideTools, sandboxTools)
+
+	// Sandbox hint
+	fmt.Println()
 	if checkCmd("docker") {
-		fmt.Println("│  docker sandbox run claude     # Claude in container        │")
-		fmt.Println("│  docker sandbox run aider      # Aider in container         │")
+		fmt.Println("Sandbox: docker sandbox run claude")
 	} else {
-		fmt.Println("│  Install Docker, then:  docker sandbox run claude          │")
+		fmt.Println("Sandbox: install Docker, then: docker sandbox run claude")
 	}
-	fmt.Println("└─────────────────────────────────────────────────────────────┘")
+	fmt.Println()
 }
 
-func printSystemInfo() {
-	fmt.Println()
-	fmt.Println("System")
-	fmt.Println(strings.Repeat("─", 61))
+func printSystemInfoCompact() {
+	var parts []string
 
-	// OS & Arch
-	fmt.Printf("%-20s %s/%s\n", "Platform", runtime.GOOS, runtime.GOARCH)
+	// Platform
+	parts = append(parts, fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH))
 
-	// CPU cores
-	fmt.Printf("%-20s %d cores\n", "CPU", runtime.NumCPU())
+	// CPU
+	parts = append(parts, fmt.Sprintf("%d cores", runtime.NumCPU()))
 
-	// Memory (macOS specific)
+	// Memory
 	if runtime.GOOS == "darwin" {
 		if out, err := exec.Command("sysctl", "-n", "hw.memsize").Output(); err == nil {
 			memBytes := strings.TrimSpace(string(out))
 			if len(memBytes) > 9 {
-				gb := memBytes[:len(memBytes)-9]
-				fmt.Printf("%-20s %s GB\n", "Memory", gb)
+				parts = append(parts, memBytes[:len(memBytes)-9]+" GB")
 			}
 		}
 	} else if runtime.GOOS == "linux" {
@@ -113,51 +107,52 @@ func printSystemInfo() {
 			if len(lines) > 1 {
 				fields := strings.Fields(lines[1])
 				if len(fields) > 1 {
-					fmt.Printf("%-20s %s GB\n", "Memory", fields[1])
+					parts = append(parts, fields[1]+" GB")
 				}
 			}
 		}
 	}
 
-	// Disk space of current directory
+	// Disk
 	if out, err := exec.Command("df", "-h", ".").Output(); err == nil {
 		lines := strings.Split(string(out), "\n")
 		if len(lines) > 1 {
 			fields := strings.Fields(lines[1])
 			if len(fields) >= 4 {
-				fmt.Printf("%-20s %s free of %s\n", "Disk", fields[3], fields[1])
+				parts = append(parts, fields[3]+" free")
 			}
 		}
 	}
 
-	// Current directory
-	if wd, err := os.Getwd(); err == nil {
-		if len(wd) > 40 {
-			wd = "..." + wd[len(wd)-37:]
+	fmt.Printf("System: %s\n", strings.Join(parts, " · "))
+}
+
+func printTwoColumns(left, right []tool) {
+	maxRows := len(left)
+	if len(right) > maxRows {
+		maxRows = len(right)
+	}
+
+	for i := 0; i < maxRows; i++ {
+		leftStr := ""
+		rightStr := ""
+
+		if i < len(left) {
+			leftStr = formatToolCheck(left[i])
 		}
-		fmt.Printf("%-20s %s\n", "Directory", wd)
+		if i < len(right) {
+			rightStr = formatToolCheck(right[i])
+		}
+
+		fmt.Printf("%-32s %s\n", leftStr, rightStr)
 	}
 }
 
-func printSection(title string) {
-	fmt.Println()
-	fmt.Printf("%-20s %-6s %s\n", title, "", "Install")
-	fmt.Println(strings.Repeat("─", 61))
-}
-
-func printToolTable(tools []tool) {
-	for _, t := range tools {
-		status := "✗"
-		hint := t.install
-		if checkTool(t) {
-			status = "✓"
-			hint = ""
-		}
-		if len(hint) > 36 {
-			hint = hint[:33] + "..."
-		}
-		fmt.Printf("%-20s %-6s %s\n", t.name, status, hint)
+func formatToolCheck(t tool) string {
+	if checkTool(t) {
+		return fmt.Sprintf("✓ %s", t.name)
 	}
+	return fmt.Sprintf("✗ %s", t.name)
 }
 
 func checkTool(t tool) bool {
