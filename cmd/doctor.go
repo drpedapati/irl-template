@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/drpedapati/irl-template/pkg/style"
 	"github.com/spf13/cobra"
 )
 
@@ -29,9 +30,7 @@ func init() {
 }
 
 func runDoctor(cmd *cobra.Command, args []string) {
-	fmt.Println()
-	fmt.Println("IRL Doctor")
-	fmt.Println(strings.Repeat("═", 65))
+	fmt.Printf("\n%sEnvironment%s\n", style.BoldCyan, style.Reset)
 
 	// System info - single line
 	printSystemInfoCompact()
@@ -64,22 +63,23 @@ func runDoctor(cmd *cobra.Command, args []string) {
 
 	// Print two columns: Core Tools | AI Assistants
 	fmt.Println()
-	fmt.Printf("%-32s %s\n", "Core Tools", "AI Assistants")
-	fmt.Printf("%-32s %s\n", strings.Repeat("─", 30), strings.Repeat("─", 30))
+	fmt.Printf("  %s%-30s%s %s%s%s\n",
+		style.Dim, "Core Tools", style.Reset,
+		style.Dim, "AI Assistants", style.Reset)
 	printTwoColumns(coreTools, aiTools)
 
 	// Print two columns: IDEs | Sandbox
 	fmt.Println()
-	fmt.Printf("%-32s %s\n", "IDEs", "Sandbox")
-	fmt.Printf("%-32s %s\n", strings.Repeat("─", 30), strings.Repeat("─", 30))
+	fmt.Printf("  %s%-30s%s %s%s%s\n",
+		style.Dim, "IDEs", style.Reset,
+		style.Dim, "Sandbox", style.Reset)
 	printTwoColumns(ideTools, sandboxTools)
 
 	// Sandbox hint
 	fmt.Println()
 	if checkCmd("docker") {
-		fmt.Println("Sandbox: docker sandbox run claude")
-	} else {
-		fmt.Println("Sandbox: install Docker, then: docker sandbox run claude")
+		fmt.Printf("  %sTip:%s %sdocker sandbox run claude%s\n",
+			style.Dim, style.Reset, style.Cyan, style.Reset)
 	}
 	fmt.Println()
 }
@@ -124,7 +124,7 @@ func printSystemInfoCompact() {
 		}
 	}
 
-	fmt.Printf("System: %s\n", strings.Join(parts, " · "))
+	fmt.Printf("  %s%s%s\n", style.Dim, strings.Join(parts, " · "), style.Reset)
 }
 
 func printTwoColumns(left, right []tool) {
@@ -136,23 +136,27 @@ func printTwoColumns(left, right []tool) {
 	for i := 0; i < maxRows; i++ {
 		leftStr := ""
 		rightStr := ""
+		// Track visible width separately from string length (ANSI codes don't count)
+		leftWidth := 0
 
 		if i < len(left) {
-			leftStr = formatToolCheck(left[i])
+			leftStr, leftWidth = formatToolCheck(left[i])
 		}
 		if i < len(right) {
-			rightStr = formatToolCheck(right[i])
+			rightStr, _ = formatToolCheck(right[i])
 		}
 
-		fmt.Printf("%-32s %s\n", leftStr, rightStr)
+		// Pad to 32 visible characters
+		padding := strings.Repeat(" ", 32-leftWidth)
+		fmt.Printf("  %s%s%s\n", leftStr, padding, rightStr)
 	}
 }
 
-func formatToolCheck(t tool) string {
+func formatToolCheck(t tool) (string, int) {
 	if checkTool(t) {
-		return fmt.Sprintf("✓ %s", t.name)
+		return fmt.Sprintf("%s%s%s %s", style.Green, style.Check, style.Reset, t.name), 2 + len(t.name)
 	}
-	return fmt.Sprintf("✗ %s", t.name)
+	return fmt.Sprintf("%s%s%s %s%s%s", style.Dim, style.Cross, style.Reset, style.Dim, t.name, style.Reset), 2 + len(t.name)
 }
 
 func checkTool(t tool) bool {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/drpedapati/irl-template/pkg/style"
 	"github.com/spf13/cobra"
 )
 
@@ -33,29 +34,37 @@ func init() {
 	defaultHelp := rootCmd.HelpFunc()
 	rootCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
 		if cmd.Name() == "irl" {
-			fmt.Print(`irl - Idempotent Research Loop
-
-Quick start:
-  irl init "your research purpose"
-
-Commands:
-  init        Create a new IRL project
-
-Info:
-  templates   List available templates
-  doctor      Check environment setup
-
-Settings:
-  config      View or set configuration
-  update      Update templates from GitHub
-
-Use "irl <command> --help" for details
-Use "irl version" for version info
-`)
+			printRootHelp()
 		} else {
 			defaultHelp(cmd, args)
 		}
 	})
+}
+
+func printRootHelp() {
+	c := style.Cyan
+	g := style.Green
+	d := style.Dim
+	b := style.Bold
+	r := style.Reset
+
+	fmt.Printf("%sirl%s %s- Idempotent Research Loop%s\n", b+c, r, d, r)
+	fmt.Println()
+	fmt.Printf("%sQuick start:%s\n", b, r)
+	fmt.Printf("  %sirl init \"your research purpose\"%s\n", g, r)
+	fmt.Println()
+	fmt.Printf("%sCommands:%s\n", d, r)
+	fmt.Printf("  %sinit%s        Create a new IRL project\n", c, r)
+	fmt.Println()
+	fmt.Printf("%sInfo:%s\n", d, r)
+	fmt.Printf("  %stemplates%s   List available templates\n", c, r)
+	fmt.Printf("  %sdoctor%s      Check environment setup\n", c, r)
+	fmt.Println()
+	fmt.Printf("%sSettings:%s\n", d, r)
+	fmt.Printf("  %sconfig%s      View or set configuration\n", c, r)
+	fmt.Printf("  %supdate%s      Update templates from GitHub\n", c, r)
+	fmt.Println()
+	fmt.Printf("%sirl <command> --help%s for details\n", d, r)
 }
 
 var versionCmd = &cobra.Command{

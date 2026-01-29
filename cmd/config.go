@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/drpedapati/irl-template/pkg/config"
+	"github.com/drpedapati/irl-template/pkg/style"
 	"github.com/spf13/cobra"
 )
 
@@ -32,41 +33,46 @@ func runConfig(cmd *cobra.Command, args []string) {
 		// Set new directory
 		dir := expandPath(configDirFlag)
 		if err := config.SetDefaultDirectory(dir); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			fmt.Fprintf(os.Stderr, "%sError:%s %v\n", style.Red, style.Reset, err)
 			os.Exit(1)
 		}
-		exists := "exists"
+		status := style.Green + "exists" + style.Reset
 		if _, err := os.Stat(dir); os.IsNotExist(err) {
-			exists = "will be created"
+			status = style.Yellow + "will be created" + style.Reset
 		}
-		fmt.Printf("Default directory: %s (%s)\n", dir, exists)
+		fmt.Printf("%s%s%s Set default directory: %s (%s)\n",
+			style.Green, style.Check, style.Reset, dir, status)
 		return
 	}
 
 	// Show current config
 	cfg, err := config.Load()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error loading config: %v\n", err)
+		fmt.Fprintf(os.Stderr, "%sError:%s %v\n", style.Red, style.Reset, err)
 		os.Exit(1)
 	}
 
-	fmt.Println("IRL Configuration")
-	fmt.Println("─────────────────")
+	fmt.Printf("%sConfiguration%s\n", style.BoldCyan, style.Reset)
+	fmt.Println()
 
 	home, _ := os.UserHomeDir()
 	configPath := filepath.Join(home, ".irl", "config.json")
-	fmt.Printf("Config file:       %s\n", configPath)
+	fmt.Printf("  %sConfig file%s       %s\n", style.Dim, style.Reset, configPath)
 
 	if cfg.DefaultDirectory != "" {
-		exists := "exists"
+		status := style.Green + "exists" + style.Reset
 		if _, err := os.Stat(cfg.DefaultDirectory); os.IsNotExist(err) {
-			exists = "will be created"
+			status = style.Yellow + "will be created" + style.Reset
 		}
-		fmt.Printf("Default directory: %s (%s)\n", cfg.DefaultDirectory, exists)
+		fmt.Printf("  %sDefault directory%s %s (%s)\n",
+			style.Dim, style.Reset, cfg.DefaultDirectory, status)
 	} else {
 		defaultDir := filepath.Join(home, "Documents", "irl_projects")
-		fmt.Printf("Default directory: (not set, will prompt or use %s)\n", defaultDir)
+		fmt.Printf("  %sDefault directory%s %snot set%s %s(will use %s)%s\n",
+			style.Dim, style.Reset, style.Yellow, style.Reset, style.Dim, defaultDir, style.Reset)
 	}
 
-	fmt.Println("\nTo change: irl config --dir ~/path/to/directory")
+	fmt.Println()
+	fmt.Printf("%sTo change:%s irl config --dir %s~/path%s\n",
+		style.Dim, style.Reset, style.Cyan, style.Reset)
 }

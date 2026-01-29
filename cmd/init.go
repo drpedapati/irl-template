@@ -10,6 +10,7 @@ import (
 	"github.com/drpedapati/irl-template/pkg/config"
 	"github.com/drpedapati/irl-template/pkg/naming"
 	"github.com/drpedapati/irl-template/pkg/scaffold"
+	"github.com/drpedapati/irl-template/pkg/style"
 	"github.com/drpedapati/irl-template/pkg/templates"
 	"github.com/spf13/cobra"
 )
@@ -146,23 +147,22 @@ func runInit(cmd *cobra.Command, args []string) error {
 	}
 
 	// Create project
-	fmt.Printf("\nCreating: %s\n", projectPath)
+	fmt.Println()
+	fmt.Printf("%sCreating project...%s\n", style.Dim, style.Reset)
 
 	if err := os.MkdirAll(projectPath, 0755); err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
-	fmt.Println("  Setting up structure...")
 	if err := scaffold.Create(projectPath); err != nil {
 		return err
 	}
 
 	// Apply template
 	if selectedTemplate != "" {
-		fmt.Printf("  Applying template: %s\n", selectedTemplate)
 		tmpl, err := templates.GetTemplate(selectedTemplate)
 		if err != nil {
-			fmt.Printf("  Warning: %v, using basic template\n", err)
+			fmt.Printf("  %sWarning:%s %v, using basic template\n", style.Yellow, style.Reset, err)
 			tmpl = templates.EmbeddedTemplates["basic"]
 		}
 		if err := scaffold.WritePlan(projectPath, tmpl.Content); err != nil {
@@ -176,21 +176,30 @@ func runInit(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	fmt.Println("  Initializing git...")
 	if err := scaffold.GitInit(projectPath); err != nil {
-		fmt.Printf("  Warning: git init failed: %v\n", err)
+		fmt.Printf("  %sWarning:%s git init failed: %v\n", style.Yellow, style.Reset, err)
 	}
 
-	fmt.Printf("\n✓ Created: %s\n", projectPath)
-	fmt.Printf("\nNext:\n")
-	fmt.Printf("  cd %s\n", projectPath)
-	fmt.Printf("  # Edit 01-plans/main-plan.md\n")
-	fmt.Printf("\nOpen in your IDE:\n")
-	fmt.Printf("  cursor %s\n", projectPath)
-	fmt.Printf("  code %s\n", projectPath)
-	fmt.Printf("  positron %s\n", projectPath)
-	fmt.Printf("\nTip: If a command isn't found, open the IDE and run\n")
-	fmt.Printf("     Cmd+Shift+P → \"Shell Command: Install ... in PATH\"\n")
+	// Success output
+	fmt.Printf("\n%s%s%s Created %s%s%s\n",
+		style.Green, style.Check, style.Reset,
+		style.Cyan, projectPath, style.Reset)
+
+	if selectedTemplate != "" {
+		fmt.Printf("  %sTemplate:%s %s\n", style.Dim, style.Reset, selectedTemplate)
+	}
+
+	fmt.Printf("\n%sNext steps:%s\n", style.Bold, style.Reset)
+	fmt.Printf("  %scd%s %s\n", style.Cyan, style.Reset, projectPath)
+	fmt.Printf("  %s# Edit 01-plans/main-plan.md%s\n", style.Dim, style.Reset)
+
+	fmt.Printf("\n%sOpen in IDE:%s\n", style.Bold, style.Reset)
+	fmt.Printf("  %scursor%s %s\n", style.Cyan, style.Reset, projectPath)
+	fmt.Printf("  %scode%s %s\n", style.Cyan, style.Reset, projectPath)
+	fmt.Printf("  %spositron%s %s\n", style.Cyan, style.Reset, projectPath)
+
+	fmt.Printf("\n%sNo shell command? Open IDE → Cmd+Shift+P → \"Install ... in PATH\"%s\n",
+		style.Dim, style.Reset)
 
 	return nil
 }

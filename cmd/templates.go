@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/drpedapati/irl-template/pkg/style"
 	"github.com/drpedapati/irl-template/pkg/templates"
 	"github.com/spf13/cobra"
 )
@@ -17,14 +18,22 @@ var templatesCmd = &cobra.Command{
 		}
 
 		if len(list) == 0 {
-			fmt.Println("No templates available. Run 'irl update' to fetch templates.")
+			fmt.Printf("%sNo templates available.%s Run %sirl update%s to fetch.\n",
+				style.Yellow, style.Reset, style.Cyan, style.Reset)
 			return nil
 		}
 
-		fmt.Println("Available templates:")
+		fmt.Printf("%sTemplates%s\n", style.BoldCyan, style.Reset)
+		fmt.Println()
 		for _, t := range list {
-			fmt.Printf("  • %s\n    %s\n", t.Name, t.Description)
+			fmt.Printf("  %s%s%s %s%s%s\n",
+				style.Cyan, style.Dot, style.Reset,
+				style.Bold, t.Name, style.Reset)
+			fmt.Printf("    %s%s%s\n", style.Dim, t.Description, style.Reset)
 		}
+		fmt.Println()
+		fmt.Printf("%sUsage:%s irl init -t %s<template>%s \"purpose\"\n",
+			style.Dim, style.Reset, style.Cyan, style.Reset)
 
 		return nil
 	},
