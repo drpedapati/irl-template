@@ -207,3 +207,87 @@ templates:
 		echo "  ${BOLD}${YELLOW}⚠${RESET} Error: Could not find template directory"; \
 	fi
 	@echo ""
+
+# ==============================================================================
+# CLI Development Commands
+# ==============================================================================
+
+# Build local binary
+.PHONY: build
+build:
+	@go build -o irl .
+	@echo "${GREEN}✓${RESET} Built ./irl"
+
+# Run quick tests
+.PHONY: test
+test: build
+	@./irl --help > /dev/null && echo "${GREEN}✓${RESET} --help"
+	@./irl doctor > /dev/null && echo "${GREEN}✓${RESET} doctor"
+	@./irl config > /dev/null && echo "${GREEN}✓${RESET} config"
+
+# Clean build artifacts
+.PHONY: clean
+clean:
+	@rm -f irl irl-darwin-* irl-linux-*
+	@echo "${GREEN}✓${RESET} Cleaned"
+
+# Build all platform binaries
+.PHONY: build-all
+build-all: clean
+	@GOOS=darwin GOARCH=arm64 go build -o irl-darwin-arm64 .
+	@GOOS=darwin GOARCH=amd64 go build -o irl-darwin-amd64 .
+	@GOOS=linux GOARCH=amd64 go build -o irl-linux-amd64 .
+	@echo "${GREEN}✓${RESET} Built darwin-arm64, darwin-amd64, linux-amd64"
+
+# Create GitHub release: make release V=0.3.3 M="Release notes"
+.PHONY: release
+release: build-all
+	@if [ -z "$(V)" ]; then echo "Usage: make release V=x.y.z M=\"message\""; exit 1; fi
+	@gh release create v$(V) irl-darwin-arm64 irl-darwin-amd64 irl-linux-amd64 --title "v$(V)" --notes "$(M)"
+	@echo "${GREEN}✓${RESET} Released v$(V)"
+	@echo "  Run: ${CYAN}make brew-update V=$(V)${RESET}"
+
+# Update homebrew formula: make brew-update V=0.3.3
+.PHONY: brew-update
+brew-update:
+	@if [ -z "$(V)" ]; then echo "Usage: make brew-update V=x.y.z"; exit 1; fi
+	@./scripts/brew-update.sh $(V)
+
+# Reinstall from tap (forces fresh fetch)
+.PHONY: brew-reinstall
+brew-reinstall:
+	@brew uninstall irl 2>/dev/null || true
+	@brew untap drpedapati/tap 2>/dev/null || true
+	@brew tap drpedapati/tap
+	@brew install drpedapati/tap/irl
+	@echo "${GREEN}✓${RESET} Reinstalled"
+
+# Full release: make full-release V=0.3.3 M="Release notes"
+.PHONY: full-release
+full-release: release brew-update brew-reinstall clean
+	@echo "${GREEN}✓${RESET} ${BOLD}Released v$(V) and updated homebrew${RESET}"
+
+# Show version info
+.PHONY: version
+version:
+	@echo "Latest: $$(git describe --tags --abbrev=0 2>/dev/null || echo 'none')"
+	@echo "Installed: $$(irl version 2>/dev/null || echo 'not installed')"
+
+# Dev help
+.PHONY: dev-help
+dev-help:
+	@echo ""
+	@echo "${BOLD}${CYAN}CLI Development Commands${RESET}"
+	@echo ""
+	@echo "  ${GREEN}make build${RESET}              Build local binary"
+	@echo "  ${GREEN}make test${RESET}               Build and run tests"
+	@echo "  ${GREEN}make clean${RESET}              Remove build artifacts"
+	@echo "  ${GREEN}make version${RESET}            Show version info"
+	@echo ""
+	@echo "${BOLD}${YELLOW}Release Workflow${RESET}"
+	@echo ""
+	@echo "  ${GREEN}make release V=x.y.z M=\"msg\"${RESET}      Create GitHub release"
+	@echo "  ${GREEN}make brew-update V=x.y.z${RESET}          Update homebrew formula"
+	@echo "  ${GREEN}make brew-reinstall${RESET}               Reinstall from tap"
+	@echo "  ${GREEN}make full-release V=x.y.z M=\"msg\"${RESET} All of the above"
+	@echo ""
