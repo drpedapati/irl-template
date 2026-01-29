@@ -35,7 +35,11 @@ func runConfig(cmd *cobra.Command, args []string) {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
-		fmt.Printf("Default directory set to: %s\n", dir)
+		exists := "exists"
+		if _, err := os.Stat(dir); os.IsNotExist(err) {
+			exists = "will be created"
+		}
+		fmt.Printf("Default directory: %s (%s)\n", dir, exists)
 		return
 	}
 
@@ -54,9 +58,14 @@ func runConfig(cmd *cobra.Command, args []string) {
 	fmt.Printf("Config file:       %s\n", configPath)
 
 	if cfg.DefaultDirectory != "" {
-		fmt.Printf("Default directory: %s\n", cfg.DefaultDirectory)
+		exists := "exists"
+		if _, err := os.Stat(cfg.DefaultDirectory); os.IsNotExist(err) {
+			exists = "will be created"
+		}
+		fmt.Printf("Default directory: %s (%s)\n", cfg.DefaultDirectory, exists)
 	} else {
-		fmt.Printf("Default directory: (not set - will use current directory)\n")
+		defaultDir := filepath.Join(home, "Documents", "irl_projects")
+		fmt.Printf("Default directory: (not set, will prompt or use %s)\n", defaultDir)
 	}
 
 	fmt.Println("\nTo change: irl config --dir ~/path/to/directory")

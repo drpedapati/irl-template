@@ -206,9 +206,9 @@ func getOrAskDefaultDirectory() string {
 		}
 	}
 
-	// Ask for directory
+	// Ask for directory - use Documents/irl_projects as default (cross-platform, POSIX-compliant)
 	home, _ := os.UserHomeDir()
-	suggestion := filepath.Join(home, "IRL-Projects")
+	suggestion := filepath.Join(home, "Documents", "irl_projects")
 	if defaultDir != "" {
 		suggestion = defaultDir
 	}
