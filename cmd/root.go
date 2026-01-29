@@ -12,8 +12,8 @@ var Version = "dev"
 
 var rootCmd = &cobra.Command{
 	Use:   "irl",
-	Short: "IRL - Idempotent Research Loop project generator",
-	Long:  `Create reproducible, auditable research workflows with AI assistants.`,
+	Short: "Idempotent Research Loop",
+	Long:  `irl - Idempotent Research Loop`,
 }
 
 func Execute() {
@@ -25,11 +25,43 @@ func Execute() {
 
 func init() {
 	rootCmd.AddCommand(versionCmd)
+
+	// Hide plumbing commands
+	rootCmd.CompletionOptions.HiddenDefaultCmd = true
+
+	// Custom help for root command only
+	defaultHelp := rootCmd.HelpFunc()
+	rootCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		if cmd.Name() == "irl" {
+			fmt.Print(`irl - Idempotent Research Loop
+
+Quick start:
+  irl init "your research purpose"
+
+Commands:
+  init        Create a new IRL project
+
+Info:
+  templates   List available templates
+  doctor      Check environment setup
+
+Settings:
+  config      View or set configuration
+  update      Update templates from GitHub
+
+Use "irl <command> --help" for details
+Use "irl version" for version info
+`)
+		} else {
+			defaultHelp(cmd, args)
+		}
+	})
 }
 
 var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Print version",
+	Use:    "version",
+	Short:  "Print version",
+	Hidden: true,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Printf("irl version %s\n", Version)
 	},
