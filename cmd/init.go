@@ -3,9 +3,11 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/drpedapati/irl-template/pkg/config"
 	"github.com/drpedapati/irl-template/pkg/naming"
 	"github.com/drpedapati/irl-template/pkg/scaffold"
 	"github.com/drpedapati/irl-template/pkg/templates"
@@ -15,6 +17,7 @@ import (
 var (
 	templateFlag string
 	nameFlag     string
+	dirFlag      string
 )
 
 var initCmd = &cobra.Command{
@@ -27,7 +30,7 @@ Examples:
   irl init "ERP analysis study"         # Auto-generates: 260129-erp-analysis-study
   irl init -n my-project                # Use exact name: my-project
   irl init -t meeting-abstract          # With specific template
-  irl init "APA poster" -t meeting-abstract`,
+  irl init -d ~/Research "APA poster"   # Create in specific directory`,
 	RunE: runInit,
 }
 
@@ -35,18 +38,41 @@ func init() {
 	rootCmd.AddCommand(initCmd)
 	initCmd.Flags().StringVarP(&templateFlag, "template", "t", "", "Template to use")
 	initCmd.Flags().StringVarP(&nameFlag, "name", "n", "", "Exact project name (skip auto-naming)")
+	initCmd.Flags().StringVarP(&dirFlag, "dir", "d", "", "Directory to create project in (overrides default)")
 }
 
 func runInit(cmd *cobra.Command, args []string) error {
 	var projectName string
 	var purpose string
+	var baseDir string
+
+	// Determine if interactive mode
+	isInteractive := len(args) == 0 && nameFlag == ""
+
+	// Get base directory
+	if dirFlag != "" {
+		// Flag overrides everything
+		baseDir = expandPath(dirFlag)
+	} else if isInteractive {
+		// Interactive: check config or ask
+		baseDir = getOrAskDefaultDirectory()
+	} else {
+		// Non-interactive: use config or current directory
+		baseDir = config.GetDefaultDirectory()
+		if baseDir == "" {
+			baseDir, _ = os.Getwd()
+		}
+	}
+
+	// Ensure base directory exists
+	if err := os.MkdirAll(baseDir, 0755); err != nil {
+		return fmt.Errorf("cannot create directory %s: %w", baseDir, err)
+	}
 
 	// Determine project name
 	if nameFlag != "" {
-		// Exact name provided
 		projectName = nameFlag
 	} else if len(args) > 0 {
-		// Purpose provided, generate name
 		purpose = strings.Join(args, " ")
 		projectName = naming.GenerateName(purpose)
 	} else {
@@ -73,16 +99,19 @@ func runInit(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	// Full project path
+	projectPath := filepath.Join(baseDir, projectName)
+
 	// Check if directory exists
-	if _, err := os.Stat(projectName); !os.IsNotExist(err) {
-		return fmt.Errorf("directory '%s' already exists", projectName)
+	if _, err := os.Stat(projectPath); !os.IsNotExist(err) {
+		return fmt.Errorf("directory '%s' already exists", projectPath)
 	}
 
 	// Select template
 	var selectedTemplate string
 	if templateFlag != "" {
 		selectedTemplate = templateFlag
-	} else {
+	} else if isInteractive {
 		templateList, err := templates.ListTemplates()
 		if err != nil {
 			fmt.Println("Warning: could not fetch templates, using basic")
@@ -116,14 +145,14 @@ func runInit(cmd *cobra.Command, args []string) error {
 	}
 
 	// Create project
-	fmt.Printf("\nCreating: %s\n", projectName)
+	fmt.Printf("\nCreating: %s\n", projectPath)
 
-	if err := os.MkdirAll(projectName, 0755); err != nil {
+	if err := os.MkdirAll(projectPath, 0755); err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
 	fmt.Println("  Setting up structure...")
-	if err := scaffold.Create(projectName); err != nil {
+	if err := scaffold.Create(projectPath); err != nil {
 		return err
 	}
 
@@ -135,26 +164,86 @@ func runInit(cmd *cobra.Command, args []string) error {
 			fmt.Printf("  Warning: %v, using basic template\n", err)
 			tmpl = templates.EmbeddedTemplates["basic"]
 		}
-		if err := scaffold.WritePlan(projectName, tmpl.Content); err != nil {
+		if err := scaffold.WritePlan(projectPath, tmpl.Content); err != nil {
 			return err
 		}
 	} else {
 		// Write minimal plan
 		minimalPlan := "# IRL Plan\n\n[Edit this file to define your research plan]\n"
-		if err := scaffold.WritePlan(projectName, minimalPlan); err != nil {
+		if err := scaffold.WritePlan(projectPath, minimalPlan); err != nil {
 			return err
 		}
 	}
 
 	fmt.Println("  Initializing git...")
-	if err := scaffold.GitInit(projectName); err != nil {
+	if err := scaffold.GitInit(projectPath); err != nil {
 		fmt.Printf("  Warning: git init failed: %v\n", err)
 	}
 
-	fmt.Printf("\n✓ Created: %s\n", projectName)
+	fmt.Printf("\n✓ Created: %s\n", projectPath)
 	fmt.Printf("\nNext:\n")
-	fmt.Printf("  cd %s\n", projectName)
+	fmt.Printf("  cd %s\n", projectPath)
 	fmt.Printf("  # Edit 01-plans/main-plan.md\n")
 
 	return nil
+}
+
+func getOrAskDefaultDirectory() string {
+	// Check if already configured
+	defaultDir := config.GetDefaultDirectory()
+	if defaultDir != "" {
+		// Show current setting and offer to change
+		fmt.Printf("Default directory: %s\n", defaultDir)
+		var changeDir bool
+		prompt := &survey.Confirm{
+			Message: "Use this directory?",
+			Default: true,
+		}
+		survey.AskOne(prompt, &changeDir)
+		if changeDir {
+			return defaultDir
+		}
+	}
+
+	// Ask for directory
+	home, _ := os.UserHomeDir()
+	suggestion := filepath.Join(home, "IRL-Projects")
+	if defaultDir != "" {
+		suggestion = defaultDir
+	}
+
+	var newDir string
+	prompt := &survey.Input{
+		Message: "Where should IRL projects be created?",
+		Default: suggestion,
+		Help:    "This will be saved as your default directory",
+	}
+	if err := survey.AskOne(prompt, &newDir); err != nil {
+		return suggestion
+	}
+
+	newDir = expandPath(newDir)
+
+	// Save to config
+	if err := config.SetDefaultDirectory(newDir); err != nil {
+		fmt.Printf("Warning: could not save config: %v\n", err)
+	} else {
+		fmt.Printf("Saved default directory: %s\n", newDir)
+	}
+
+	return newDir
+}
+
+func expandPath(path string) string {
+	if strings.HasPrefix(path, "~/") {
+		home, _ := os.UserHomeDir()
+		return filepath.Join(home, path[2:])
+	}
+	if !filepath.IsAbs(path) {
+		abs, err := filepath.Abs(path)
+		if err == nil {
+			return abs
+		}
+	}
+	return path
 }
