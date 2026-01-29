@@ -7,7 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var Version = "0.2.0"
+// Version is set at build time via ldflags
+var Version = "dev"
 
 var rootCmd = &cobra.Command{
 	Use:   "irl",

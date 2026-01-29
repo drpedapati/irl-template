@@ -212,11 +212,13 @@ templates:
 # CLI Development Commands
 # ==============================================================================
 
-# Build local binary
+LDFLAGS = -ldflags "-X github.com/drpedapati/irl-template/cmd.Version=$(V)"
+
+# Build local binary (dev version)
 .PHONY: build
 build:
 	@go build -o irl .
-	@echo "${GREEN}✓${RESET} Built ./irl"
+	@echo "${GREEN}✓${RESET} Built ./irl (dev)"
 
 # Run quick tests
 .PHONY: test
@@ -231,18 +233,18 @@ clean:
 	@rm -f irl irl-darwin-* irl-linux-*
 	@echo "${GREEN}✓${RESET} Cleaned"
 
-# Build all platform binaries
+# Build all platform binaries with version
 .PHONY: build-all
 build-all: clean
-	@GOOS=darwin GOARCH=arm64 go build -o irl-darwin-arm64 .
-	@GOOS=darwin GOARCH=amd64 go build -o irl-darwin-amd64 .
-	@GOOS=linux GOARCH=amd64 go build -o irl-linux-amd64 .
-	@echo "${GREEN}✓${RESET} Built darwin-arm64, darwin-amd64, linux-amd64"
+	@if [ -z "$(V)" ]; then echo "Usage: make build-all V=x.y.z"; exit 1; fi
+	@GOOS=darwin GOARCH=arm64 go build $(LDFLAGS) -o irl-darwin-arm64 .
+	@GOOS=darwin GOARCH=amd64 go build $(LDFLAGS) -o irl-darwin-amd64 .
+	@GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o irl-linux-amd64 .
+	@echo "${GREEN}✓${RESET} Built v$(V): darwin-arm64, darwin-amd64, linux-amd64"
 
 # Create GitHub release: make release V=0.3.3 M="Release notes"
 .PHONY: release
 release: build-all
-	@if [ -z "$(V)" ]; then echo "Usage: make release V=x.y.z M=\"message\""; exit 1; fi
 	@gh release create v$(V) irl-darwin-arm64 irl-darwin-amd64 irl-linux-amd64 --title "v$(V)" --notes "$(M)"
 	@echo "${GREEN}✓${RESET} Released v$(V)"
 	@echo "  Run: ${CYAN}make brew-update V=$(V)${RESET}"
