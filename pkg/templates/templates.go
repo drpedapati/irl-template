@@ -192,6 +192,9 @@ func getDescription(name string) string {
 		"irl-basic-template":  "General purpose IRL template",
 		"scientific-abstract": "For journal article abstracts",
 		"meeting-abstract":    "For conference/meeting abstracts",
+		"admin-planning":      "Plans, reports, memos, proposals",
+		"manuscript":          "Academic manuscript writing",
+		"project-tracker":     "Task list and schedule management",
 	}
 	if d, ok := descriptions[name]; ok {
 		return d
