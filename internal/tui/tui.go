@@ -2,6 +2,7 @@ package tui
 
 import (
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
@@ -281,14 +282,28 @@ func (m Model) View() string {
 	inner.WriteString(m.header.View())
 	inner.WriteString("\n")
 
-	// Current project path - right aligned under turtle
+	// Subheader: folder path on left, datetime on right
 	defaultDir := config.GetDefaultDirectory()
-	pathStyle := lipgloss.NewStyle().Foreground(theme.Muted).Align(lipgloss.Right).Width(appWidth)
+	mutedStyle := lipgloss.NewStyle().Foreground(theme.Muted)
+
+	var pathText string
 	if defaultDir == "" {
-		inner.WriteString(pathStyle.Render("No default project path set"))
+		pathText = "No default project path"
 	} else {
-		inner.WriteString(pathStyle.Render(defaultDir))
+		pathText = defaultDir
 	}
+
+	// Format: Mon Jan 30 2:45 PM MST
+	now := time.Now()
+	dateTime := now.Format("Mon Jan 2 3:04 PM MST")
+
+	// Calculate padding between path and datetime
+	padding := appWidth - lipgloss.Width(pathText) - lipgloss.Width(dateTime)
+	if padding < 1 {
+		padding = 1
+	}
+
+	inner.WriteString(mutedStyle.Render(pathText) + strings.Repeat(" ", padding) + mutedStyle.Render(dateTime))
 	inner.WriteString("\n")
 
 	inner.WriteString(Divider(appWidth))
