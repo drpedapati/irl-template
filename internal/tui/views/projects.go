@@ -2,7 +2,9 @@ package views
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strings"
 	"time"
@@ -26,6 +28,14 @@ func (p Project) Title() string       { return p.Name }
 func (p Project) Description() string { return smartDate(p.Modified) }
 func (p Project) FilterValue() string { return p.Name }
 
+// Editor represents an available editor/IDE
+type Editor struct {
+	Name    string
+	Cmd     string
+	Key     string
+	AppName string // For macOS .app detection
+}
+
 // ProjectsModel displays discovered IRL projects
 type ProjectsModel struct {
 	projects    []Project
@@ -37,8 +47,9 @@ type ProjectsModel struct {
 	loaded      bool
 	err         error
 	filterInput textinput.Model
-	filtering   bool
 	sortBy      string // "date" or "name"
+	editors     []Editor
+	openMsg     string // Message shown after opening
 }
 
 const projectsVisibleItems = 10
@@ -46,6 +57,7 @@ const projectsVisibleItems = 10
 // ProjectsLoadedMsg is sent when projects are scanned
 type ProjectsLoadedMsg struct {
 	Projects []Project
+	Editors  []Editor
 	Err      error
 }
 
@@ -53,7 +65,8 @@ type ProjectsLoadedMsg struct {
 func NewProjectsModel() ProjectsModel {
 	ti := textinput.New()
 	ti.Placeholder = "Type to filter..."
-	ti.Width = 30
+	ti.Width = 40
+	ti.Focus() // Auto-focus on creation
 
 	return ProjectsModel{
 		filterInput: ti,
@@ -76,8 +89,54 @@ func (m *ProjectsModel) ScanProjects() tea.Cmd {
 		}
 
 		projects, err := scanForProjects(baseDir)
-		return ProjectsLoadedMsg{Projects: projects, Err: err}
+		editors := detectEditors()
+		return ProjectsLoadedMsg{Projects: projects, Editors: editors, Err: err}
 	}
+}
+
+// detectEditors finds available editors on the system
+func detectEditors() []Editor {
+	allEditors := []Editor{
+		{Name: "Positron", Cmd: "positron", Key: "p", AppName: "Positron"},
+		{Name: "Cursor", Cmd: "cursor", Key: "u", AppName: "Cursor"},
+		{Name: "VS Code", Cmd: "code", Key: "v", AppName: ""},
+		{Name: "RStudio", Cmd: "rstudio", Key: "r", AppName: "RStudio"},
+		{Name: "Terminal", Cmd: "terminal", Key: "t", AppName: ""},
+	}
+
+	var available []Editor
+	for _, e := range allEditors {
+		if e.Cmd == "terminal" {
+			// Terminal is always available
+			available = append(available, e)
+		} else if e.AppName != "" && checkApp(e.AppName) {
+			available = append(available, e)
+		} else if checkCmd(e.Cmd) {
+			available = append(available, e)
+		}
+	}
+	return available
+}
+
+func checkCmd(name string) bool {
+	_, err := exec.LookPath(name)
+	return err == nil
+}
+
+func checkApp(name string) bool {
+	if runtime.GOOS != "darwin" {
+		return checkCmd(strings.ToLower(name))
+	}
+	paths := []string{
+		filepath.Join("/Applications", name+".app"),
+		filepath.Join(os.Getenv("HOME"), "Applications", name+".app"),
+	}
+	for _, p := range paths {
+		if _, err := os.Stat(p); err == nil {
+			return true
+		}
+	}
+	return false
 }
 
 func scanForProjects(baseDir string) ([]Project, error) {
@@ -142,38 +201,25 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 		m.err = msg.Err
 		m.projects = msg.Projects
 		m.filtered = msg.Projects
+		m.editors = msg.Editors
 		m.cursor = 0
 		m.scroll = 0
-		return m, nil
+		return m, textinput.Blink
 
 	case tea.KeyMsg:
-		// If filtering, handle text input
-		if m.filtering {
-			switch msg.String() {
-			case "esc":
-				m.filtering = false
-				m.filterInput.Blur()
-				m.filterInput.SetValue("")
-				m.applyFilter()
-				return m, nil
-			case "enter":
-				m.filtering = false
-				m.filterInput.Blur()
-				return m, nil
-			default:
-				var cmd tea.Cmd
-				m.filterInput, cmd = m.filterInput.Update(msg)
-				m.applyFilter()
-				return m, cmd
+		key := msg.String()
+
+		// Check for editor shortcuts first (only when there's a selection)
+		if m.SelectedProject() != "" {
+			for _, e := range m.editors {
+				if key == e.Key {
+					m.openInEditor(e)
+					return m, nil
+				}
 			}
 		}
 
-		switch msg.String() {
-		case "/":
-			// Start filtering
-			m.filtering = true
-			m.filterInput.Focus()
-			return m, textinput.Blink
+		switch key {
 		case "s":
 			// Toggle sort
 			if m.sortBy == "date" {
@@ -190,6 +236,7 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 					m.scroll = m.cursor
 				}
 			}
+			return m, nil
 		case "down", "j":
 			if m.cursor < len(m.filtered)-1 {
 				m.cursor++
@@ -197,10 +244,62 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 					m.scroll = m.cursor - projectsVisibleItems + 1
 				}
 			}
+			return m, nil
+		default:
+			// Pass other keys to filter input
+			var cmd tea.Cmd
+			m.filterInput, cmd = m.filterInput.Update(msg)
+			m.applyFilter()
+			return m, cmd
 		}
 	}
 
 	return m, nil
+}
+
+func (m *ProjectsModel) openInEditor(e Editor) {
+	path := m.SelectedProject()
+	if path == "" {
+		return
+	}
+
+	var cmd *exec.Cmd
+	switch e.Cmd {
+	case "terminal":
+		// Open terminal in project directory
+		if runtime.GOOS == "darwin" {
+			script := `tell application "Terminal" to do script "cd '` + path + `'"`
+			cmd = exec.Command("osascript", "-e", script)
+		} else {
+			// Linux: try common terminals
+			cmd = exec.Command("x-terminal-emulator", "--working-directory", path)
+		}
+	case "positron":
+		if runtime.GOOS == "darwin" {
+			cmd = exec.Command("open", "-a", "Positron", path)
+		} else {
+			cmd = exec.Command("positron", path)
+		}
+	case "cursor":
+		if runtime.GOOS == "darwin" {
+			cmd = exec.Command("open", "-a", "Cursor", path)
+		} else {
+			cmd = exec.Command("cursor", path)
+		}
+	case "rstudio":
+		if runtime.GOOS == "darwin" {
+			cmd = exec.Command("open", "-a", "RStudio", path)
+		} else {
+			cmd = exec.Command("rstudio", path)
+		}
+	default:
+		cmd = exec.Command(e.Cmd, path)
+	}
+
+	if cmd != nil {
+		cmd.Start()
+		m.openMsg = "Opened in " + e.Name
+	}
 }
 
 func (m *ProjectsModel) applyFilter() {
@@ -240,6 +339,20 @@ func (m ProjectsModel) SelectedProject() string {
 	return ""
 }
 
+// GetEditorHints returns hints for available editors
+func (m ProjectsModel) GetEditorHints() string {
+	if len(m.editors) == 0 {
+		return ""
+	}
+
+	mutedStyle := lipgloss.NewStyle().Foreground(theme.Muted)
+	var hints []string
+	for _, e := range m.editors {
+		hints = append(hints, e.Key+" "+e.Name)
+	}
+	return mutedStyle.Render(strings.Join(hints, "  "))
+}
+
 // View renders the projects view
 func (m ProjectsModel) View() string {
 	var b strings.Builder
@@ -261,23 +374,24 @@ func (m ProjectsModel) View() string {
 		return b.String()
 	}
 
-	// Filter bar
+	// Filter input (always visible, always focused)
 	b.WriteString("\n")
-	if m.filtering {
-		b.WriteString("  " + m.filterInput.View())
-	} else {
-		filterHint := mutedStyle.Render("/ filter")
-		sortLabel := "date"
-		if m.sortBy == "name" {
-			sortLabel = "name"
-		}
-		sortHint := mutedStyle.Render("s sort:" + sortLabel)
-		b.WriteString("  " + filterHint + "  " + sortHint)
-		if m.filterInput.Value() != "" {
-			b.WriteString("  " + accentStyle.Render("\""+m.filterInput.Value()+"\""))
-		}
+	b.WriteString("  " + m.filterInput.View())
+
+	// Sort indicator
+	sortLabel := "date"
+	if m.sortBy == "name" {
+		sortLabel = "name"
 	}
+	b.WriteString("  " + mutedStyle.Render("s:"+sortLabel))
 	b.WriteString("\n\n")
+
+	// Open message (temporary feedback)
+	if m.openMsg != "" {
+		successStyle := lipgloss.NewStyle().Foreground(theme.Success)
+		b.WriteString("  " + successStyle.Render(m.openMsg))
+		b.WriteString("\n\n")
+	}
 
 	if len(m.filtered) == 0 {
 		if len(m.projects) == 0 {
@@ -300,7 +414,7 @@ func (m ProjectsModel) View() string {
 		nameColWidth = 45
 	}
 
-	cursorOn := accentStyle.Render("●")
+	cursorOn := accentStyle.Render(">")
 	cursorOff := " "
 
 	// Show visible projects with scrolling
@@ -379,4 +493,3 @@ func smartDate(t time.Time) string {
 	// Different year - show full date
 	return t.Format("Jan 2, 2006")
 }
-

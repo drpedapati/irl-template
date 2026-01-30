@@ -319,18 +319,13 @@ func (m Model) updateProjects(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "q":
 		m.quitting = true
 		return m, tea.Quit
-	case "esc", "left", "h":
+	case "esc":
 		m.view = ViewMenu
 		m.statusBar.SetKeys(DefaultMenuKeys())
 		return m, nil
-	case "enter", "right", "l":
-		// Open project in editor or terminal
-		if path := m.projectsView.SelectedProject(); path != "" {
-			openInEditor(path)
-		}
-		return m, nil
 	}
 
+	// Pass all other keys to the projects view (filtering, navigation, editor shortcuts)
 	var cmd tea.Cmd
 	m.projectsView, cmd = m.projectsView.Update(msg)
 	return m, cmd
@@ -666,7 +661,12 @@ func (m Model) getContextHint() string {
 	case ViewMenu:
 		return ""
 	case ViewProjects:
-		return keyStyle.Render("→") + mutedStyle.Render(" open in editor")
+		// Show dynamic editor hints based on what's installed
+		hints := m.projectsView.GetEditorHints()
+		if hints != "" {
+			return hints
+		}
+		return ""
 	case ViewTemplates:
 		if m.templatesView.IsPreviewing() {
 			return keyStyle.Render("↑↓") + mutedStyle.Render(" scroll  ") + keyStyle.Render("←") + mutedStyle.Render(" back")
