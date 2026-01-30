@@ -39,7 +39,7 @@ func (s *StatusBar) SetKeys(keys []KeyBinding) {
 	s.keys = keys
 }
 
-// View renders the status bar
+// View renders the status bar (centered)
 func (s StatusBar) View() string {
 	var parts []string
 	for _, k := range s.keys {
@@ -56,6 +56,16 @@ func (s StatusBar) View() string {
 	}
 
 	return StatusBarStyle.Render(strings.Repeat(" ", padding) + content)
+}
+
+// ViewCompact renders the status bar keys left-aligned without centering
+func (s StatusBar) ViewCompact() string {
+	var parts []string
+	for _, k := range s.keys {
+		parts = append(parts, FormatKey(k.Key, k.Desc))
+	}
+
+	return strings.Join(parts, "  ")
 }
 
 // DefaultMenuKeys returns the default key bindings for the main menu

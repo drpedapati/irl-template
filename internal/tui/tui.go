@@ -62,10 +62,10 @@ func New(version string) Model {
 	m.header.SetWidth(appWidth)
 	m.menu.SetWidth(appWidth)
 	m.statusBar.SetWidth(appWidth)
-	m.templatesView.SetSize(appWidth, appHeight-4)
-	m.doctorView.SetSize(appWidth, appHeight-4)
-	m.initView.SetSize(appWidth, appHeight-4)
-	m.configView.SetSize(appWidth, appHeight-4)
+	m.templatesView.SetSize(appWidth, appHeight-5)
+	m.doctorView.SetSize(appWidth, appHeight-5)
+	m.initView.SetSize(appWidth, appHeight-5)
+	m.configView.SetSize(appWidth, appHeight-5)
 
 	return m
 }
@@ -180,7 +180,7 @@ func (m Model) selectView(v ViewType) (tea.Model, tea.Cmd) {
 	case ViewInit:
 		m.statusBar.SetKeys(InitViewKeys())
 		m.initView = views.NewInitModel()
-		m.initView.SetSize(appWidth, appHeight-4)
+		m.initView.SetSize(appWidth, appHeight-5)
 		cmd = m.initView.Init()
 	case ViewConfig:
 		m.statusBar.SetKeys(ViewKeys())
@@ -333,22 +333,48 @@ func (m Model) View() string {
 
 	// Truncate or pad content to fixed height
 	contentLines := strings.Split(content, "\n")
-	maxContentLines := appHeight - 4 // header, path, divider, status bar
+	maxContentLines := appHeight - 5 // header, subheader, top divider, bottom divider, footer
 
 	// Truncate if too long
 	if len(contentLines) > maxContentLines {
 		contentLines = contentLines[:maxContentLines]
 	}
 
-	// Pad if too short
-	for len(contentLines) < maxContentLines {
-		contentLines = append(contentLines, "")
+	// Center content vertically if shorter than max
+	if len(contentLines) < maxContentLines {
+		topPadding := (maxContentLines - len(contentLines)) / 2
+		bottomPadding := maxContentLines - len(contentLines) - topPadding
+
+		// Add top padding
+		padded := make([]string, 0, maxContentLines)
+		for i := 0; i < topPadding; i++ {
+			padded = append(padded, "")
+		}
+		padded = append(padded, contentLines...)
+		// Add bottom padding
+		for i := 0; i < bottomPadding; i++ {
+			padded = append(padded, "")
+		}
+		contentLines = padded
 	}
 
 	inner.WriteString("\n")
 	inner.WriteString(strings.Join(contentLines, "\n"))
+
+	// Footer divider
 	inner.WriteString("\n")
-	inner.WriteString(m.statusBar.View())
+	inner.WriteString(Divider(appWidth))
+	inner.WriteString("\n")
+
+	// Footer: status bar keys on left, hint on right
+	statusContent := m.statusBar.ViewCompact()
+	hint := mutedStyle.Render("irl v" + m.version)
+
+	footerPadding := appWidth - lipgloss.Width(statusContent) - lipgloss.Width(hint)
+	if footerPadding < 1 {
+		footerPadding = 1
+	}
+	inner.WriteString(statusContent + strings.Repeat(" ", footerPadding) + hint)
 
 	// No border - clean Claude Code style
 	return inner.String()
