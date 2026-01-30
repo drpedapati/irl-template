@@ -14,20 +14,20 @@ import (
 
 // FolderModel handles folder selection
 type FolderModel struct {
-	width        int
-	height       int
-	currentDir   string
-	folders      []string
-	cursor       int
-	scroll       int
-	saved        bool
+	width      int
+	height     int
+	currentDir string
+	folders    []string
+	cursor     int // 0 = "Use this folder", 1+ = subfolders
+	scroll     int
+	saved      bool
 }
 
-const folderVisibleItems = 12
+const folderVisibleItems = 8
 
 // NewFolderModel creates a new folder selection view
 func NewFolderModel() FolderModel {
-	// Start at current default or home
+	// Start at current default or home/Documents
 	startDir := config.GetDefaultDirectory()
 	if startDir == "" {
 		home, _ := os.UserHomeDir()
@@ -42,6 +42,7 @@ func NewFolderModel() FolderModel {
 
 	m := FolderModel{
 		currentDir: startDir,
+		cursor:     0, // Start on "Use this folder"
 	}
 	m.loadFolders()
 	return m
@@ -55,7 +56,6 @@ func (m *FolderModel) SetSize(width, height int) {
 
 func (m *FolderModel) loadFolders() {
 	m.folders = []string{}
-	m.cursor = 0
 	m.scroll = 0
 
 	entries, err := os.ReadDir(m.currentDir)
@@ -71,6 +71,11 @@ func (m *FolderModel) loadFolders() {
 	sort.Strings(m.folders)
 }
 
+// totalItems returns the total number of selectable items (1 for "use this" + subfolders)
+func (m FolderModel) totalItems() int {
+	return 1 + len(m.folders)
+}
+
 // Update handles messages
 func (m FolderModel) Update(msg tea.Msg) (FolderModel, tea.Cmd) {
 	switch msg := msg.(type) {
@@ -79,22 +84,24 @@ func (m FolderModel) Update(msg tea.Msg) (FolderModel, tea.Cmd) {
 		case "up", "k":
 			if m.cursor > 0 {
 				m.cursor--
-				if m.cursor < m.scroll {
-					m.scroll = m.cursor
-				}
 			}
 		case "down", "j":
-			if m.cursor < len(m.folders)-1 {
+			if m.cursor < m.totalItems()-1 {
 				m.cursor++
-				if m.cursor >= m.scroll+folderVisibleItems {
-					m.scroll = m.cursor - folderVisibleItems + 1
-				}
 			}
-		case "right", "l":
-			// Enter selected folder
-			if len(m.folders) > 0 && m.cursor < len(m.folders) {
-				m.currentDir = filepath.Join(m.currentDir, m.folders[m.cursor])
-				m.loadFolders()
+		case "right", "l", "enter":
+			if m.cursor == 0 {
+				// Select current directory
+				config.SetDefaultDirectory(m.currentDir)
+				m.saved = true
+			} else {
+				// Enter the selected subfolder
+				folderIdx := m.cursor - 1
+				if folderIdx < len(m.folders) {
+					m.currentDir = filepath.Join(m.currentDir, m.folders[folderIdx])
+					m.loadFolders()
+					m.cursor = 0 // Reset to "Use this folder"
+				}
 			}
 		case "left", "h":
 			// Go up one level
@@ -102,11 +109,8 @@ func (m FolderModel) Update(msg tea.Msg) (FolderModel, tea.Cmd) {
 			if parent != m.currentDir {
 				m.currentDir = parent
 				m.loadFolders()
+				m.cursor = 0 // Reset to "Use this folder"
 			}
-		case "enter":
-			// Select current directory as default
-			config.SetDefaultDirectory(m.currentDir)
-			m.saved = true
 		}
 	}
 	return m, nil
@@ -121,41 +125,70 @@ func (m FolderModel) IsSaved() bool {
 func (m FolderModel) View() string {
 	var b strings.Builder
 
-	pathStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true).MarginLeft(2)
+	titleStyle := lipgloss.NewStyle().Bold(true).MarginLeft(2)
+	pathStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
 	hintStyle := lipgloss.NewStyle().Foreground(theme.Muted).MarginLeft(2)
+	selectedStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
+	normalStyle := lipgloss.NewStyle().Foreground(theme.Muted)
+	successStyle := lipgloss.NewStyle().Foreground(theme.Success).MarginLeft(2)
 
-	// Current path
-	b.WriteString(pathStyle.Render(m.currentDir))
-	b.WriteString("\n\n")
+	cursorOn := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true).Render("●")
+	cursorOff := " "
 
+	// Success state
 	if m.saved {
-		successStyle := lipgloss.NewStyle().Foreground(theme.Success).MarginLeft(2)
-		b.WriteString(successStyle.Render("✓ Default folder saved"))
+		b.WriteString("\n")
+		b.WriteString(successStyle.Render("✓ Default folder set to:"))
+		b.WriteString("\n\n")
+		b.WriteString("  " + pathStyle.Render(m.currentDir))
+		b.WriteString("\n\n")
+		b.WriteString(hintStyle.Render("New projects will be created here."))
 		b.WriteString("\n")
 		return b.String()
 	}
 
-	cursorOn := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true).Render("●")
-	cursorOff := "  "
-	itemStyle := lipgloss.NewStyle()
-	selectedStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
+	// Title
+	b.WriteString("\n")
+	b.WriteString(titleStyle.Render("Choose where to save new projects"))
+	b.WriteString("\n\n")
 
-	if len(m.folders) == 0 {
-		b.WriteString(hintStyle.Render("  (no subfolders)"))
+	// Current location breadcrumb
+	b.WriteString(hintStyle.Render("Current location:"))
+	b.WriteString("\n")
+	b.WriteString("  " + pathStyle.Render(m.currentDir))
+	b.WriteString("\n\n")
+
+	// Option 0: Use this folder
+	cursor := cursorOff
+	style := normalStyle
+	if m.cursor == 0 {
+		cursor = cursorOn
+		style = selectedStyle
+	}
+	b.WriteString("  " + cursor + " " + style.Render("✓ Use this folder"))
+	b.WriteString("\n\n")
+
+	// Subfolders section
+	if len(m.folders) > 0 {
+		b.WriteString(hintStyle.Render("Or navigate to a subfolder:"))
 		b.WriteString("\n")
-	} else {
-		// Show visible items with scrolling
-		end := m.scroll + folderVisibleItems
-		if end > len(m.folders) {
-			end = len(m.folders)
+
+		// Show visible subfolders with scrolling
+		startIdx := 0
+		if m.cursor > folderVisibleItems {
+			startIdx = m.cursor - folderVisibleItems
+		}
+		endIdx := startIdx + folderVisibleItems
+		if endIdx > len(m.folders) {
+			endIdx = len(m.folders)
 		}
 
-		for i := m.scroll; i < end; i++ {
+		for i := startIdx; i < endIdx; i++ {
 			folder := m.folders[i]
-			cursor := cursorOff
-			style := itemStyle
+			cursor = cursorOff
+			style = normalStyle
 
-			if i == m.cursor {
+			if m.cursor == i+1 { // +1 because cursor 0 is "Use this folder"
 				cursor = cursorOn
 				style = selectedStyle
 			}
@@ -164,17 +197,28 @@ func (m FolderModel) View() string {
 			b.WriteString("\n")
 		}
 
-		// Show scroll indicator if needed
+		// Scroll indicator
 		if len(m.folders) > folderVisibleItems {
-			shown := lipgloss.NewStyle().Foreground(theme.Muted).Render(
-				strings.Repeat(" ", 4) + "(" + string(rune('0'+m.scroll/10)) + string(rune('0'+m.scroll%10)) + "-" +
-				string(rune('0'+(end-1)/10)) + string(rune('0'+(end-1)%10)) + " of " +
-				string(rune('0'+len(m.folders)/10)) + string(rune('0'+len(m.folders)%10)) + ")",
-			)
-			b.WriteString(shown)
+			b.WriteString(hintStyle.Render("    (" + itoa(len(m.folders)) + " folders)"))
 			b.WriteString("\n")
 		}
+	} else {
+		b.WriteString(hintStyle.Render("No subfolders in this location"))
+		b.WriteString("\n")
 	}
 
 	return b.String()
+}
+
+// Simple int to string without fmt
+func itoa(n int) string {
+	if n == 0 {
+		return "0"
+	}
+	result := ""
+	for n > 0 {
+		result = string(rune('0'+n%10)) + result
+		n /= 10
+	}
+	return result
 }

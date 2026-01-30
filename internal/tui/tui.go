@@ -637,8 +637,9 @@ func (m Model) View() string {
 	inner.WriteString(m.statusBar.View())
 	inner.WriteString("\n")
 
-	// No border - clean Claude Code style
-	return inner.String()
+	// Add small left margin for visual breathing room
+	marginStyle := lipgloss.NewStyle().PaddingLeft(2)
+	return marginStyle.Render(inner.String())
 }
 
 func (m Model) renderMenuView() string {
@@ -678,7 +679,7 @@ func (m Model) getContextHint() string {
 	case ViewConfig:
 		return keyStyle.Render("e") + mutedStyle.Render(" edit")
 	case ViewFolder:
-		return keyStyle.Render("←→") + mutedStyle.Render(" navigate  ") + keyStyle.Render("Enter") + mutedStyle.Render(" select this folder")
+		return keyStyle.Render("←") + mutedStyle.Render(" up a level  ") + keyStyle.Render("↑↓") + mutedStyle.Render(" navigate  ") + keyStyle.Render("Enter") + mutedStyle.Render(" select")
 	case ViewPersonalize:
 		return keyStyle.Render("Tab") + mutedStyle.Render(" next field  ") + keyStyle.Render("Enter") + mutedStyle.Render(" save")
 	}
