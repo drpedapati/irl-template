@@ -68,7 +68,10 @@ func (m *FolderModel) loadFolders() {
 			m.folders = append(m.folders, e.Name())
 		}
 	}
-	sort.Strings(m.folders)
+	// Case-insensitive alphabetical sort
+	sort.Slice(m.folders, func(i, j int) bool {
+		return strings.ToLower(m.folders[i]) < strings.ToLower(m.folders[j])
+	})
 }
 
 // totalItems returns the total number of selectable items (1 for "use this" + subfolders)

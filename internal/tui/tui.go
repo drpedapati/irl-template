@@ -320,6 +320,11 @@ func (m Model) updateProjects(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.quitting = true
 		return m, tea.Quit
 	case "esc":
+		// Two-stage escape: clear filter first, then go back
+		if m.projectsView.HasFilterText() {
+			m.projectsView.ClearFilter()
+			return m, nil
+		}
 		m.view = ViewMenu
 		m.statusBar.SetKeys(DefaultMenuKeys())
 		return m, nil

@@ -339,6 +339,17 @@ func (m ProjectsModel) SelectedProject() string {
 	return ""
 }
 
+// HasFilterText returns true if there's text in the filter input
+func (m ProjectsModel) HasFilterText() bool {
+	return m.filterInput.Value() != ""
+}
+
+// ClearFilter clears the filter input and resets the list
+func (m *ProjectsModel) ClearFilter() {
+	m.filterInput.SetValue("")
+	m.applyFilter()
+}
+
 // GetEditorHints returns hints for available editors
 func (m ProjectsModel) GetEditorHints() string {
 	if len(m.editors) == 0 {
