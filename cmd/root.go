@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/drpedapati/irl-template/internal/tui"
 	"github.com/drpedapati/irl-template/pkg/theme"
 	"github.com/spf13/cobra"
 )
@@ -15,6 +16,13 @@ var rootCmd = &cobra.Command{
 	Use:   "irl",
 	Short: "Idempotent Research Loop",
 	Long:  `irl - Idempotent Research Loop`,
+	Run: func(cmd *cobra.Command, args []string) {
+		// Launch TUI when no subcommand is provided
+		if err := tui.Run(Version); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+	},
 }
 
 func Execute() {
