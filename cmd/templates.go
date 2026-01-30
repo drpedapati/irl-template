@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/drpedapati/irl-template/pkg/style"
 	"github.com/drpedapati/irl-template/pkg/templates"
+	"github.com/drpedapati/irl-template/pkg/theme"
 	"github.com/spf13/cobra"
 )
 
@@ -18,22 +18,24 @@ var templatesCmd = &cobra.Command{
 		}
 
 		if len(list) == 0 {
-			fmt.Printf("%sNo templates available.%s Run %sirl update%s to fetch.\n",
-				style.Yellow, style.Reset, style.Cyan, style.Reset)
+			fmt.Printf("%s Run %s to fetch.\n",
+				theme.Warn("No templates available."),
+				theme.Cmd("irl update"))
 			return nil
 		}
 
-		fmt.Printf("%sTemplates%s\n", style.BoldCyan, style.Reset)
+		theme.Section("Templates")
 		fmt.Println()
 		for _, t := range list {
-			fmt.Printf("  %s%s%s %s%s%s\n",
-				style.Cyan, style.Dot, style.Reset,
-				style.Bold, t.Name, style.Reset)
-			fmt.Printf("    %s%s%s\n", style.Dim, t.Description, style.Reset)
+			fmt.Printf("  %s %s\n",
+				theme.Cmd(theme.Dot),
+				theme.B(t.Name))
+			fmt.Printf("    %s\n", theme.Faint(t.Description))
 		}
 		fmt.Println()
-		fmt.Printf("%sUsage:%s irl init -t %s<template>%s \"purpose\"\n",
-			style.Dim, style.Reset, style.Cyan, style.Reset)
+		fmt.Printf("%s irl init -t %s \"purpose\"\n",
+			theme.Faint("Usage:"),
+			theme.Cmd("<template>"))
 
 		return nil
 	},

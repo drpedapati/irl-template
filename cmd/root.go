@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/drpedapati/irl-template/pkg/style"
+	"github.com/drpedapati/irl-template/pkg/theme"
 	"github.com/spf13/cobra"
 )
 
@@ -42,29 +42,23 @@ func init() {
 }
 
 func printRootHelp() {
-	c := style.Cyan
-	g := style.Green
-	d := style.Dim
-	b := style.Bold
-	r := style.Reset
-
-	fmt.Printf("%sirl%s %s- Idempotent Research Loop%s\n", b+c, r, d, r)
+	fmt.Printf("%s %s\n", theme.B(theme.Cmd("irl")), theme.Faint("- Idempotent Research Loop"))
 	fmt.Println()
-	fmt.Printf("%sQuick start:%s\n", b, r)
-	fmt.Printf("  %sirl init \"your research purpose\"%s\n", g, r)
+	fmt.Printf("%s\n", theme.B("Quick start:"))
+	fmt.Printf("  %s\n", theme.Succ("irl init \"your research purpose\""))
 	fmt.Println()
-	fmt.Printf("%sCommands:%s\n", d, r)
-	fmt.Printf("  %sinit%s        Create a new IRL project\n", c, r)
+	fmt.Printf("%s\n", theme.Faint("Commands:"))
+	fmt.Printf("  %s        Create a new IRL project\n", theme.Cmd("init"))
 	fmt.Println()
-	fmt.Printf("%sInfo:%s\n", d, r)
-	fmt.Printf("  %stemplates%s   List available templates\n", c, r)
-	fmt.Printf("  %sdoctor%s      Check environment setup\n", c, r)
+	fmt.Printf("%s\n", theme.Faint("Info:"))
+	fmt.Printf("  %s   List available templates\n", theme.Cmd("templates"))
+	fmt.Printf("  %s      Check environment setup\n", theme.Cmd("doctor"))
 	fmt.Println()
-	fmt.Printf("%sSettings:%s\n", d, r)
-	fmt.Printf("  %sconfig%s      View or set configuration\n", c, r)
-	fmt.Printf("  %supdate%s      Update templates from GitHub\n", c, r)
+	fmt.Printf("%s\n", theme.Faint("Settings:"))
+	fmt.Printf("  %s      View or set configuration\n", theme.Cmd("config"))
+	fmt.Printf("  %s      Update templates from GitHub\n", theme.Cmd("update"))
 	fmt.Println()
-	fmt.Printf("%sirl <command> --help%s for details\n", d, r)
+	fmt.Printf("%s for details\n", theme.Faint("irl <command> --help"))
 }
 
 var versionCmd = &cobra.Command{

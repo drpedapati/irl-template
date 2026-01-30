@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/drpedapati/irl-template/pkg/config"
-	"github.com/drpedapati/irl-template/pkg/style"
+	"github.com/drpedapati/irl-template/pkg/theme"
 	"github.com/spf13/cobra"
 )
 
@@ -33,46 +33,49 @@ func runConfig(cmd *cobra.Command, args []string) {
 		// Set new directory
 		dir := expandPath(configDirFlag)
 		if err := config.SetDefaultDirectory(dir); err != nil {
-			fmt.Fprintf(os.Stderr, "%sError:%s %v\n", style.Red, style.Reset, err)
+			fmt.Fprintf(os.Stderr, "%s %v\n", theme.Err("Error:"), err)
 			os.Exit(1)
 		}
-		status := style.Green + "exists" + style.Reset
+		status := theme.StatusTag("exists", true)
 		if _, err := os.Stat(dir); os.IsNotExist(err) {
-			status = style.Yellow + "will be created" + style.Reset
+			status = theme.StatusTag("will be created", false)
 		}
-		fmt.Printf("%s%s%s Set default directory: %s (%s)\n",
-			style.Green, style.Check, style.Reset, dir, status)
+		fmt.Printf("%s Set default directory: %s (%s)\n",
+			theme.OK(""), dir, status)
 		return
 	}
 
 	// Show current config
 	cfg, err := config.Load()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%sError:%s %v\n", style.Red, style.Reset, err)
+		fmt.Fprintf(os.Stderr, "%s %v\n", theme.Err("Error:"), err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("%sConfiguration%s\n", style.BoldCyan, style.Reset)
+	theme.Section("Configuration")
 	fmt.Println()
 
 	home, _ := os.UserHomeDir()
 	configPath := filepath.Join(home, ".irl", "config.json")
-	fmt.Printf("  %sConfig file%s       %s\n", style.Dim, style.Reset, configPath)
+	fmt.Println(theme.KeyValue("Config file      ", configPath))
 
 	if cfg.DefaultDirectory != "" {
-		status := style.Green + "exists" + style.Reset
+		status := theme.StatusTag("exists", true)
 		if _, err := os.Stat(cfg.DefaultDirectory); os.IsNotExist(err) {
-			status = style.Yellow + "will be created" + style.Reset
+			status = theme.StatusTag("will be created", false)
 		}
-		fmt.Printf("  %sDefault directory%s %s (%s)\n",
-			style.Dim, style.Reset, cfg.DefaultDirectory, status)
+		fmt.Printf("%s (%s)\n",
+			theme.KeyValue("Default directory", cfg.DefaultDirectory),
+			status)
 	} else {
 		defaultDir := filepath.Join(home, "Documents", "irl_projects")
-		fmt.Printf("  %sDefault directory%s %snot set%s %s(will use %s)%s\n",
-			style.Dim, style.Reset, style.Yellow, style.Reset, style.Dim, defaultDir, style.Reset)
+		fmt.Printf("%s %s\n",
+			theme.KeyValue("Default directory", theme.Warn("not set")),
+			theme.Faint("(will use "+defaultDir+")"))
 	}
 
 	fmt.Println()
-	fmt.Printf("%sTo change:%s irl config --dir %s~/path%s\n",
-		style.Dim, style.Reset, style.Cyan, style.Reset)
+	fmt.Printf("%s irl config --dir %s\n",
+		theme.Faint("To change:"),
+		theme.Cmd("~/path"))
 }

@@ -8,7 +8,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/drpedapati/irl-template/pkg/style"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/drpedapati/irl-template/pkg/theme"
 	"github.com/spf13/cobra"
 )
 
@@ -30,7 +31,7 @@ func init() {
 }
 
 func runDoctor(cmd *cobra.Command, args []string) {
-	fmt.Printf("\n%sEnvironment%s\n", style.BoldCyan, style.Reset)
+	theme.Section("Environment")
 
 	// System info - single line
 	printSystemInfoCompact()
@@ -63,23 +64,20 @@ func runDoctor(cmd *cobra.Command, args []string) {
 
 	// Print two columns: Core Tools | AI Assistants
 	fmt.Println()
-	fmt.Printf("  %s%-30s%s %s%s%s\n",
-		style.Dim, "Core Tools", style.Reset,
-		style.Dim, "AI Assistants", style.Reset)
+	printColumnHeaders("Core Tools", "AI Assistants")
 	printTwoColumns(coreTools, aiTools)
 
 	// Print two columns: IDEs | Sandbox
 	fmt.Println()
-	fmt.Printf("  %s%-30s%s %s%s%s\n",
-		style.Dim, "IDEs", style.Reset,
-		style.Dim, "Sandbox", style.Reset)
+	printColumnHeaders("IDEs", "Sandbox")
 	printTwoColumns(ideTools, sandboxTools)
 
 	// Sandbox hint
 	fmt.Println()
 	if checkCmd("docker") {
-		fmt.Printf("  %sTip:%s %sdocker sandbox run claude%s\n",
-			style.Dim, style.Reset, style.Cyan, style.Reset)
+		fmt.Printf("  %s %s\n",
+			theme.Faint("Tip:"),
+			theme.Cmd("docker sandbox run claude"))
 	}
 	fmt.Println()
 }
@@ -124,7 +122,15 @@ func printSystemInfoCompact() {
 		}
 	}
 
-	fmt.Printf("  %s%s%s\n", style.Dim, strings.Join(parts, " · "), style.Reset)
+	fmt.Printf("  %s\n", theme.Faint(strings.Join(parts, " · ")))
+}
+
+func printColumnHeaders(left, right string) {
+	// Use Lip Gloss for fixed-width columns
+	leftStyle := lipgloss.NewStyle().Width(30).Foreground(theme.Muted)
+	rightStyle := lipgloss.NewStyle().Foreground(theme.Muted)
+
+	fmt.Printf("  %s  %s\n", leftStyle.Render(left), rightStyle.Render(right))
 }
 
 func printTwoColumns(left, right []tool) {
@@ -133,30 +139,27 @@ func printTwoColumns(left, right []tool) {
 		maxRows = len(right)
 	}
 
+	// Create a fixed-width style for the left column
+	leftColStyle := lipgloss.NewStyle().Width(30)
+
 	for i := 0; i < maxRows; i++ {
 		leftStr := ""
 		rightStr := ""
-		// Track visible width separately from string length (ANSI codes don't count)
-		leftWidth := 0
 
 		if i < len(left) {
-			leftStr, leftWidth = formatToolCheck(left[i])
+			leftStr = formatToolCheck(left[i])
 		}
 		if i < len(right) {
-			rightStr, _ = formatToolCheck(right[i])
+			rightStr = formatToolCheck(right[i])
 		}
 
-		// Pad to 32 visible characters
-		padding := strings.Repeat(" ", 32-leftWidth)
-		fmt.Printf("  %s%s%s\n", leftStr, padding, rightStr)
+		// Use Lip Gloss width for proper alignment
+		fmt.Printf("  %s  %s\n", leftColStyle.Render(leftStr), rightStr)
 	}
 }
 
-func formatToolCheck(t tool) (string, int) {
-	if checkTool(t) {
-		return fmt.Sprintf("%s%s%s %s", style.Green, style.Check, style.Reset, t.name), 2 + len(t.name)
-	}
-	return fmt.Sprintf("%s%s%s %s%s%s", style.Dim, style.Cross, style.Reset, style.Dim, t.name, style.Reset), 2 + len(t.name)
+func formatToolCheck(t tool) string {
+	return theme.ToolCheck(t.name, checkTool(t))
 }
 
 func checkTool(t tool) bool {

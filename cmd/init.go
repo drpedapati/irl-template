@@ -6,12 +6,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/AlecAivazis/survey/v2"
+	"github.com/charmbracelet/huh"
 	"github.com/drpedapati/irl-template/pkg/config"
 	"github.com/drpedapati/irl-template/pkg/naming"
 	"github.com/drpedapati/irl-template/pkg/scaffold"
-	"github.com/drpedapati/irl-template/pkg/style"
 	"github.com/drpedapati/irl-template/pkg/templates"
+	"github.com/drpedapati/irl-template/pkg/theme"
 	"github.com/spf13/cobra"
 )
 
@@ -77,25 +77,38 @@ func runInit(cmd *cobra.Command, args []string) error {
 		purpose = strings.Join(args, " ")
 		projectName = naming.GenerateName(purpose)
 	} else {
-		// Interactive mode
-		prompt := &survey.Input{
-			Message: "What's this project for?",
-			Help:    "Brief description (e.g., 'ERP correlation analysis')",
-		}
-		if err := survey.AskOne(prompt, &purpose); err != nil {
+		// Interactive mode - ask for purpose
+		form := theme.NewForm(
+			huh.NewGroup(
+				huh.NewInput().
+					Title("What's this project for?").
+					Description("Brief description (e.g., 'ERP correlation analysis')").
+					Placeholder("Enter your project purpose...").
+					Value(&purpose),
+			),
+		)
+
+		if err := form.Run(); err != nil {
 			return err
 		}
+
 		if purpose == "" {
 			return fmt.Errorf("project purpose is required")
 		}
+
 		projectName = naming.GenerateName(purpose)
 
 		// Confirm or allow edit
-		confirmPrompt := &survey.Input{
-			Message: "Project folder name:",
-			Default: projectName,
-		}
-		if err := survey.AskOne(confirmPrompt, &projectName); err != nil {
+		form = theme.NewForm(
+			huh.NewGroup(
+				huh.NewInput().
+					Title("Project folder name").
+					Description("Edit if you'd like a different name").
+					Value(&projectName),
+			),
+		)
+
+		if err := form.Run(); err != nil {
 			return err
 		}
 	}
@@ -105,7 +118,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 
 	// Check if directory exists
 	if _, err := os.Stat(projectPath); !os.IsNotExist(err) {
-		return fmt.Errorf("directory '%s' already exists", projectPath)
+		return fmt.Errorf("heads up: '%s' already exists", projectPath)
 	}
 
 	// Select template (prompt unless -t flag provided)
@@ -116,39 +129,38 @@ func runInit(cmd *cobra.Command, args []string) error {
 		// Always offer template selection if no -t flag
 		templateList, err := templates.ListTemplates()
 		if err != nil {
-			fmt.Println("Warning: could not fetch templates, using basic")
+			fmt.Println(theme.Note("couldn't fetch templates, using basic"))
 		}
 
 		if len(templateList) > 0 {
-			options := []string{"None (empty plan)"}
+			// Build options for Huh select - type-safe
+			options := []huh.Option[string]{
+				huh.NewOption("None (empty plan)", ""),
+			}
 			for _, t := range templateList {
-				options = append(options, fmt.Sprintf("%s - %s", t.Name, t.Description))
+				label := fmt.Sprintf("%s - %s", t.Name, t.Description)
+				options = append(options, huh.NewOption(label, t.Name))
 			}
 
-			prompt := &survey.Select{
-				Message: "Select template:",
-				Options: options,
-			}
+			form := theme.NewForm(
+				huh.NewGroup(
+					huh.NewSelect[string]().
+						Title("Pick a template").
+						Description("Templates give your project a head start").
+						Options(options...).
+						Value(&selectedTemplate),
+				),
+			)
 
-			var result string
-			if err := survey.AskOne(prompt, &result); err != nil {
+			if err := form.Run(); err != nil {
 				return err
-			}
-
-			if result != "None (empty plan)" {
-				for _, t := range templateList {
-					if strings.HasPrefix(result, t.Name+" - ") {
-						selectedTemplate = t.Name
-						break
-					}
-				}
 			}
 		}
 	}
 
 	// Create project
 	fmt.Println()
-	fmt.Printf("%sCreating project...%s\n", style.Dim, style.Reset)
+	fmt.Println(theme.Faint("Setting things up..."))
 
 	if err := os.MkdirAll(projectPath, 0755); err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
@@ -162,7 +174,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 	if selectedTemplate != "" {
 		tmpl, err := templates.GetTemplate(selectedTemplate)
 		if err != nil {
-			fmt.Printf("  %sWarning:%s %v, using basic template\n", style.Yellow, style.Reset, err)
+			fmt.Println(theme.Note(fmt.Sprintf("%v, using basic template", err)))
 			tmpl = templates.EmbeddedTemplates["basic"]
 		}
 		if err := scaffold.WritePlan(projectPath, tmpl.Content); err != nil {
@@ -177,29 +189,29 @@ func runInit(cmd *cobra.Command, args []string) error {
 	}
 
 	if err := scaffold.GitInit(projectPath); err != nil {
-		fmt.Printf("  %sWarning:%s git init failed: %v\n", style.Yellow, style.Reset, err)
+		fmt.Println(theme.Note(fmt.Sprintf("couldn't set up git: %v (no worries, you can do it later)", err)))
 	}
 
-	// Success output
-	fmt.Printf("\n%s%s%s Created %s%s%s\n",
-		style.Green, style.Check, style.Reset,
-		style.Cyan, projectPath, style.Reset)
+	// Success output - warm and friendly
+	fmt.Printf("\n%s Created %s\n",
+		theme.OK("You're all set!"),
+		theme.Cmd(projectPath))
 
 	if selectedTemplate != "" {
-		fmt.Printf("  %sTemplate:%s %s\n", style.Dim, style.Reset, selectedTemplate)
+		fmt.Printf("  %s %s\n", theme.Faint("Template:"), selectedTemplate)
 	}
 
-	fmt.Printf("\n%sNext steps:%s\n", style.Bold, style.Reset)
-	fmt.Printf("  %scd%s %s\n", style.Cyan, style.Reset, projectPath)
-	fmt.Printf("  %s# Edit main-plan.md%s\n", style.Dim, style.Reset)
+	fmt.Printf("\n%s\n", theme.B("Next steps:"))
+	fmt.Printf("  %s %s\n", theme.Cmd("cd"), projectPath)
+	fmt.Printf("  %s\n", theme.Faint("# Edit main-plan.md"))
 
-	fmt.Printf("\n%sOpen in IDE:%s\n", style.Bold, style.Reset)
-	fmt.Printf("  %scursor%s %s\n", style.Cyan, style.Reset, projectPath)
-	fmt.Printf("  %scode%s %s\n", style.Cyan, style.Reset, projectPath)
-	fmt.Printf("  %spositron%s %s\n", style.Cyan, style.Reset, projectPath)
+	fmt.Printf("\n%s\n", theme.B("Open in IDE:"))
+	fmt.Printf("  %s %s\n", theme.Cmd("cursor"), projectPath)
+	fmt.Printf("  %s %s\n", theme.Cmd("code"), projectPath)
+	fmt.Printf("  %s %s\n", theme.Cmd("positron"), projectPath)
 
-	fmt.Printf("\n%sNo shell command? Open IDE → Cmd+Shift+P → \"Install ... in PATH\"%s\n",
-		style.Dim, style.Reset)
+	fmt.Printf("\n%s\n",
+		theme.Faint("No shell command? Open IDE → Cmd+Shift+P → \"Install ... in PATH\""))
 
 	return nil
 }
@@ -210,13 +222,20 @@ func getOrAskDefaultDirectory() string {
 	if defaultDir != "" {
 		// Show current setting and offer to change
 		fmt.Printf("Default directory: %s\n", defaultDir)
-		var changeDir bool
-		prompt := &survey.Confirm{
-			Message: "Use this directory?",
-			Default: true,
-		}
-		survey.AskOne(prompt, &changeDir)
-		if changeDir {
+
+		var useExisting bool = true
+		form := theme.NewForm(
+			huh.NewGroup(
+				huh.NewConfirm().
+					Title("Use this directory?").
+					Affirmative("Yes").
+					Negative("Change it").
+					Value(&useExisting),
+			),
+		)
+		form.Run()
+
+		if useExisting {
 			return defaultDir
 		}
 	}
@@ -228,13 +247,17 @@ func getOrAskDefaultDirectory() string {
 		suggestion = defaultDir
 	}
 
-	var newDir string
-	prompt := &survey.Input{
-		Message: "Where should IRL projects be created?",
-		Default: suggestion,
-		Help:    "This will be saved as your default directory",
-	}
-	if err := survey.AskOne(prompt, &newDir); err != nil {
+	newDir := suggestion
+	form := theme.NewForm(
+		huh.NewGroup(
+			huh.NewInput().
+				Title("Where should IRL projects be created?").
+				Description("This will be saved as your default").
+				Value(&newDir),
+		),
+	)
+
+	if err := form.Run(); err != nil {
 		return suggestion
 	}
 
@@ -242,7 +265,7 @@ func getOrAskDefaultDirectory() string {
 
 	// Save to config
 	if err := config.SetDefaultDirectory(newDir); err != nil {
-		fmt.Printf("Warning: could not save config: %v\n", err)
+		fmt.Println(theme.Note(fmt.Sprintf("couldn't save config: %v", err)))
 	} else {
 		fmt.Printf("Saved default directory: %s\n", newDir)
 	}
