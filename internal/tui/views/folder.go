@@ -104,7 +104,13 @@ func (m FolderModel) Update(msg tea.Msg) (FolderModel, tea.Cmd) {
 				if folderIdx < len(m.folders) {
 					m.currentDir = filepath.Join(m.currentDir, m.folders[folderIdx])
 					m.loadFolders()
-					m.cursor = 0 // Reset to "Use this folder"
+					// Stay in folder list area (cursor 1 = first folder)
+					// but clamp to valid range if new folder has fewer items
+					if len(m.folders) > 0 {
+						m.cursor = 1 // First folder in new list
+					} else {
+						m.cursor = 0 // Only "Use this folder" available
+					}
 				}
 			}
 		case "left", "h":
@@ -112,12 +118,17 @@ func (m FolderModel) Update(msg tea.Msg) (FolderModel, tea.Cmd) {
 				// On "Use this folder" - signal to go back to menu
 				m.wantsBack = true
 			} else {
-				// On a subfolder - go up one directory level
+				// In folder list area - go up one directory level
 				parent := filepath.Dir(m.currentDir)
 				if parent != m.currentDir {
 					m.currentDir = parent
 					m.loadFolders()
-					m.cursor = 0 // Reset to "Use this folder"
+					// Stay in folder list area
+					if len(m.folders) > 0 {
+						m.cursor = 1 // First folder in parent
+					} else {
+						m.cursor = 0 // Only "Use this folder" available
+					}
 				}
 			}
 		}
