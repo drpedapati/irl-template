@@ -43,6 +43,10 @@ type TemplatesModel struct {
 	editing bool
 	editors []Editor
 
+	// Delete confirmation state
+	deleting        bool
+	deleteTargetIdx int
+
 	// Feedback message
 	message    string
 	messageErr bool
@@ -214,6 +218,11 @@ func (m TemplatesModel) IsEditing() bool {
 	return m.editing
 }
 
+// IsDeleting returns true if in delete confirmation mode
+func (m TemplatesModel) IsDeleting() bool {
+	return m.deleting
+}
+
 // HasFilterText returns true if there's text in the filter input
 func (m TemplatesModel) HasFilterText() bool {
 	return m.filterInput.Value() != ""
@@ -246,6 +255,9 @@ func (m TemplatesModel) Update(msg tea.Msg) (TemplatesModel, tea.Cmd) {
 		}
 		if m.editing {
 			return m.updateEditing(msg)
+		}
+		if m.deleting {
+			return m.updateDeleting(msg)
 		}
 		if m.previewing {
 			return m.updatePreview(msg)
@@ -290,6 +302,19 @@ func (m TemplatesModel) updateList(msg tea.KeyMsg) (TemplatesModel, tea.Cmd) {
 				m.startEditMode()
 			} else {
 				m.message = "Press t to create a custom copy first"
+				m.messageErr = false
+			}
+		}
+		return m, nil
+	case "x":
+		// Delete custom template
+		if len(m.filtered) > 0 && m.cursor < len(m.filtered) {
+			t := m.filtered[m.cursor]
+			if t.Source == "custom" {
+				m.deleting = true
+				m.deleteTargetIdx = m.cursor
+			} else {
+				m.message = "Cannot delete default templates"
 				m.messageErr = false
 			}
 		}
@@ -439,6 +464,49 @@ func (m TemplatesModel) updateEditing(msg tea.KeyMsg) (TemplatesModel, tea.Cmd) 
 	return m, nil
 }
 
+func (m TemplatesModel) updateDeleting(msg tea.KeyMsg) (TemplatesModel, tea.Cmd) {
+	switch msg.String() {
+	case "y", "Y":
+		// Confirm delete
+		err := m.deleteCustomTemplate()
+		m.deleting = false
+		if err != nil {
+			m.message = "Error: " + err.Error()
+			m.messageErr = true
+		} else {
+			t := m.filtered[m.deleteTargetIdx]
+			m.message = "✓ Deleted: " + t.Name
+			m.messageErr = false
+			return m, m.LoadTemplates()
+		}
+		return m, nil
+	case "n", "N", "esc":
+		// Cancel delete
+		m.deleting = false
+		return m, nil
+	}
+	return m, nil
+}
+
+func (m *TemplatesModel) deleteCustomTemplate() error {
+	if m.deleteTargetIdx >= len(m.filtered) {
+		return os.ErrNotExist
+	}
+
+	t := m.filtered[m.deleteTargetIdx]
+	if t.Source != "custom" {
+		return os.ErrPermission
+	}
+
+	baseDir := config.GetDefaultDirectory()
+	if baseDir == "" {
+		return os.ErrNotExist
+	}
+
+	templateDir := filepath.Join(baseDir, "_templates", t.Name)
+	return os.RemoveAll(templateDir)
+}
+
 func (m *TemplatesModel) openInEditor(e Editor) {
 	if m.cursor >= len(m.filtered) {
 		return
@@ -584,6 +652,9 @@ func (m TemplatesModel) View() string {
 	if m.editing {
 		return m.viewEditing()
 	}
+	if m.deleting {
+		return m.viewDeleting()
+	}
 	if m.previewing {
 		return m.viewPreview()
 	}
@@ -649,6 +720,37 @@ func (m TemplatesModel) viewEditing() string {
 
 	b.WriteString("\n")
 	b.WriteString(hintStyle.Render("Esc to cancel"))
+	b.WriteString("\n")
+
+	return b.String()
+}
+
+func (m TemplatesModel) viewDeleting() string {
+	var b strings.Builder
+
+	labelStyle := lipgloss.NewStyle().MarginLeft(2)
+	hintStyle := lipgloss.NewStyle().Foreground(theme.Muted).MarginLeft(2)
+	warnStyle := lipgloss.NewStyle().Foreground(theme.Error).Bold(true).MarginLeft(2)
+	accentStyle := lipgloss.NewStyle().Foreground(theme.Accent)
+	keyStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
+
+	t := m.filtered[m.deleteTargetIdx]
+
+	b.WriteString("\n")
+	b.WriteString(warnStyle.Render("Delete custom template?"))
+	b.WriteString("\n\n")
+
+	b.WriteString(hintStyle.Render("Template: ") + accentStyle.Render(t.Name))
+	b.WriteString("\n\n")
+
+	b.WriteString(labelStyle.Render("This will permanently delete:"))
+	b.WriteString("\n")
+	b.WriteString(hintStyle.Render("  _templates/" + t.Name + "/"))
+	b.WriteString("\n\n")
+
+	b.WriteString("  " + keyStyle.Render("[y]") + " Yes, delete")
+	b.WriteString("\n")
+	b.WriteString("  " + keyStyle.Render("[n]") + " No, cancel")
 	b.WriteString("\n")
 
 	return b.String()

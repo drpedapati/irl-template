@@ -380,8 +380,8 @@ func (m Model) updateProjects(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) updateTemplates(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
-	// If in copy or edit mode, let the view handle all keys
-	if m.templatesView.IsCopying() || m.templatesView.IsEditing() {
+	// If in copy, edit, or delete mode, let the view handle all keys
+	if m.templatesView.IsCopying() || m.templatesView.IsEditing() || m.templatesView.IsDeleting() {
 		var cmd tea.Cmd
 		m.templatesView, cmd = m.templatesView.Update(msg)
 		return m, cmd
@@ -739,7 +739,7 @@ func (m Model) getContextHint() string {
 		}
 		return ""
 	case ViewTemplates:
-		if m.templatesView.IsCopying() || m.templatesView.IsEditing() {
+		if m.templatesView.IsCopying() || m.templatesView.IsEditing() || m.templatesView.IsDeleting() {
 			return "" // Modal has its own hints
 		}
 		if m.templatesView.IsPreviewing() {
