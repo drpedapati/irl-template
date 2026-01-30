@@ -133,8 +133,8 @@ func (m Menu) View() string {
 	// Column separator position
 	colSep := maxLabelWidth + 4
 
-	// Top padding
-	b.WriteString("\n")
+	// Top padding (uniform with bottom)
+	b.WriteString("\n\n")
 
 	for i, item := range m.items {
 		cursor := "  "
@@ -169,8 +169,8 @@ func (m Menu) View() string {
 		}
 	}
 
-	// Bottom padding
-	b.WriteString("\n")
+	// Bottom padding (uniform with top)
+	b.WriteString("\n\n")
 
 	return b.String()
 }

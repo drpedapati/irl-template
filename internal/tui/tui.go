@@ -686,13 +686,7 @@ func (m Model) View() string {
 }
 
 func (m Model) renderMenuView() string {
-	var b strings.Builder
-
-	b.WriteString("\n")
-	b.WriteString(m.menu.View())
-	b.WriteString("\n")
-
-	return b.String()
+	return m.menu.View()
 }
 
 func (m Model) renderLoading(msg string) string {
