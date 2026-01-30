@@ -21,6 +21,7 @@ type ViewType int
 const (
 	ViewMenu ViewType = iota
 	ViewInit
+	ViewProjects // List IRL projects
 	ViewTemplates
 	ViewDoctor
 	ViewConfig
@@ -41,6 +42,7 @@ func NewMenu() Menu {
 	return Menu{
 		items: []MenuItem{
 			{Title: "New project", Desc: "Create a new IRL project", Key: "n", ViewType: ViewInit},
+			{Title: "Projects", Desc: "Browse existing IRL projects", Key: "p", ViewType: ViewProjects},
 			{Title: "Templates", Desc: "Browse available templates", Key: "t", ViewType: ViewTemplates},
 			{Title: "Update", Desc: "Refresh templates from GitHub", Key: "u", ViewType: ViewUpdate},
 			{Title: "Doctor", Desc: "Check environment setup", Key: "d", ViewType: ViewDoctor},

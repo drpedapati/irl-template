@@ -33,6 +33,7 @@ type Model struct {
 
 	// Sub-views
 	templatesView views.TemplatesModel
+	projectsView  views.ProjectsModel
 	doctorView    views.DoctorModel
 	initView      views.InitModel
 	configView    views.ConfigModel
@@ -56,6 +57,7 @@ func New(version string) Model {
 		statusBar:     NewStatusBar(),
 		view:          ViewMenu,
 		templatesView: views.NewTemplatesModel(),
+		projectsView:  views.NewProjectsModel(),
 		doctorView:    views.NewDoctorModel(),
 		initView:      views.NewInitModel(),
 		configView:    views.NewConfigModel(),
@@ -68,6 +70,7 @@ func New(version string) Model {
 	m.menu.SetWidth(appWidth)
 	m.statusBar.SetWidth(appWidth)
 	m.templatesView.SetSize(appWidth, appHeight-7)
+	m.projectsView.SetSize(appWidth, appHeight-7)
 	m.doctorView.SetSize(appWidth, appHeight-7)
 	m.initView.SetSize(appWidth, appHeight-7)
 	m.configView.SetSize(appWidth, appHeight-7)
@@ -101,6 +104,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch m.view {
 		case ViewMenu:
 			return m.updateMenu(msg)
+		case ViewProjects:
+			return m.updateProjects(msg)
 		case ViewTemplates:
 			return m.updateTemplates(msg)
 		case ViewDoctor:
@@ -123,6 +128,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Handle view-specific messages
 	case views.TemplatesLoadedMsg:
 		m.templatesView, _ = m.templatesView.Update(msg)
+		m.loading = false
+
+	case views.ProjectsLoadedMsg:
+		m.projectsView, _ = m.projectsView.Update(msg)
 		m.loading = false
 
 	case views.DoctorResultMsg:
@@ -183,6 +192,10 @@ func (m Model) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if v, ok := m.menu.SelectByKey("u"); ok {
 			return m.selectView(v)
 		}
+	case "p":
+		if v, ok := m.menu.SelectByKey("p"); ok {
+			return m.selectView(v)
+		}
 	}
 	return m, nil
 }
@@ -201,6 +214,11 @@ func (m Model) selectView(v ViewType) (tea.Model, tea.Cmd) {
 		m.updateView = views.NewUpdateModel()
 		m.updateView.SetSize(appWidth, appHeight-7)
 		return m, m.updateView.StartUpdate()
+	case ViewProjects:
+		m.view = v
+		m.statusBar.SetKeys(ViewKeys())
+		m.loading = true
+		cmd = tea.Batch(m.spinner.Tick, m.projectsView.ScanProjects())
 	case ViewTemplates:
 		m.view = v
 		m.statusBar.SetKeys(TemplateViewKeys())
@@ -242,6 +260,52 @@ func openBrowser(url string) {
 	if cmd != nil {
 		cmd.Start()
 	}
+}
+
+// openInEditor opens a directory in the default editor
+func openInEditor(path string) {
+	var cmd *exec.Cmd
+	// Try VS Code first, then fall back to opening the folder
+	if _, err := exec.LookPath("code"); err == nil {
+		cmd = exec.Command("code", path)
+	} else if _, err := exec.LookPath("cursor"); err == nil {
+		cmd = exec.Command("cursor", path)
+	} else {
+		// Fall back to opening the folder
+		switch runtime.GOOS {
+		case "darwin":
+			cmd = exec.Command("open", path)
+		case "linux":
+			cmd = exec.Command("xdg-open", path)
+		case "windows":
+			cmd = exec.Command("explorer", path)
+		}
+	}
+	if cmd != nil {
+		cmd.Start()
+	}
+}
+
+func (m Model) updateProjects(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "q":
+		m.quitting = true
+		return m, tea.Quit
+	case "esc", "left", "h":
+		m.view = ViewMenu
+		m.statusBar.SetKeys(DefaultMenuKeys())
+		return m, nil
+	case "enter", "right", "l":
+		// Open project in editor or terminal
+		if path := m.projectsView.SelectedProject(); path != "" {
+			openInEditor(path)
+		}
+		return m, nil
+	}
+
+	var cmd tea.Cmd
+	m.projectsView, cmd = m.projectsView.Update(msg)
+	return m, cmd
 }
 
 func (m Model) updateTemplates(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
@@ -369,6 +433,8 @@ func (m Model) View() string {
 
 	viewTitle := "Main Menu"
 	switch m.view {
+	case ViewProjects:
+		viewTitle = "Projects"
 	case ViewTemplates:
 		viewTitle = "Templates"
 	case ViewDoctor:
@@ -397,6 +463,12 @@ func (m Model) View() string {
 	switch m.view {
 	case ViewMenu:
 		content = m.renderMenuView()
+	case ViewProjects:
+		if m.loading {
+			content = m.renderLoading("Scanning for projects...")
+		} else {
+			content = m.projectsView.View()
+		}
 	case ViewTemplates:
 		if m.loading {
 			content = m.renderLoading("Loading templates...")
@@ -507,6 +579,8 @@ func (m Model) getContextHint() string {
 	switch m.view {
 	case ViewMenu:
 		return mutedStyle.Render("Or run: ") + keyStyle.Render("irl init \"your project\"")
+	case ViewProjects:
+		return keyStyle.Render("→") + mutedStyle.Render(" open in editor")
 	case ViewTemplates:
 		if m.templatesView.IsPreviewing() {
 			return keyStyle.Render("↑↓") + mutedStyle.Render(" scroll  ") + keyStyle.Render("←") + mutedStyle.Render(" back")
