@@ -36,6 +36,7 @@ type Model struct {
 	doctorView    views.DoctorModel
 	initView      views.InitModel
 	configView    views.ConfigModel
+	updateView    views.UpdateModel
 
 	// Loading state
 	loading bool
@@ -58,6 +59,7 @@ func New(version string) Model {
 		doctorView:    views.NewDoctorModel(),
 		initView:      views.NewInitModel(),
 		configView:    views.NewConfigModel(),
+		updateView:    views.NewUpdateModel(),
 		spinner:       s,
 	}
 
@@ -107,6 +109,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m.updateInit(msg)
 		case ViewConfig:
 			return m.updateConfig(msg)
+		case ViewUpdate:
+			return m.updateUpdateView(msg)
 		}
 
 	case spinner.TickMsg:
@@ -131,6 +135,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case views.BackToMenuMsg:
 		m.view = ViewMenu
 		m.statusBar.SetKeys(DefaultMenuKeys())
+
+	case views.UpdateProgressMsg:
+		m.updateView, _ = m.updateView.Update(msg)
+
+	case views.UpdateCompleteMsg:
+		m.updateView, _ = m.updateView.Update(msg)
+		// Also refresh templates view so it has latest
+		m.templatesView = views.NewTemplatesModel()
 	}
 
 	return m, tea.Batch(cmds...)
@@ -184,9 +196,11 @@ func (m Model) selectView(v ViewType) (tea.Model, tea.Cmd) {
 		openBrowser("https://docs.irloop.org")
 		return m, nil
 	case ViewUpdate:
-		// Refresh templates from GitHub, stay on menu
-		m.loading = true
-		return m, tea.Batch(m.spinner.Tick, m.templatesView.RefreshTemplates())
+		// Show update view with progress bar
+		m.view = v
+		m.updateView = views.NewUpdateModel()
+		m.updateView.SetSize(appWidth, appHeight-7)
+		return m, m.updateView.StartUpdate()
 	case ViewTemplates:
 		m.view = v
 		m.statusBar.SetKeys(TemplateViewKeys())
@@ -315,6 +329,22 @@ func (m Model) updateConfig(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
+func (m Model) updateUpdateView(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "q":
+		m.quitting = true
+		return m, tea.Quit
+	case "esc", "left", "h", "enter":
+		// Allow going back when done
+		if m.updateView.IsDone() {
+			m.view = ViewMenu
+			m.statusBar.SetKeys(DefaultMenuKeys())
+			return m, nil
+		}
+	}
+	return m, nil
+}
+
 // View renders the TUI
 func (m Model) View() string {
 	if m.quitting {
@@ -347,6 +377,8 @@ func (m Model) View() string {
 		viewTitle = "New Project"
 	case ViewConfig:
 		viewTitle = "Configuration"
+	case ViewUpdate:
+		viewTitle = "Update"
 	}
 
 	// Show view title on left, datetime on right
@@ -381,9 +413,11 @@ func (m Model) View() string {
 		content = m.initView.View()
 	case ViewConfig:
 		content = m.configView.View()
+	case ViewUpdate:
+		content = m.updateView.View()
 	}
 
-	// Truncate or pad content to fixed height
+	// Truncate or pad content to fixed height (top-justified)
 	contentLines := strings.Split(content, "\n")
 	maxContentLines := appHeight - 7 // header, subheader, top divider, hint, bottom divider, path, footer
 
@@ -392,22 +426,9 @@ func (m Model) View() string {
 		contentLines = contentLines[:maxContentLines]
 	}
 
-	// Center content vertically if shorter than max
-	if len(contentLines) < maxContentLines {
-		topPadding := (maxContentLines - len(contentLines)) / 2
-		bottomPadding := maxContentLines - len(contentLines) - topPadding
-
-		// Add top padding
-		padded := make([]string, 0, maxContentLines)
-		for i := 0; i < topPadding; i++ {
-			padded = append(padded, "")
-		}
-		padded = append(padded, contentLines...)
-		// Add bottom padding
-		for i := 0; i < bottomPadding; i++ {
-			padded = append(padded, "")
-		}
-		contentLines = padded
+	// Pad at bottom if too short (top-justified)
+	for len(contentLines) < maxContentLines {
+		contentLines = append(contentLines, "")
 	}
 
 	inner.WriteString("\n")
