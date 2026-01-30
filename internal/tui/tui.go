@@ -223,7 +223,7 @@ func (m Model) selectView(v ViewType) (tea.Model, tea.Cmd) {
 	switch v {
 	case ViewDocs:
 		// Open docs in browser, stay on menu
-		openBrowser("https://docs.irloop.org")
+		openBrowser("https://www.irloop.org")
 		return m, nil
 	case ViewUpdate:
 		// Show update view with progress bar

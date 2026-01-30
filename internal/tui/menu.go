@@ -27,7 +27,7 @@ const (
 	ViewDoctor
 	ViewConfig
 	ViewPersonalize // Academic profile settings
-	ViewDocs        // Opens browser to docs.irloop.org
+	ViewDocs        // Opens browser to www.irloop.org
 	ViewUpdate      // Updates templates from GitHub
 )
 
