@@ -195,6 +195,7 @@ func getDescription(name string) string {
 		"admin-planning":      "Plans, reports, memos, proposals",
 		"manuscript":          "Academic manuscript writing",
 		"project-tracker":     "Task list and schedule management",
+		"coding-project":      "Software development with docs",
 	}
 	if d, ok := descriptions[name]; ok {
 		return d
