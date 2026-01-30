@@ -366,15 +366,8 @@ func (m Model) View() string {
 	inner.WriteString(Divider(appWidth))
 	inner.WriteString("\n")
 
-	// Footer: status bar keys on left, hint on right
-	statusContent := m.statusBar.ViewCompact()
-	hint := mutedStyle.Render("irl v" + m.version)
-
-	footerPadding := appWidth - lipgloss.Width(statusContent) - lipgloss.Width(hint)
-	if footerPadding < 1 {
-		footerPadding = 1
-	}
-	inner.WriteString(statusContent + strings.Repeat(" ", footerPadding) + hint)
+	// Footer: centered command help
+	inner.WriteString(m.statusBar.View())
 
 	// No border - clean Claude Code style
 	return inner.String()
