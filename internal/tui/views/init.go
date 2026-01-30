@@ -263,15 +263,10 @@ func (m InitModel) updateBrowse(msg tea.KeyMsg) (InitModel, tea.Cmd) {
 }
 
 func (m InitModel) updatePurpose(msg tea.KeyMsg) (InitModel, tea.Cmd) {
-	switch msg.String() {
-	case "enter", "right":
-		m.purpose = m.purposeInput.Value()
-		if m.purpose == "" {
-			return m, nil
-		}
-		m.projectName = naming.GenerateName(m.purpose)
-		// Load templates
-		return m, tea.Batch(m.loadTemplates(), m.spinner.Tick)
+	key := msg.String()
+
+	// Handle navigation keys first
+	switch key {
 	case "esc", "left":
 		if m.skippedDirStep {
 			// Let parent handle going back to menu
@@ -282,8 +277,22 @@ func (m InitModel) updatePurpose(msg tea.KeyMsg) (InitModel, tea.Cmd) {
 		return m, nil
 	}
 
+	// Update text input first so it captures the latest keystroke
 	var cmd tea.Cmd
 	m.purposeInput, cmd = m.purposeInput.Update(msg)
+
+	// Then check for confirmation keys
+	switch key {
+	case "enter", "right":
+		m.purpose = m.purposeInput.Value()
+		if m.purpose == "" {
+			return m, cmd // Still return the textinput command
+		}
+		m.projectName = naming.GenerateName(m.purpose)
+		// Load templates
+		return m, tea.Batch(m.loadTemplates(), m.spinner.Tick)
+	}
+
 	return m, cmd
 }
 
@@ -555,12 +564,16 @@ func (m InitModel) viewPurpose() string {
 	b.WriteString("  " + m.purposeInput.View())
 	b.WriteString("\n\n")
 
-	// Show preview of generated name
+	// Show preview of generated folder name
 	if m.purposeInput.Value() != "" {
 		preview := naming.GenerateName(m.purposeInput.Value())
-		previewStyle := lipgloss.NewStyle().Foreground(theme.Muted).MarginLeft(2)
+		labelStyle := lipgloss.NewStyle().Foreground(theme.Muted).MarginLeft(2)
 		nameStyle := lipgloss.NewStyle().Foreground(theme.Accent)
-		b.WriteString(previewStyle.Render("→ ") + nameStyle.Render(preview))
+		b.WriteString(labelStyle.Render("Folder: ") + nameStyle.Render(preview))
+		b.WriteString("\n\n")
+		// Hint for how to proceed
+		keyStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
+		b.WriteString(labelStyle.Render(keyStyle.Render("Enter") + " or " + keyStyle.Render("→") + " to continue"))
 		b.WriteString("\n")
 	}
 
