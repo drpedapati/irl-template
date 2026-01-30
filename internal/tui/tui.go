@@ -15,7 +15,7 @@ import (
 
 const (
 	appWidth  = 72 // Fixed app width for Claude Code-like feel
-	appHeight = 18 // Fixed app height (content area)
+	appHeight = 24 // Fixed app height (taller for markdown preview)
 )
 
 // Model is the main TUI model
