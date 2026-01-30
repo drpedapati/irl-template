@@ -99,9 +99,8 @@ func CoreTools() []Tool {
 func AITools() []Tool {
 	return []Tool{
 		{Name: "Claude Code", Cmd: "claude", Install: "npm i -g @anthropic-ai/claude-code", Category: "AI Assistants"},
-		{Name: "Aider", Cmd: "aider", Install: "pip install aider-chat", Category: "AI Assistants"},
+		{Name: "Codex", Cmd: "codex", Install: "npm i -g @openai/codex", Category: "AI Assistants"},
 		{Name: "Copilot CLI", Cmd: "gh copilot", Install: "gh extension install github/gh-copilot", Category: "AI Assistants"},
-		{Name: "Ollama", Cmd: "ollama", Install: "brew install ollama", Category: "AI Assistants"},
 	}
 }
 
