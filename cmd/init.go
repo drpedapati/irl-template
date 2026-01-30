@@ -264,6 +264,7 @@ func getOrAskDefaultDirectory() string {
 				ShowHidden(false).
 				ShowSize(false).
 				ShowPermissions(false).
+				Height(15).
 				CurrentDirectory(startDir).
 				Value(&newDir),
 		),
