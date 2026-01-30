@@ -21,11 +21,7 @@ type KeyBinding struct {
 // NewStatusBar creates a new status bar
 func NewStatusBar() StatusBar {
 	return StatusBar{
-		keys: []KeyBinding{
-			{Key: "↑↓", Desc: "Navigate"},
-			{Key: "Enter", Desc: "Select"},
-			{Key: "q", Desc: "Quit"},
-		},
+		keys: DefaultMenuKeys(),
 	}
 }
 
@@ -71,6 +67,7 @@ func (s StatusBar) ViewCompact() string {
 // DefaultMenuKeys returns the default key bindings for the main menu
 func DefaultMenuKeys() []KeyBinding {
 	return []KeyBinding{
+		{Key: "i", Desc: "Profile"},
 		{Key: "↑↓", Desc: "Navigate"},
 		{Key: "→", Desc: "Select"},
 		{Key: "q", Desc: "Quit"},

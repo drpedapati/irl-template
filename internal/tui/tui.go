@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"fmt"
 	"os/exec"
 	"runtime"
 	"strings"
@@ -32,12 +33,14 @@ type Model struct {
 	quitting  bool
 
 	// Sub-views
-	templatesView views.TemplatesModel
-	projectsView  views.ProjectsModel
-	doctorView    views.DoctorModel
-	initView      views.InitModel
-	configView    views.ConfigModel
-	updateView    views.UpdateModel
+	templatesView   views.TemplatesModel
+	projectsView    views.ProjectsModel
+	folderView      views.FolderModel
+	personalizeView views.PersonalizeModel
+	doctorView      views.DoctorModel
+	initView        views.InitModel
+	configView      views.ConfigModel
+	updateView      views.UpdateModel
 
 	// Loading state
 	loading bool
@@ -51,18 +54,20 @@ func New(version string) Model {
 	s.Style = SpinnerStyle
 
 	m := Model{
-		version:       version,
-		header:        NewHeader(version),
-		menu:          NewMenu(),
-		statusBar:     NewStatusBar(),
-		view:          ViewMenu,
-		templatesView: views.NewTemplatesModel(),
-		projectsView:  views.NewProjectsModel(),
-		doctorView:    views.NewDoctorModel(),
-		initView:      views.NewInitModel(),
-		configView:    views.NewConfigModel(),
-		updateView:    views.NewUpdateModel(),
-		spinner:       s,
+		version:         version,
+		header:          NewHeader(version),
+		menu:            NewMenu(),
+		statusBar:       NewStatusBar(),
+		view:            ViewMenu,
+		templatesView:   views.NewTemplatesModel(),
+		projectsView:    views.NewProjectsModel(),
+		folderView:      views.NewFolderModel(),
+		personalizeView: views.NewPersonalizeModel(),
+		doctorView:      views.NewDoctorModel(),
+		initView:        views.NewInitModel(),
+		configView:      views.NewConfigModel(),
+		updateView:      views.NewUpdateModel(),
+		spinner:         s,
 	}
 
 	// Set fixed widths
@@ -71,6 +76,8 @@ func New(version string) Model {
 	m.statusBar.SetWidth(appWidth)
 	m.templatesView.SetSize(appWidth, appHeight-7)
 	m.projectsView.SetSize(appWidth, appHeight-7)
+	m.folderView.SetSize(appWidth, appHeight-7)
+	m.personalizeView.SetSize(appWidth, appHeight-7)
 	m.doctorView.SetSize(appWidth, appHeight-7)
 	m.initView.SetSize(appWidth, appHeight-7)
 	m.configView.SetSize(appWidth, appHeight-7)
@@ -114,6 +121,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m.updateInit(msg)
 		case ViewConfig:
 			return m.updateConfig(msg)
+		case ViewFolder:
+			return m.updateFolder(msg)
+		case ViewPersonalize:
+			return m.updatePersonalize(msg)
 		case ViewUpdate:
 			return m.updateUpdateView(msg)
 		}
@@ -196,6 +207,12 @@ func (m Model) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if v, ok := m.menu.SelectByKey("p"); ok {
 			return m.selectView(v)
 		}
+	case "f":
+		if v, ok := m.menu.SelectByKey("f"); ok {
+			return m.selectView(v)
+		}
+	case "i":
+		return m.selectView(ViewPersonalize)
 	}
 	return m, nil
 }
@@ -239,6 +256,17 @@ func (m Model) selectView(v ViewType) (tea.Model, tea.Cmd) {
 		m.view = v
 		m.statusBar.SetKeys(ViewKeys())
 		cmd = m.configView.Load()
+	case ViewFolder:
+		m.view = v
+		m.statusBar.SetKeys(ViewKeys())
+		m.folderView = views.NewFolderModel()
+		m.folderView.SetSize(appWidth, appHeight-7)
+	case ViewPersonalize:
+		m.view = v
+		m.statusBar.SetKeys(ViewKeys())
+		m.personalizeView = views.NewPersonalizeModel()
+		m.personalizeView.SetSize(appWidth, appHeight-7)
+		cmd = m.personalizeView.Init()
 	default:
 		m.view = v
 	}
@@ -393,6 +421,52 @@ func (m Model) updateConfig(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
+func (m Model) updateFolder(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "q":
+		m.quitting = true
+		return m, tea.Quit
+	case "esc":
+		m.view = ViewMenu
+		m.statusBar.SetKeys(DefaultMenuKeys())
+		return m, nil
+	}
+
+	var cmd tea.Cmd
+	m.folderView, cmd = m.folderView.Update(msg)
+
+	// If saved, go back to menu
+	if m.folderView.IsSaved() {
+		m.view = ViewMenu
+		m.statusBar.SetKeys(DefaultMenuKeys())
+	}
+
+	return m, cmd
+}
+
+func (m Model) updatePersonalize(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "q":
+		m.quitting = true
+		return m, tea.Quit
+	case "esc":
+		m.view = ViewMenu
+		m.statusBar.SetKeys(DefaultMenuKeys())
+		return m, nil
+	}
+
+	var cmd tea.Cmd
+	m.personalizeView, cmd = m.personalizeView.Update(msg)
+
+	// If saved, go back to menu
+	if m.personalizeView.IsSaved() {
+		m.view = ViewMenu
+		m.statusBar.SetKeys(DefaultMenuKeys())
+	}
+
+	return m, cmd
+}
+
 func (m Model) updateUpdateView(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "q":
@@ -435,6 +509,8 @@ func (m Model) View() string {
 	switch m.view {
 	case ViewProjects:
 		viewTitle = "Projects"
+	case ViewFolder:
+		viewTitle = "Default Folder"
 	case ViewTemplates:
 		viewTitle = "Templates"
 	case ViewDoctor:
@@ -443,6 +519,8 @@ func (m Model) View() string {
 		viewTitle = "New Project"
 	case ViewConfig:
 		viewTitle = "Configuration"
+	case ViewPersonalize:
+		viewTitle = "Profile"
 	case ViewUpdate:
 		viewTitle = "Update"
 	}
@@ -485,6 +563,10 @@ func (m Model) View() string {
 		content = m.initView.View()
 	case ViewConfig:
 		content = m.configView.View()
+	case ViewFolder:
+		content = m.folderView.View()
+	case ViewPersonalize:
+		content = m.personalizeView.View()
 	case ViewUpdate:
 		content = m.updateView.View()
 	}
@@ -522,7 +604,8 @@ func (m Model) View() string {
 	inner.WriteString(Divider(appWidth))
 	inner.WriteString("\n")
 
-	// Folder path with disk space (centered)
+	// Folder path with disk space (centered) and [f] indicator
+	keyStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
 	defaultDir := config.GetDefaultDirectory()
 	var pathText string
 	if defaultDir == "" {
@@ -535,17 +618,19 @@ func (m Model) View() string {
 			pathText = defaultDir
 		}
 	}
-	// Truncate long paths from the left
-	maxPathLen := appWidth - 4
+	// Truncate long paths from the left (account for [f] prefix)
+	maxPathLen := appWidth - 8
 	if len(pathText) > maxPathLen {
 		pathText = "..." + pathText[len(pathText)-maxPathLen+3:]
 	}
+	// Build the full path line with [f] indicator
+	pathLine := keyStyle.Render("[f]") + " " + mutedStyle.Render(pathText)
 	// Center the path
-	pathPadding := (appWidth - lipgloss.Width(pathText)) / 2
+	pathPadding := (appWidth - lipgloss.Width(pathLine)) / 2
 	if pathPadding < 0 {
 		pathPadding = 0
 	}
-	inner.WriteString(strings.Repeat(" ", pathPadding) + mutedStyle.Render(pathText))
+	inner.WriteString(strings.Repeat(" ", pathPadding) + pathLine)
 	inner.WriteString("\n")
 
 	// Footer: centered command help
@@ -578,7 +663,7 @@ func (m Model) getContextHint() string {
 
 	switch m.view {
 	case ViewMenu:
-		return mutedStyle.Render("Or run: ") + keyStyle.Render("irl init \"your project\"")
+		return ""
 	case ViewProjects:
 		return keyStyle.Render("→") + mutedStyle.Render(" open in editor")
 	case ViewTemplates:
@@ -592,12 +677,19 @@ func (m Model) getContextHint() string {
 		return ""
 	case ViewConfig:
 		return keyStyle.Render("e") + mutedStyle.Render(" edit")
+	case ViewFolder:
+		return keyStyle.Render("←→") + mutedStyle.Render(" navigate  ") + keyStyle.Render("Enter") + mutedStyle.Render(" select this folder")
+	case ViewPersonalize:
+		return keyStyle.Render("Tab") + mutedStyle.Render(" next field  ") + keyStyle.Render("Enter") + mutedStyle.Render(" save")
 	}
 	return ""
 }
 
 // Run starts the TUI
 func Run(version string) error {
+	// Clear screen and move cursor to top
+	fmt.Print("\033[2J\033[H")
+
 	p := tea.NewProgram(
 		New(version),
 		// No alt screen - renders inline at current cursor position

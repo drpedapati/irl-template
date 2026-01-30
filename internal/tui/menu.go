@@ -21,12 +21,14 @@ type ViewType int
 const (
 	ViewMenu ViewType = iota
 	ViewInit
-	ViewProjects // List IRL projects
+	ViewProjects    // List IRL projects
+	ViewFolder      // Set default folder
 	ViewTemplates
 	ViewDoctor
 	ViewConfig
-	ViewDocs   // Opens browser to docs.irloop.org
-	ViewUpdate // Updates templates from GitHub
+	ViewPersonalize // Academic profile settings
+	ViewDocs        // Opens browser to docs.irloop.org
+	ViewUpdate      // Updates templates from GitHub
 )
 
 // Menu represents the main menu
@@ -43,10 +45,10 @@ func NewMenu() Menu {
 		items: []MenuItem{
 			{Title: "New project", Desc: "Create a new IRL project", Key: "n", ViewType: ViewInit},
 			{Title: "Projects", Desc: "Browse existing IRL projects", Key: "p", ViewType: ViewProjects},
+			{Title: "Folder", Desc: "Set default project folder", Key: "f", ViewType: ViewFolder},
 			{Title: "Templates", Desc: "Browse available templates", Key: "t", ViewType: ViewTemplates},
 			{Title: "Update", Desc: "Refresh templates from GitHub", Key: "u", ViewType: ViewUpdate},
 			{Title: "Doctor", Desc: "Check environment setup", Key: "d", ViewType: ViewDoctor},
-			{Title: "Config", Desc: "View and edit settings", Key: "c", ViewType: ViewConfig},
 			{Title: "Docs", Desc: "Open documentation in browser", Key: "o", ViewType: ViewDocs},
 		},
 		cursor:   0,
@@ -118,6 +120,23 @@ func (m Menu) View() string {
 		Foreground(theme.Accent).
 		Bold(true)
 
+	// Calculate max label width for two-column alignment
+	// Format: "  ● [x] Title" - find the longest
+	maxLabelWidth := 0
+	for _, item := range m.items {
+		// cursor(2) + space + [key](3) + space + title
+		labelWidth := 2 + 2 + 3 + 1 + len(item.Title)
+		if labelWidth > maxLabelWidth {
+			maxLabelWidth = labelWidth
+		}
+	}
+
+	// Column separator position
+	colSep := maxLabelWidth + 4
+
+	// Top padding
+	b.WriteString("\n")
+
 	for i, item := range m.items {
 		cursor := "  "
 		titleStyle := normalStyle
@@ -127,20 +146,32 @@ func (m Menu) View() string {
 			titleStyle = selectedStyle
 		}
 
-		// Format: cursor [key] Title - description
+		// Left column: cursor [key] Title
 		key := keyStyle.Render("[" + item.Key + "]")
 		title := titleStyle.Render(item.Title)
+		leftCol := "  " + cursor + key + " " + title
+
+		// Pad to align descriptions
+		leftWidth := lipgloss.Width(leftCol)
+		padding := colSep - leftWidth
+		if padding < 2 {
+			padding = 2
+		}
+
+		// Right column: description
 		desc := descStyle.Render(item.Desc)
 
-		b.WriteString("  " + cursor + key + " " + title)
-		b.WriteString("  " + desc)
+		b.WriteString(leftCol + strings.Repeat(" ", padding) + desc)
 		b.WriteString("\n")
 
-		// Add spacing between items for breathing room
+		// Add spacing between items (except after last)
 		if i < len(m.items)-1 {
 			b.WriteString("\n")
 		}
 	}
+
+	// Bottom padding
+	b.WriteString("\n")
 
 	return b.String()
 }

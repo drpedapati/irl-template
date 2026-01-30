@@ -27,7 +27,7 @@ func (h *Header) SetWidth(width int) {
 // View renders the header
 func (h Header) View() string {
 	logo := LogoStyle.Render("IRL")
-	title := TitleStyle.Render("Idempotent Research Loop")
+	title := TitleStyle.Render("Idempotent Research Loop AI")
 	version := VersionStyle.Render("v" + h.version)
 	avatar := LogoStyle.Render("🐢")
 

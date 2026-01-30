@@ -32,19 +32,20 @@ const (
 
 // InitModel is the project creation wizard
 type InitModel struct {
-	step         InitStep
-	width        int
-	height       int
-	baseDir      string
-	purposeInput textinput.Model
-	purpose      string
-	projectName  string
-	templates    []templates.Template
-	templateIdx  int
-	spinner      spinner.Model
-	projectPath  string
-	err          error
-	done         bool
+	step           InitStep
+	width          int
+	height         int
+	baseDir        string
+	purposeInput   textinput.Model
+	purpose        string
+	projectName    string
+	templates      []templates.Template
+	templateIdx    int
+	spinner        spinner.Model
+	projectPath    string
+	err            error
+	done           bool
+	skippedDirStep bool // True if we skipped directory selection (default was set)
 
 	// Directory selection state
 	directoryCursor int // 0 = use current, 1 = browse
@@ -70,16 +71,26 @@ func NewInitModel() InitModel {
 
 	// Get default directory
 	baseDir := config.GetDefaultDirectory()
-	if baseDir == "" {
+	hasDefaultDir := baseDir != ""
+
+	if !hasDefaultDir {
 		home, _ := os.UserHomeDir()
 		baseDir = filepath.Join(home, "Documents", "irl_projects")
 	}
 
+	// Skip folder selection if default is already set
+	startStep := StepDirectory
+	if hasDefaultDir {
+		startStep = StepPurpose
+		ti.Focus()
+	}
+
 	return InitModel{
-		step:         StepDirectory,
-		baseDir:      baseDir,
-		purposeInput: ti,
-		spinner:      s,
+		step:           startStep,
+		baseDir:        baseDir,
+		purposeInput:   ti,
+		spinner:        s,
+		skippedDirStep: hasDefaultDir,
 	}
 }
 
@@ -91,11 +102,17 @@ func (m *InitModel) SetSize(width, height int) {
 
 // Init initializes the model
 func (m InitModel) Init() tea.Cmd {
+	if m.step == StepPurpose {
+		return textinput.Blink
+	}
 	return nil
 }
 
-// CanGoBack returns true if we can go back a step
+// CanGoBack returns true if we can go back a step within the wizard
 func (m InitModel) CanGoBack() bool {
+	if m.step == StepPurpose && m.skippedDirStep {
+		return false // Go back to menu, not within wizard
+	}
 	return m.step == StepBrowse || m.step == StepPurpose || m.step == StepTemplate
 }
 
@@ -257,6 +274,10 @@ func (m InitModel) updatePurpose(msg tea.KeyMsg) (InitModel, tea.Cmd) {
 		// Load templates
 		return m, tea.Batch(m.loadTemplates(), m.spinner.Tick)
 	case "esc", "left":
+		if m.skippedDirStep {
+			// Let parent handle going back to menu
+			return m, nil
+		}
 		// Go back to directory step
 		m.step = StepDirectory
 		return m, nil
@@ -304,6 +325,50 @@ func (m InitModel) loadTemplates() tea.Cmd {
 	}
 }
 
+// injectProfile adds profile information to the plan content
+func injectProfile(content string) string {
+	profile := config.GetProfile()
+
+	// If no profile set, return content unchanged
+	if profile.Name == "" && profile.Institution == "" && profile.Instructions == "" {
+		return content
+	}
+
+	var header strings.Builder
+
+	// Build author/affiliation block
+	if profile.Name != "" || profile.Institution != "" {
+		header.WriteString("---\n")
+		if profile.Name != "" {
+			header.WriteString("author: " + profile.Name)
+			if profile.Title != "" {
+				header.WriteString(", " + profile.Title)
+			}
+			header.WriteString("\n")
+		}
+		if profile.Institution != "" {
+			header.WriteString("affiliation: " + profile.Institution)
+			if profile.Department != "" {
+				header.WriteString(", " + profile.Department)
+			}
+			header.WriteString("\n")
+		}
+		if profile.Email != "" {
+			header.WriteString("email: " + profile.Email + "\n")
+		}
+		header.WriteString("---\n\n")
+	}
+
+	// Add AI instructions as a comment block if set
+	if profile.Instructions != "" {
+		header.WriteString("<!-- AI Instructions:\n")
+		header.WriteString(profile.Instructions)
+		header.WriteString("\n-->\n\n")
+	}
+
+	return header.String() + content
+}
+
 func (m InitModel) createProject() tea.Cmd {
 	return func() tea.Msg {
 		projectPath := filepath.Join(m.baseDir, m.projectName)
@@ -336,6 +401,9 @@ func (m InitModel) createProject() tea.Cmd {
 		} else {
 			planContent = "# IRL Plan\n\n[Edit this file to define your research plan]\n"
 		}
+
+		// Inject profile information
+		planContent = injectProfile(planContent)
 
 		if err := scaffold.WritePlan(projectPath, planContent); err != nil {
 			return projectCreatedMsg{err: err}

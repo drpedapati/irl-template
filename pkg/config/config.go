@@ -6,8 +6,19 @@ import (
 	"path/filepath"
 )
 
+// Profile contains academic/personal info for template injection
+type Profile struct {
+	Name         string `json:"name"`
+	Title        string `json:"title"`        // e.g., "PhD Candidate", "Professor"
+	Institution  string `json:"institution"`  // e.g., "Stanford University"
+	Department   string `json:"department"`   // e.g., "Department of Psychology"
+	Email        string `json:"email"`
+	Instructions string `json:"instructions"` // Common instructions for AI
+}
+
 type Config struct {
-	DefaultDirectory string `json:"default_directory"`
+	DefaultDirectory string  `json:"default_directory"`
+	Profile          Profile `json:"profile"`
 }
 
 var configPath string
@@ -64,4 +75,27 @@ func SetDefaultDirectory(dir string) error {
 	}
 	cfg.DefaultDirectory = dir
 	return cfg.Save()
+}
+
+func GetProfile() Profile {
+	cfg, err := Load()
+	if err != nil {
+		return Profile{}
+	}
+	return cfg.Profile
+}
+
+func SetProfile(profile Profile) error {
+	cfg, err := Load()
+	if err != nil {
+		cfg = &Config{}
+	}
+	cfg.Profile = profile
+	return cfg.Save()
+}
+
+// HasProfile returns true if any profile fields are set
+func HasProfile() bool {
+	p := GetProfile()
+	return p.Name != "" || p.Institution != "" || p.Title != ""
 }
