@@ -7,6 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/drpedapati/irl-template/internal/tui/views"
+	"github.com/drpedapati/irl-template/pkg/config"
 	"github.com/drpedapati/irl-template/pkg/theme"
 )
 
@@ -60,10 +61,10 @@ func New(version string) Model {
 	m.header.SetWidth(appWidth)
 	m.menu.SetWidth(appWidth)
 	m.statusBar.SetWidth(appWidth)
-	m.templatesView.SetSize(appWidth, appHeight-3)
-	m.doctorView.SetSize(appWidth, appHeight-3)
-	m.initView.SetSize(appWidth, appHeight-3)
-	m.configView.SetSize(appWidth, appHeight-3)
+	m.templatesView.SetSize(appWidth, appHeight-4)
+	m.doctorView.SetSize(appWidth, appHeight-4)
+	m.initView.SetSize(appWidth, appHeight-4)
+	m.configView.SetSize(appWidth, appHeight-4)
 
 	return m
 }
@@ -178,7 +179,7 @@ func (m Model) selectView(v ViewType) (tea.Model, tea.Cmd) {
 	case ViewInit:
 		m.statusBar.SetKeys(InitViewKeys())
 		m.initView = views.NewInitModel()
-		m.initView.SetSize(appWidth-4, appHeight-8)
+		m.initView.SetSize(appWidth, appHeight-4)
 		cmd = m.initView.Init()
 	case ViewConfig:
 		m.statusBar.SetKeys(ViewKeys())
@@ -279,6 +280,23 @@ func (m Model) View() string {
 	// Header
 	inner.WriteString(m.header.View())
 	inner.WriteString("\n")
+
+	// Current project path - right aligned under turtle
+	defaultDir := config.GetDefaultDirectory()
+	pathStyle := lipgloss.NewStyle().Foreground(theme.Muted)
+	var pathText string
+	if defaultDir == "" {
+		pathText = "No default project path set"
+	} else {
+		pathText = defaultDir
+	}
+	pathPadding := appWidth - lipgloss.Width(pathText)
+	if pathPadding < 0 {
+		pathPadding = 0
+	}
+	inner.WriteString(strings.Repeat(" ", pathPadding) + pathStyle.Render(pathText))
+	inner.WriteString("\n")
+
 	inner.WriteString(Divider(appWidth))
 
 	// Content area
@@ -306,7 +324,7 @@ func (m Model) View() string {
 
 	// Truncate or pad content to fixed height
 	contentLines := strings.Split(content, "\n")
-	maxContentLines := appHeight - 3 // header, divider, status bar
+	maxContentLines := appHeight - 4 // header, path, divider, status bar
 
 	// Truncate if too long
 	if len(contentLines) > maxContentLines {
