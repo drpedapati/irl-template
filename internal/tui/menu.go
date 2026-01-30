@@ -24,7 +24,8 @@ const (
 	ViewTemplates
 	ViewDoctor
 	ViewConfig
-	ViewDocs // Opens browser to docs.irloop.org
+	ViewDocs   // Opens browser to docs.irloop.org
+	ViewUpdate // Updates templates from GitHub
 )
 
 // Menu represents the main menu
@@ -41,6 +42,7 @@ func NewMenu() Menu {
 		items: []MenuItem{
 			{Title: "New project", Desc: "Create a new IRL project", Key: "n", ViewType: ViewInit},
 			{Title: "Templates", Desc: "Browse available templates", Key: "t", ViewType: ViewTemplates},
+			{Title: "Update", Desc: "Refresh templates from GitHub", Key: "u", ViewType: ViewUpdate},
 			{Title: "Doctor", Desc: "Check environment setup", Key: "d", ViewType: ViewDoctor},
 			{Title: "Config", Desc: "View and edit settings", Key: "c", ViewType: ViewConfig},
 			{Title: "Docs", Desc: "Open documentation in browser", Key: "o", ViewType: ViewDocs},

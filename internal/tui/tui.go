@@ -167,6 +167,10 @@ func (m Model) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if v, ok := m.menu.SelectByKey("o"); ok {
 			return m.selectView(v)
 		}
+	case "u":
+		if v, ok := m.menu.SelectByKey("u"); ok {
+			return m.selectView(v)
+		}
 	}
 	return m, nil
 }
@@ -179,6 +183,10 @@ func (m Model) selectView(v ViewType) (tea.Model, tea.Cmd) {
 		// Open docs in browser, stay on menu
 		openBrowser("https://docs.irloop.org")
 		return m, nil
+	case ViewUpdate:
+		// Refresh templates from GitHub, stay on menu
+		m.loading = true
+		return m, tea.Batch(m.spinner.Tick, m.templatesView.RefreshTemplates())
 	case ViewTemplates:
 		m.view = v
 		m.statusBar.SetKeys(TemplateViewKeys())
