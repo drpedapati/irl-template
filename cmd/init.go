@@ -260,106 +260,136 @@ func getOrAskDefaultDirectory() string {
 		startDir = "."
 	}
 
-	method := "browse"
-	if err := theme.NewForm(
-		huh.NewGroup(
-			huh.NewSelect[string]().
-				Title("Choose a project directory").
-				Description("Browse folders or type a path.").
-				Options(
-					huh.NewOption("Browse folders", "browse"),
-					huh.NewOption("Type a path", "type"),
-				).
-				Value(&method),
-		),
-	).Run(); err != nil {
-		return suggestion
-	}
-
-	newDir := suggestion
-	switch method {
-	case "browse":
-		var picked string
+	for {
+		method := "browse"
 		if err := theme.NewForm(
 			huh.NewGroup(
-				huh.NewFilePicker().
-					Title("Select a folder").
-					Description("Use ↑/↓, enter to open, space to select").
-					DirAllowed(true).
-					FileAllowed(false).
-					ShowHidden(true).
-					ShowSize(false).
-					ShowPermissions(false).
-					Height(18).
-					CurrentDirectory(startDir).
-					Value(&picked),
+				huh.NewSelect[string]().
+					Title("Choose a project directory").
+					Description("Browse folders or type a path. Use ←/→ to go back/next.").
+					Options(
+						huh.NewOption("Browse folders", "browse"),
+						huh.NewOption("Type a path", "type"),
+					).
+					Value(&method),
 			),
 		).Run(); err != nil {
 			return suggestion
 		}
-		if picked != "" {
+
+		newDir := suggestion
+		switch method {
+		case "browse":
+			var picked string
+			if err := theme.NewForm(
+				huh.NewGroup(
+					huh.NewFilePicker().
+						Title("Select a folder").
+						Description("↑/↓ move • → open • ← up • enter select • esc back").
+						DirAllowed(true).
+						FileAllowed(false).
+						ShowHidden(false).
+						ShowSize(false).
+						ShowPermissions(false).
+						Height(18).
+						Picking(true).
+						CurrentDirectory(startDir).
+						Value(&picked),
+				),
+			).Run(); err != nil {
+				return suggestion
+			}
+			if picked == "" {
+				continue
+			}
 			newDir = picked
+
+			var folderName string
+			if err := theme.NewForm(
+				huh.NewGroup(
+					huh.NewInput().
+						Title("Create a new folder here?").
+						Description("Leave blank to keep the selected folder.").
+						Placeholder("New folder name (optional)").
+						Value(&folderName),
+				),
+			).Run(); err == nil {
+				folderName = strings.TrimSpace(folderName)
+				if folderName != "" {
+					newDir = filepath.Join(newDir, folderName)
+				}
+			}
+		case "type":
+			// newDir already set to suggestion
+		default:
+			return suggestion
 		}
-	case "type":
-		// newDir already set to suggestion
-	default:
-		return suggestion
-	}
 
-	inputTitle := "Project directory"
-	inputDescription := "You can type a new folder; it can be created if needed."
-	if method == "browse" {
-		inputTitle = "Confirm directory"
-		inputDescription = "Edit to create a new folder or refine the path."
-	}
-	if err := theme.NewForm(
-		huh.NewGroup(
-			huh.NewInput().
-				Title(inputTitle).
-				Description(inputDescription).
-				Placeholder(suggestion).
-				Value(&newDir),
-		),
-	).Run(); err != nil {
-		return suggestion
-	}
+		inputTitle := "Project directory"
+		inputDescription := "You can type a new folder; it can be created if needed."
+		if method == "browse" {
+			inputTitle = "Confirm directory"
+			inputDescription = "Edit to create a new folder or refine the path."
+		}
+		if err := theme.NewForm(
+			huh.NewGroup(
+				huh.NewInput().
+					Title(inputTitle).
+					Description(inputDescription).
+					Placeholder(suggestion).
+					Value(&newDir),
+			),
+		).Run(); err != nil {
+			return suggestion
+		}
 
-	newDir = expandPath(newDir)
-	if newDir == "" {
-		return suggestion
-	}
+		newDir = expandPath(newDir)
+		if newDir == "" {
+			return suggestion
+		}
 
-	if info, err := os.Stat(newDir); err == nil && !info.IsDir() {
-		fmt.Println(theme.Note("That path is a file; using its parent folder instead."))
-		newDir = filepath.Dir(newDir)
-	}
+		if info, err := os.Stat(newDir); err == nil && !info.IsDir() {
+			fmt.Println(theme.Note("That path is a file; using its parent folder instead."))
+			newDir = filepath.Dir(newDir)
+		}
 
-	if _, err := os.Stat(newDir); os.IsNotExist(err) {
-		createDir := true
+		status := "exists"
+		if _, err := os.Stat(newDir); os.IsNotExist(err) {
+			status = "will be created"
+		}
+
+		useDir := true
 		if err := theme.NewForm(
 			huh.NewGroup(
 				huh.NewConfirm().
-					Title("Create this folder now?").
-					Description(newDir).
-					Affirmative("Create").
-					Negative("Not now").
-					Value(&createDir),
+					Title("Use this directory?").
+					Description(fmt.Sprintf("%s (%s)", newDir, status)).
+					Affirmative("Use").
+					Negative("Start over").
+					Value(&useDir),
 			),
-		).Run(); err == nil && createDir {
+		).Run(); err != nil {
+			return suggestion
+		}
+		if !useDir {
+			continue
+		}
+
+		if status == "will be created" {
 			if err := os.MkdirAll(newDir, 0755); err != nil {
 				fmt.Println(theme.Note(fmt.Sprintf("couldn't create folder: %v", err)))
 			}
 		}
-	}
 
-	// Save to config
-	if err := config.SetDefaultDirectory(newDir); err != nil {
-		fmt.Println(theme.Note(fmt.Sprintf("couldn't save config: %v", err)))
-	} else {
-		fmt.Printf("Saved default directory: %s\n", newDir)
-	}
+		// Save to config
+		if err := config.SetDefaultDirectory(newDir); err != nil {
+			fmt.Println(theme.Note(fmt.Sprintf("couldn't save config: %v", err)))
+		} else {
+			fmt.Printf("Saved default directory: %s\n", newDir)
+		}
 
-	return newDir
+		return newDir
+	}
 }
 
 func expandPath(path string) string {

@@ -1,6 +1,7 @@
 package theme
 
 import (
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -65,5 +66,38 @@ func HuhTheme() *huh.Theme {
 
 // NewForm creates a new Huh form with our custom theme.
 func NewForm(groups ...*huh.Group) *huh.Form {
-	return huh.NewForm(groups...).WithTheme(HuhTheme())
+	return huh.NewForm(groups...).WithTheme(HuhTheme()).WithKeyMap(appKeyMap())
+}
+
+func appKeyMap() *huh.KeyMap {
+	km := huh.NewDefaultKeyMap()
+
+	km.Select.Prev = key.NewBinding(
+		key.WithKeys("shift+tab", "left"),
+		key.WithHelp("←", "back"),
+	)
+	km.Select.Next = key.NewBinding(
+		key.WithKeys("enter", "tab", "right"),
+		key.WithHelp("→", "next"),
+	)
+
+	km.MultiSelect.Prev = key.NewBinding(
+		key.WithKeys("shift+tab", "left"),
+		key.WithHelp("←", "back"),
+	)
+	km.MultiSelect.Next = key.NewBinding(
+		key.WithKeys("enter", "tab", "right"),
+		key.WithHelp("→", "next"),
+	)
+
+	km.Note.Prev = key.NewBinding(
+		key.WithKeys("shift+tab", "left"),
+		key.WithHelp("←", "back"),
+	)
+	km.Note.Next = key.NewBinding(
+		key.WithKeys("enter", "tab", "right"),
+		key.WithHelp("→", "next"),
+	)
+
+	return km
 }
