@@ -368,6 +368,7 @@ func (m Model) View() string {
 
 	// Footer: centered command help
 	inner.WriteString(m.statusBar.View())
+	inner.WriteString("\n")
 
 	// No border - clean Claude Code style
 	return inner.String()
