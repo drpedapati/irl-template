@@ -104,8 +104,16 @@ func (m *FolderModel) applyFilter() {
 	m.scroll = 0
 }
 
-// totalItems returns the total number of selectable items (1 for "use this" + filtered subfolders)
+// totalItems returns the total number of selectable items (1 for "use this" + filtered subfolders or 1 for "go up")
 func (m FolderModel) totalItems() int {
+	if len(m.filtered) == 0 {
+		// When no subfolders, show "Go up one level" option (unless at root)
+		parent := filepath.Dir(m.currentDir)
+		if parent != m.currentDir {
+			return 2 // "Use this folder" + "Go up one level"
+		}
+		return 1 // At root with no subfolders
+	}
 	return 1 + len(m.filtered)
 }
 
@@ -150,6 +158,19 @@ func (m FolderModel) Update(msg tea.Msg) (FolderModel, tea.Cmd) {
 				// Select current directory
 				config.SetDefaultDirectory(m.currentDir)
 				m.saved = true
+			} else if len(m.filtered) == 0 {
+				// "Go up one level" option (cursor == 1 with no subfolders)
+				parent := filepath.Dir(m.currentDir)
+				if parent != m.currentDir {
+					m.currentDir = parent
+					m.filterInput.SetValue("")
+					m.loadFolders()
+					if len(m.filtered) > 0 {
+						m.cursor = 1
+					} else {
+						m.cursor = 0
+					}
+				}
 			} else {
 				// Enter the selected subfolder
 				folderIdx := m.cursor - 1
@@ -175,7 +196,7 @@ func (m FolderModel) Update(msg tea.Msg) (FolderModel, tea.Cmd) {
 				// On "Use this folder" - signal to go back to menu
 				m.wantsBack = true
 			} else {
-				// In folder list area - go up one directory level
+				// In folder list area or on "Go up" - go up one directory level
 				parent := filepath.Dir(m.currentDir)
 				if parent != m.currentDir {
 					m.currentDir = parent
@@ -303,8 +324,21 @@ func (m FolderModel) View() string {
 		b.WriteString(hintStyle.Render("  No matches for \"" + m.filterInput.Value() + "\""))
 		b.WriteString("\n")
 	} else {
-		b.WriteString(hintStyle.Render("  No subfolders in this location"))
-		b.WriteString("\n")
+		// No subfolders - show "Go up" option if not at root
+		parent := filepath.Dir(m.currentDir)
+		if parent != m.currentDir {
+			cursor = cursorOff
+			style = normalStyle
+			if m.cursor == 1 {
+				cursor = cursorOn
+				style = selectedStyle
+			}
+			b.WriteString("  " + cursor + " " + style.Render("← Go up one level"))
+			b.WriteString("\n")
+		} else {
+			b.WriteString(hintStyle.Render("  No subfolders in this location"))
+			b.WriteString("\n")
+		}
 	}
 
 	return b.String()
