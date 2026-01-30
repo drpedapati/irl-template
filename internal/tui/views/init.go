@@ -248,9 +248,8 @@ func (m InitModel) updateBrowse(msg tea.KeyMsg) (InitModel, tea.Cmd) {
 			m.loadFolders()
 		}
 	case "enter":
-		// Select current directory
+		// Select current directory for THIS project only (don't change default)
 		m.baseDir = m.browseDir
-		config.SetDefaultDirectory(m.baseDir)
 		m.directoryCursor = 0 // Reset cursor to selected directory
 		m.step = StepDirectory
 		return m, nil
