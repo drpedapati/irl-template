@@ -240,28 +240,38 @@ func getOrAskDefaultDirectory() string {
 		}
 	}
 
-	// Ask for directory - use Documents/irl_projects as default (cross-platform, POSIX-compliant)
+	// Ask for directory with file picker
 	home, _ := os.UserHomeDir()
 	suggestion := filepath.Join(home, "Documents", "irl_projects")
 	if defaultDir != "" {
 		suggestion = defaultDir
 	}
 
-	newDir := suggestion
+	// Start in the parent of the suggestion so user can see it
+	startDir := filepath.Dir(suggestion)
+	if _, err := os.Stat(startDir); os.IsNotExist(err) {
+		startDir = home
+	}
+
+	var newDir string
 	form := theme.NewForm(
 		huh.NewGroup(
-			huh.NewInput().
+			huh.NewFilePicker().
 				Title("Where should IRL projects be created?").
-				Description("This will be saved as your default").
+				Description("Navigate with arrows, enter to select").
+				DirAllowed(true).
+				FileAllowed(false).
+				ShowHidden(false).
+				ShowSize(false).
+				ShowPermissions(false).
+				CurrentDirectory(startDir).
 				Value(&newDir),
 		),
 	)
 
-	if err := form.Run(); err != nil {
+	if err := form.Run(); err != nil || newDir == "" {
 		return suggestion
 	}
-
-	newDir = expandPath(newDir)
 
 	// Save to config
 	if err := config.SetDefaultDirectory(newDir); err != nil {
