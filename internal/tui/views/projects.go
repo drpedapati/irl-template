@@ -47,7 +47,7 @@ type ProjectsModel struct {
 	loaded      bool
 	err         error
 	filterInput textinput.Model
-	sortBy      string // "date" or "name"
+	sortBy      string // "date-desc", "date-asc", "name-asc", "name-desc"
 	editors     []Editor
 	openMsg     string // Message shown after opening
 }
@@ -70,7 +70,7 @@ func NewProjectsModel() ProjectsModel {
 
 	return ProjectsModel{
 		filterInput: ti,
-		sortBy:      "date", // Default sort by date
+		sortBy:      "date-desc", // Default sort by date, newest first
 	}
 }
 
@@ -221,11 +221,16 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 
 		switch key {
 		case "s":
-			// Toggle sort
-			if m.sortBy == "date" {
-				m.sortBy = "name"
-			} else {
-				m.sortBy = "date"
+			// Cycle through sort options: date newest → date oldest → name A-Z → name Z-A
+			switch m.sortBy {
+			case "date-desc":
+				m.sortBy = "date-asc"
+			case "date-asc":
+				m.sortBy = "name-asc"
+			case "name-asc":
+				m.sortBy = "name-desc"
+			default:
+				m.sortBy = "date-desc"
 			}
 			m.applySort()
 			return m, nil
@@ -320,13 +325,22 @@ func (m *ProjectsModel) applyFilter() {
 }
 
 func (m *ProjectsModel) applySort() {
-	if m.sortBy == "name" {
-		sort.Slice(m.filtered, func(i, j int) bool {
-			return m.filtered[i].Name < m.filtered[j].Name
-		})
-	} else {
+	switch m.sortBy {
+	case "date-desc":
 		sort.Slice(m.filtered, func(i, j int) bool {
 			return m.filtered[i].Modified.After(m.filtered[j].Modified)
+		})
+	case "date-asc":
+		sort.Slice(m.filtered, func(i, j int) bool {
+			return m.filtered[i].Modified.Before(m.filtered[j].Modified)
+		})
+	case "name-asc":
+		sort.Slice(m.filtered, func(i, j int) bool {
+			return strings.ToLower(m.filtered[i].Name) < strings.ToLower(m.filtered[j].Name)
+		})
+	case "name-desc":
+		sort.Slice(m.filtered, func(i, j int) bool {
+			return strings.ToLower(m.filtered[i].Name) > strings.ToLower(m.filtered[j].Name)
 		})
 	}
 }
@@ -390,9 +404,16 @@ func (m ProjectsModel) View() string {
 	b.WriteString("  " + m.filterInput.View())
 
 	// Sort indicator
-	sortLabel := "date"
-	if m.sortBy == "name" {
-		sortLabel = "name"
+	var sortLabel string
+	switch m.sortBy {
+	case "date-desc":
+		sortLabel = "newest"
+	case "date-asc":
+		sortLabel = "oldest"
+	case "name-asc":
+		sortLabel = "A-Z"
+	case "name-desc":
+		sortLabel = "Z-A"
 	}
 	b.WriteString("  " + mutedStyle.Render("s:"+sortLabel))
 	b.WriteString("\n\n")

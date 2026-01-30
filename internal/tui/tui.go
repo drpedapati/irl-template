@@ -328,6 +328,13 @@ func (m Model) updateProjects(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.view = ViewMenu
 		m.statusBar.SetKeys(DefaultMenuKeys())
 		return m, nil
+	case "left", "h":
+		// Go back if filter is empty (otherwise let it move cursor in filter)
+		if !m.projectsView.HasFilterText() {
+			m.view = ViewMenu
+			m.statusBar.SetKeys(DefaultMenuKeys())
+			return m, nil
+		}
 	}
 
 	// Pass all other keys to the projects view (filtering, navigation, editor shortcuts)
