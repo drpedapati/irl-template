@@ -47,14 +47,14 @@ func runInit(cmd *cobra.Command, args []string) error {
 	var purpose string
 	var baseDir string
 
-	// Determine if interactive mode
-	isInteractive := len(args) == 0 && nameFlag == ""
+	// Only prompt for the base directory when no purpose/name was provided.
+	shouldPromptForDir := len(args) == 0 && nameFlag == ""
 
 	// Get base directory
 	if dirFlag != "" {
 		// Flag overrides everything
 		baseDir = expandPath(dirFlag)
-	} else if isInteractive {
+	} else if shouldPromptForDir {
 		// Interactive: check config or ask
 		baseDir = getOrAskDefaultDirectory()
 	} else {
@@ -254,11 +254,14 @@ func expandPath(path string) string {
 	path = strings.TrimSpace(path)
 	home, _ := os.UserHomeDir()
 
-	// Handle bare ~ or ~/path
+	// Handle bare ~ or ~/<path> (plus ~\<path> on Windows)
 	if path == "~" {
 		return home
 	}
-	if strings.HasPrefix(path, "~/") {
+	if strings.HasPrefix(path, "~"+string(filepath.Separator)) {
+		return filepath.Join(home, path[2:])
+	}
+	if strings.HasPrefix(path, "~/") || strings.HasPrefix(path, "~\\") {
 		return filepath.Join(home, path[2:])
 	}
 
