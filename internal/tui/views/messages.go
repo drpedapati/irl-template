@@ -1,7 +1,16 @@
 // Package views contains the sub-views for the TUI.
 package views
 
-import tea "github.com/charmbracelet/bubbletea"
+import (
+	"strconv"
+
+	tea "github.com/charmbracelet/bubbletea"
+)
+
+// itoa is a helper to convert int to string
+func itoa(i int) string {
+	return strconv.Itoa(i)
+}
 
 // Message types for view communication
 

@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/drpedapati/irl-template/pkg/config"
@@ -14,14 +15,16 @@ import (
 
 // FolderModel handles folder selection
 type FolderModel struct {
-	width      int
-	height     int
-	currentDir string
-	folders    []string
-	cursor     int // 0 = "Use this folder", 1+ = subfolders
-	scroll     int
-	saved      bool
-	wantsBack  bool // True when user presses back while on "Use this folder"
+	width       int
+	height      int
+	currentDir  string
+	folders     []string // All folders
+	filtered    []string // Filtered folders
+	cursor      int      // 0 = "Use this folder", 1+ = filtered subfolders
+	scroll      int
+	saved       bool
+	wantsBack   bool // True when user presses back while on "Use this folder"
+	filterInput textinput.Model
 }
 
 const folderVisibleItems = 8
@@ -41,9 +44,15 @@ func NewFolderModel() FolderModel {
 		startDir = home
 	}
 
+	ti := textinput.New()
+	ti.Placeholder = "Type to filter..."
+	ti.Width = 30
+	ti.Focus()
+
 	m := FolderModel{
-		currentDir: startDir,
-		cursor:     0, // Start on "Use this folder"
+		currentDir:  startDir,
+		cursor:      0, // Start on "Use this folder"
+		filterInput: ti,
 	}
 	m.loadFolders()
 	return m
@@ -61,6 +70,7 @@ func (m *FolderModel) loadFolders() {
 
 	entries, err := os.ReadDir(m.currentDir)
 	if err != nil {
+		m.filtered = m.folders
 		return
 	}
 
@@ -73,26 +83,68 @@ func (m *FolderModel) loadFolders() {
 	sort.Slice(m.folders, func(i, j int) bool {
 		return strings.ToLower(m.folders[i]) < strings.ToLower(m.folders[j])
 	})
+
+	m.applyFilter()
 }
 
-// totalItems returns the total number of selectable items (1 for "use this" + subfolders)
+func (m *FolderModel) applyFilter() {
+	query := strings.ToLower(m.filterInput.Value())
+	if query == "" {
+		m.filtered = m.folders
+	} else {
+		m.filtered = []string{}
+		for _, f := range m.folders {
+			if strings.Contains(strings.ToLower(f), query) {
+				m.filtered = append(m.filtered, f)
+			}
+		}
+	}
+	// Reset cursor to "Use this folder" when filter changes
+	m.cursor = 0
+	m.scroll = 0
+}
+
+// totalItems returns the total number of selectable items (1 for "use this" + filtered subfolders)
 func (m FolderModel) totalItems() int {
-	return 1 + len(m.folders)
+	return 1 + len(m.filtered)
+}
+
+// HasFilterText returns true if there's text in the filter input
+func (m FolderModel) HasFilterText() bool {
+	return m.filterInput.Value() != ""
+}
+
+// ClearFilter clears the filter input
+func (m *FolderModel) ClearFilter() {
+	m.filterInput.SetValue("")
+	m.applyFilter()
 }
 
 // Update handles messages
 func (m FolderModel) Update(msg tea.Msg) (FolderModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.String() {
+		key := msg.String()
+
+		switch key {
 		case "up", "k":
 			if m.cursor > 0 {
 				m.cursor--
+				// Adjust scroll if needed
+				if m.cursor > 0 && m.cursor-1 < m.scroll {
+					m.scroll = m.cursor - 1
+				}
 			}
+			return m, nil
 		case "down", "j":
 			if m.cursor < m.totalItems()-1 {
 				m.cursor++
+				// Adjust scroll if needed
+				if m.cursor > 0 && m.cursor-1 >= m.scroll+folderVisibleItems {
+					m.scroll = m.cursor - folderVisibleItems
+				}
 			}
+			return m, nil
 		case "right", "l", "enter":
 			if m.cursor == 0 {
 				// Select current directory
@@ -101,19 +153,24 @@ func (m FolderModel) Update(msg tea.Msg) (FolderModel, tea.Cmd) {
 			} else {
 				// Enter the selected subfolder
 				folderIdx := m.cursor - 1
-				if folderIdx < len(m.folders) {
-					m.currentDir = filepath.Join(m.currentDir, m.folders[folderIdx])
+				if folderIdx < len(m.filtered) {
+					m.currentDir = filepath.Join(m.currentDir, m.filtered[folderIdx])
+					m.filterInput.SetValue("") // Clear filter when entering folder
 					m.loadFolders()
-					// Stay in folder list area (cursor 1 = first folder)
-					// but clamp to valid range if new folder has fewer items
-					if len(m.folders) > 0 {
-						m.cursor = 1 // First folder in new list
+					// Stay in folder list area
+					if len(m.filtered) > 0 {
+						m.cursor = 1
 					} else {
-						m.cursor = 0 // Only "Use this folder" available
+						m.cursor = 0
 					}
 				}
 			}
+			return m, nil
 		case "left", "h":
+			// If filter has text, let it handle cursor movement
+			if m.HasFilterText() {
+				break // Fall through to filter input
+			}
 			if m.cursor == 0 {
 				// On "Use this folder" - signal to go back to menu
 				m.wantsBack = true
@@ -122,16 +179,31 @@ func (m FolderModel) Update(msg tea.Msg) (FolderModel, tea.Cmd) {
 				parent := filepath.Dir(m.currentDir)
 				if parent != m.currentDir {
 					m.currentDir = parent
+					m.filterInput.SetValue("") // Clear filter when going up
 					m.loadFolders()
-					// Stay in folder list area
-					if len(m.folders) > 0 {
-						m.cursor = 1 // First folder in parent
+					if len(m.filtered) > 0 {
+						m.cursor = 1
 					} else {
-						m.cursor = 0 // Only "Use this folder" available
+						m.cursor = 0
 					}
 				}
 			}
+			return m, nil
+		case "esc":
+			// Two-stage: clear filter first, then signal back
+			if m.HasFilterText() {
+				m.ClearFilter()
+				return m, nil
+			}
+			m.wantsBack = true
+			return m, nil
 		}
+
+		// Pass other keys to filter input
+		var cmd tea.Cmd
+		m.filterInput, cmd = m.filterInput.Update(msg)
+		m.applyFilter()
+		return m, cmd
 	}
 	return m, nil
 }
@@ -178,9 +250,14 @@ func (m FolderModel) View() string {
 	b.WriteString("\n\n")
 
 	// Current location breadcrumb
-	b.WriteString(hintStyle.Render("Current location:"))
-	b.WriteString("\n")
-	b.WriteString("  " + pathStyle.Render(m.currentDir))
+	b.WriteString(hintStyle.Render("Location: ") + pathStyle.Render(m.currentDir))
+	b.WriteString("\n\n")
+
+	// Filter input
+	b.WriteString("  " + m.filterInput.View())
+	if len(m.folders) > 0 {
+		b.WriteString("  " + hintStyle.Render("("+itoa(len(m.filtered))+"/"+itoa(len(m.folders))+" folders)"))
+	}
 	b.WriteString("\n\n")
 
 	// Option 0: Use this folder
@@ -194,22 +271,15 @@ func (m FolderModel) View() string {
 	b.WriteString("\n\n")
 
 	// Subfolders section
-	if len(m.folders) > 0 {
-		b.WriteString(hintStyle.Render("Or navigate to a subfolder:"))
-		b.WriteString("\n")
-
+	if len(m.filtered) > 0 {
 		// Show visible subfolders with scrolling
-		startIdx := 0
-		if m.cursor > folderVisibleItems {
-			startIdx = m.cursor - folderVisibleItems
-		}
-		endIdx := startIdx + folderVisibleItems
-		if endIdx > len(m.folders) {
-			endIdx = len(m.folders)
+		endIdx := m.scroll + folderVisibleItems
+		if endIdx > len(m.filtered) {
+			endIdx = len(m.filtered)
 		}
 
-		for i := startIdx; i < endIdx; i++ {
-			folder := m.folders[i]
+		for i := m.scroll; i < endIdx; i++ {
+			folder := m.filtered[i]
 			cursor = cursorOff
 			style = normalStyle
 
@@ -223,27 +293,19 @@ func (m FolderModel) View() string {
 		}
 
 		// Scroll indicator
-		if len(m.folders) > folderVisibleItems {
-			b.WriteString(hintStyle.Render("    (" + itoa(len(m.folders)) + " folders)"))
+		if len(m.filtered) > folderVisibleItems {
+			showing := m.scroll + 1
+			showingEnd := endIdx
+			b.WriteString(hintStyle.Render("    " + itoa(showing) + "-" + itoa(showingEnd) + " of " + itoa(len(m.filtered))))
 			b.WriteString("\n")
 		}
+	} else if len(m.folders) > 0 {
+		b.WriteString(hintStyle.Render("  No matches for \"" + m.filterInput.Value() + "\""))
+		b.WriteString("\n")
 	} else {
-		b.WriteString(hintStyle.Render("No subfolders in this location"))
+		b.WriteString(hintStyle.Render("  No subfolders in this location"))
 		b.WriteString("\n")
 	}
 
 	return b.String()
-}
-
-// Simple int to string without fmt
-func itoa(n int) string {
-	if n == 0 {
-		return "0"
-	}
-	result := ""
-	for n > 0 {
-		result = string(rune('0'+n%10)) + result
-		n /= 10
-	}
-	return result
 }
