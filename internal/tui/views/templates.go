@@ -733,6 +733,8 @@ func (m TemplatesModel) viewList() string {
 		endIdx = len(m.filtered)
 	}
 
+	customBadge := lipgloss.NewStyle().Foreground(theme.Accent).Render("★")
+
 	for i := m.scroll; i < endIdx; i++ {
 		t := m.filtered[i]
 		cursor := cursorOff
@@ -745,14 +747,21 @@ func (m TemplatesModel) viewList() string {
 			descStyleLocal = mutedStyle // Keep description muted even when selected
 		}
 
-		// Truncate long names
+		// Add star badge for custom templates
+		badge := "  "
+		if t.Source == "custom" {
+			badge = customBadge + " "
+		}
+
+		// Truncate long names (account for badge)
 		displayName := t.Name
-		if len(displayName) > nameColWidth {
-			displayName = displayName[:nameColWidth-3] + "..."
+		maxNameWidth := nameColWidth - 2 // Account for badge
+		if len(displayName) > maxNameWidth {
+			displayName = displayName[:maxNameWidth-3] + "..."
 		}
 
 		// Pad name to align descriptions
-		namePadded := displayName + strings.Repeat(" ", nameColWidth-len(displayName))
+		namePadded := displayName + strings.Repeat(" ", maxNameWidth-len(displayName))
 
 		// Truncate long descriptions
 		displayDesc := t.Description
@@ -760,7 +769,7 @@ func (m TemplatesModel) viewList() string {
 			displayDesc = displayDesc[:descColWidth-3] + "..."
 		}
 
-		b.WriteString("  " + cursor + " " + nameStyle.Render(namePadded) + " " + descStyleLocal.Render(displayDesc))
+		b.WriteString("  " + cursor + " " + badge + nameStyle.Render(namePadded) + " " + descStyleLocal.Render(displayDesc))
 		b.WriteString("\n")
 	}
 
