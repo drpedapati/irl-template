@@ -223,6 +223,14 @@ func (m TemplatesModel) IsDeleting() bool {
 	return m.deleting
 }
 
+// SelectedIsCustom returns true if the currently selected template is custom
+func (m TemplatesModel) SelectedIsCustom() bool {
+	if m.cursor >= 0 && m.cursor < len(m.filtered) {
+		return m.filtered[m.cursor].Source == "custom"
+	}
+	return false
+}
+
 // HasFilterText returns true if there's text in the filter input
 func (m TemplatesModel) HasFilterText() bool {
 	return m.filterInput.Value() != ""
