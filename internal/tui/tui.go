@@ -380,21 +380,46 @@ func (m Model) updateProjects(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) updateTemplates(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	// If in copy or edit mode, let the view handle all keys
+	if m.templatesView.IsCopying() || m.templatesView.IsEditing() {
+		var cmd tea.Cmd
+		m.templatesView, cmd = m.templatesView.Update(msg)
+		return m, cmd
+	}
+
 	switch msg.String() {
 	case "q":
 		m.quitting = true
 		return m, tea.Quit
-	case "esc", "left", "h":
+	case "esc":
 		// If previewing, let the view handle it to exit preview
 		if m.templatesView.IsPreviewing() {
 			var cmd tea.Cmd
 			m.templatesView, cmd = m.templatesView.Update(msg)
 			return m, cmd
 		}
+		// Two-stage escape: clear filter first, then go back
+		if m.templatesView.HasFilterText() {
+			m.templatesView.ClearFilter()
+			return m, nil
+		}
 		// Otherwise go back to menu
 		m.view = ViewMenu
 		m.statusBar.SetKeys(m.getMenuKeys())
 		return m, nil
+	case "left", "h":
+		// If previewing, let the view handle it to exit preview
+		if m.templatesView.IsPreviewing() {
+			var cmd tea.Cmd
+			m.templatesView, cmd = m.templatesView.Update(msg)
+			return m, cmd
+		}
+		// Go back if filter is empty (otherwise let it move cursor in filter)
+		if !m.templatesView.HasFilterText() {
+			m.view = ViewMenu
+			m.statusBar.SetKeys(m.getMenuKeys())
+			return m, nil
+		}
 	case "r":
 		if !m.templatesView.IsPreviewing() {
 			m.loading = true
@@ -555,7 +580,11 @@ func (m Model) View() string {
 	case ViewFolder:
 		viewTitle = "Default Folder"
 	case ViewTemplates:
-		viewTitle = "Templates"
+		if name := m.templatesView.PreviewingName(); name != "" {
+			viewTitle = "Template: " + name
+		} else {
+			viewTitle = "Templates"
+		}
 	case ViewDoctor:
 		viewTitle = "Environment"
 	case ViewInit:
@@ -710,10 +739,13 @@ func (m Model) getContextHint() string {
 		}
 		return ""
 	case ViewTemplates:
-		if m.templatesView.IsPreviewing() {
-			return keyStyle.Render("↑↓") + mutedStyle.Render(" scroll  ") + keyStyle.Render("←") + mutedStyle.Render(" back")
+		if m.templatesView.IsCopying() || m.templatesView.IsEditing() {
+			return "" // Modal has its own hints
 		}
-		return keyStyle.Render("→") + mutedStyle.Render(" preview  ") + keyStyle.Render("r") + mutedStyle.Render(" refresh")
+		if m.templatesView.IsPreviewing() {
+			return keyStyle.Render("↑↓") + mutedStyle.Render(" scroll  ") + keyStyle.Render("g") + mutedStyle.Render(" GitHub  ") + keyStyle.Render("←") + mutedStyle.Render(" back")
+		}
+		return keyStyle.Render("t") + mutedStyle.Render(" copy  ") + keyStyle.Render("e") + mutedStyle.Render(" edit  ") + keyStyle.Render("a") + mutedStyle.Render("ll ") + keyStyle.Render("d") + mutedStyle.Render("efault ") + keyStyle.Render("c") + mutedStyle.Render("ustom  ") + keyStyle.Render("r") + mutedStyle.Render(" refresh")
 	case ViewInit:
 		return keyStyle.Render("↑↓") + mutedStyle.Render(" navigate  ") + keyStyle.Render("→") + mutedStyle.Render(" select")
 	case ViewDoctor:

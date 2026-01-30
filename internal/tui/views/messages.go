@@ -16,6 +16,7 @@ type TemplateItem struct {
 	Name        string
 	Description string
 	Content     string
+	Source      string // "default" (GitHub) or "custom" (local _templates folder)
 }
 
 // DoctorResultMsg is sent when doctor checks complete
