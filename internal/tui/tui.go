@@ -350,7 +350,7 @@ func (m Model) View() string {
 	inner.WriteString(Divider(appWidth))
 	inner.WriteString("\n")
 
-	// Folder path with disk space
+	// Folder path with disk space (centered)
 	defaultDir := config.GetDefaultDirectory()
 	var pathText string
 	if defaultDir == "" {
@@ -368,7 +368,12 @@ func (m Model) View() string {
 	if len(pathText) > maxPathLen {
 		pathText = "..." + pathText[len(pathText)-maxPathLen+3:]
 	}
-	inner.WriteString(mutedStyle.Render(pathText))
+	// Center the path
+	pathPadding := (appWidth - lipgloss.Width(pathText)) / 2
+	if pathPadding < 0 {
+		pathPadding = 0
+	}
+	inner.WriteString(strings.Repeat(" ", pathPadding) + mutedStyle.Render(pathText))
 	inner.WriteString("\n")
 
 	// Footer: centered command help
