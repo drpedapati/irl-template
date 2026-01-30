@@ -66,12 +66,37 @@ func (s StatusBar) ViewCompact() string {
 
 // DefaultMenuKeys returns the default key bindings for the main menu
 func DefaultMenuKeys() []KeyBinding {
+	return DefaultMenuKeysWithUpdate(0, false)
+}
+
+// DefaultMenuKeysWithUpdate returns menu keys with update count
+func DefaultMenuKeysWithUpdate(newTemplates int, checking bool) []KeyBinding {
+	updateDesc := "Update"
+	if checking {
+		updateDesc = "Update (...)"
+	} else if newTemplates > 0 {
+		updateDesc = "Update (" + itoa(newTemplates) + " new)"
+	}
 	return []KeyBinding{
 		{Key: "i", Desc: "Profile"},
+		{Key: "u", Desc: updateDesc},
 		{Key: "↑↓", Desc: "Navigate"},
 		{Key: "→", Desc: "Select"},
 		{Key: "q", Desc: "Quit"},
 	}
+}
+
+// Simple int to string for status bar
+func itoa(n int) string {
+	if n == 0 {
+		return "0"
+	}
+	result := ""
+	for n > 0 {
+		result = string(rune('0'+n%10)) + result
+		n /= 10
+	}
+	return result
 }
 
 // ViewKeys returns key bindings for sub-views

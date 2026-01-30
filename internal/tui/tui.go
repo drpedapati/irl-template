@@ -13,8 +13,14 @@ import (
 	"github.com/drpedapati/irl-template/internal/tui/views"
 	"github.com/drpedapati/irl-template/pkg/config"
 	"github.com/drpedapati/irl-template/pkg/doctor"
+	"github.com/drpedapati/irl-template/pkg/templates"
 	"github.com/drpedapati/irl-template/pkg/theme"
 )
+
+// NewTemplatesAvailableMsg is sent when the update check completes
+type NewTemplatesAvailableMsg struct {
+	Count int
+}
 
 const (
 	appWidth  = 72 // Fixed app width for Claude Code-like feel
@@ -45,6 +51,10 @@ type Model struct {
 	// Loading state
 	loading bool
 	spinner spinner.Model
+
+	// Update check state
+	newTemplateCount   int
+	checkingForUpdates bool
 }
 
 // New creates a new TUI model
@@ -54,20 +64,21 @@ func New(version string) Model {
 	s.Style = SpinnerStyle
 
 	m := Model{
-		version:         version,
-		header:          NewHeader(version),
-		menu:            NewMenu(),
-		statusBar:       NewStatusBar(),
-		view:            ViewMenu,
-		templatesView:   views.NewTemplatesModel(),
-		projectsView:    views.NewProjectsModel(),
-		folderView:      views.NewFolderModel(),
-		personalizeView: views.NewPersonalizeModel(),
-		doctorView:      views.NewDoctorModel(),
-		initView:        views.NewInitModel(),
-		configView:      views.NewConfigModel(),
-		updateView:      views.NewUpdateModel(),
-		spinner:         s,
+		version:            version,
+		header:             NewHeader(version),
+		menu:               NewMenu(),
+		statusBar:          NewStatusBar(),
+		view:               ViewMenu,
+		templatesView:      views.NewTemplatesModel(),
+		projectsView:       views.NewProjectsModel(),
+		folderView:         views.NewFolderModel(),
+		personalizeView:    views.NewPersonalizeModel(),
+		doctorView:         views.NewDoctorModel(),
+		initView:           views.NewInitModel(),
+		configView:         views.NewConfigModel(),
+		updateView:         views.NewUpdateModel(),
+		spinner:            s,
+		checkingForUpdates: true, // Will check on init
 	}
 
 	// Set fixed widths
@@ -87,7 +98,22 @@ func New(version string) Model {
 
 // Init initializes the model
 func (m Model) Init() tea.Cmd {
-	return nil
+	// Check for new templates asynchronously on startup
+	m.checkingForUpdates = true
+	return tea.Batch(m.spinner.Tick, checkForNewTemplates())
+}
+
+// checkForNewTemplates returns a command that checks for new templates
+func checkForNewTemplates() tea.Cmd {
+	return func() tea.Msg {
+		count, _ := templates.CheckForNewTemplates()
+		return NewTemplatesAvailableMsg{Count: count}
+	}
+}
+
+// getMenuKeys returns the appropriate menu keys based on current state
+func (m Model) getMenuKeys() []KeyBinding {
+	return DefaultMenuKeysWithUpdate(m.newTemplateCount, m.checkingForUpdates)
 }
 
 // Update handles messages
@@ -130,10 +156,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case spinner.TickMsg:
-		if m.loading {
+		if m.loading || m.checkingForUpdates {
 			var cmd tea.Cmd
 			m.spinner, cmd = m.spinner.Update(msg)
 			cmds = append(cmds, cmd)
+		}
+
+	case NewTemplatesAvailableMsg:
+		m.checkingForUpdates = false
+		m.newTemplateCount = msg.Count
+		// Update status bar with new count
+		if m.view == ViewMenu {
+			m.statusBar.SetKeys(m.getMenuKeys())
 		}
 
 	// Handle view-specific messages
@@ -154,7 +188,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case views.BackToMenuMsg:
 		m.view = ViewMenu
-		m.statusBar.SetKeys(DefaultMenuKeys())
+		m.statusBar.SetKeys(m.getMenuKeys())
 
 	case views.UpdateProgressMsg:
 		m.updateView, _ = m.updateView.Update(msg)
@@ -163,6 +197,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.updateView, _ = m.updateView.Update(msg)
 		// Also refresh templates view so it has latest
 		m.templatesView = views.NewTemplatesModel()
+		// Reset the update count since we just updated
+		m.newTemplateCount = 0
+		m.statusBar.SetKeys(m.getMenuKeys())
 	}
 
 	return m, tea.Batch(cmds...)
@@ -200,9 +237,8 @@ func (m Model) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			return m.selectView(v)
 		}
 	case "u":
-		if v, ok := m.menu.SelectByKey("u"); ok {
-			return m.selectView(v)
-		}
+		// Direct shortcut to Update view (not in menu anymore)
+		return m.selectView(ViewUpdate)
 	case "p":
 		if v, ok := m.menu.SelectByKey("p"); ok {
 			return m.selectView(v)
@@ -326,13 +362,13 @@ func (m Model) updateProjects(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		m.view = ViewMenu
-		m.statusBar.SetKeys(DefaultMenuKeys())
+		m.statusBar.SetKeys(m.getMenuKeys())
 		return m, nil
 	case "left", "h":
 		// Go back if filter is empty (otherwise let it move cursor in filter)
 		if !m.projectsView.HasFilterText() {
 			m.view = ViewMenu
-			m.statusBar.SetKeys(DefaultMenuKeys())
+			m.statusBar.SetKeys(m.getMenuKeys())
 			return m, nil
 		}
 	}
@@ -357,7 +393,7 @@ func (m Model) updateTemplates(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 		// Otherwise go back to menu
 		m.view = ViewMenu
-		m.statusBar.SetKeys(DefaultMenuKeys())
+		m.statusBar.SetKeys(m.getMenuKeys())
 		return m, nil
 	case "r":
 		if !m.templatesView.IsPreviewing() {
@@ -378,7 +414,7 @@ func (m Model) updateDoctor(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, tea.Quit
 	case "esc", "left", "h":
 		m.view = ViewMenu
-		m.statusBar.SetKeys(DefaultMenuKeys())
+		m.statusBar.SetKeys(m.getMenuKeys())
 		return m, nil
 	}
 
@@ -396,7 +432,7 @@ func (m Model) updateInit(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			return m, cmd
 		}
 		m.view = ViewMenu
-		m.statusBar.SetKeys(DefaultMenuKeys())
+		m.statusBar.SetKeys(m.getMenuKeys())
 		return m, nil
 	}
 
@@ -406,7 +442,7 @@ func (m Model) updateInit(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	// Check if init completed and we should go back to menu
 	if m.initView.Done() {
 		m.view = ViewMenu
-		m.statusBar.SetKeys(DefaultMenuKeys())
+		m.statusBar.SetKeys(m.getMenuKeys())
 	}
 
 	return m, cmd
@@ -419,7 +455,7 @@ func (m Model) updateConfig(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, tea.Quit
 	case "esc", "left", "h":
 		m.view = ViewMenu
-		m.statusBar.SetKeys(DefaultMenuKeys())
+		m.statusBar.SetKeys(m.getMenuKeys())
 		return m, nil
 	}
 
@@ -435,7 +471,7 @@ func (m Model) updateFolder(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, tea.Quit
 	case "esc":
 		m.view = ViewMenu
-		m.statusBar.SetKeys(DefaultMenuKeys())
+		m.statusBar.SetKeys(m.getMenuKeys())
 		return m, nil
 	}
 
@@ -445,7 +481,7 @@ func (m Model) updateFolder(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	// If saved or wants back, go back to menu
 	if m.folderView.IsSaved() || m.folderView.WantsBack() {
 		m.view = ViewMenu
-		m.statusBar.SetKeys(DefaultMenuKeys())
+		m.statusBar.SetKeys(m.getMenuKeys())
 	}
 
 	return m, cmd
@@ -458,7 +494,7 @@ func (m Model) updatePersonalize(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, tea.Quit
 	case "esc":
 		m.view = ViewMenu
-		m.statusBar.SetKeys(DefaultMenuKeys())
+		m.statusBar.SetKeys(m.getMenuKeys())
 		return m, nil
 	}
 
@@ -468,7 +504,7 @@ func (m Model) updatePersonalize(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	// If saved, go back to menu
 	if m.personalizeView.IsSaved() {
 		m.view = ViewMenu
-		m.statusBar.SetKeys(DefaultMenuKeys())
+		m.statusBar.SetKeys(m.getMenuKeys())
 	}
 
 	return m, cmd
@@ -483,7 +519,7 @@ func (m Model) updateUpdateView(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		// Allow going back when done
 		if m.updateView.IsDone() {
 			m.view = ViewMenu
-			m.statusBar.SetKeys(DefaultMenuKeys())
+			m.statusBar.SetKeys(m.getMenuKeys())
 			return m, nil
 		}
 	}

@@ -251,3 +251,58 @@ func Update() error {
 	_, err := FetchTemplates()
 	return err
 }
+
+// CheckForNewTemplates returns the count of templates available on GitHub
+// that are not in the local cache (without downloading them)
+func CheckForNewTemplates() (int, error) {
+	// Get cached template names
+	cachedNames := make(map[string]bool)
+	cacheDir, err := GetCacheDir()
+	if err == nil {
+		indexPath := filepath.Join(cacheDir, "index.json")
+		if data, err := os.ReadFile(indexPath); err == nil {
+			var cached []Template
+			if json.Unmarshal(data, &cached) == nil {
+				for _, t := range cached {
+					cachedNames[t.Name] = true
+				}
+			}
+		}
+	}
+
+	// Query GitHub for current template list (lightweight - just metadata)
+	url := fmt.Sprintf("https://api.github.com/repos/%s/contents/%s", GitHubRepo, TemplatesPath)
+
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Get(url)
+	if err != nil {
+		return 0, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return 0, fmt.Errorf("GitHub API returned %d", resp.StatusCode)
+	}
+
+	var files []struct {
+		Name string `json:"name"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&files); err != nil {
+		return 0, err
+	}
+
+	// Count new templates
+	newCount := 0
+	for _, f := range files {
+		if !strings.HasSuffix(f.Name, ".md") {
+			continue
+		}
+		name := strings.TrimSuffix(f.Name, ".md")
+		if !cachedNames[name] {
+			newCount++
+		}
+	}
+
+	return newCount, nil
+}
