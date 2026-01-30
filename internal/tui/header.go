@@ -35,7 +35,7 @@ func (h Header) View() string {
 	right := version + " " + avatar
 
 	// Calculate padding to right-align version and avatar
-	padding := h.width - lipgloss.Width(left) - lipgloss.Width(right) - 4
+	padding := h.width - lipgloss.Width(left) - lipgloss.Width(right)
 	if padding < 1 {
 		padding = 1
 	}
