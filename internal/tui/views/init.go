@@ -46,6 +46,9 @@ type InitModel struct {
 	err          error
 	done         bool
 
+	// Directory selection state
+	directoryCursor int // 0 = use current, 1 = browse
+
 	// Browse state
 	browseDir     string
 	browseFolders []string
@@ -145,24 +148,34 @@ func (m InitModel) Update(msg tea.Msg) (InitModel, tea.Cmd) {
 
 func (m InitModel) updateDirectory(msg tea.KeyMsg) (InitModel, tea.Cmd) {
 	switch msg.String() {
+	case "up", "k":
+		if m.directoryCursor > 0 {
+			m.directoryCursor--
+		}
+	case "down", "j":
+		if m.directoryCursor < 1 {
+			m.directoryCursor++
+		}
 	case "enter", "right":
-		// Confirm current directory and proceed
-		m.step = StepPurpose
-		m.purposeInput.Focus()
-		return m, textinput.Blink
-	case "down", "j", "b":
-		// Enter browse mode
-		m.browseDir = m.baseDir
-		if info, err := os.Stat(m.browseDir); err != nil || !info.IsDir() {
-			m.browseDir = filepath.Dir(m.browseDir)
+		if m.directoryCursor == 0 {
+			// Confirm current directory and proceed
+			m.step = StepPurpose
+			m.purposeInput.Focus()
+			return m, textinput.Blink
+		} else {
+			// Enter browse mode
+			m.browseDir = m.baseDir
+			if info, err := os.Stat(m.browseDir); err != nil || !info.IsDir() {
+				m.browseDir = filepath.Dir(m.browseDir)
+			}
+			home, _ := os.UserHomeDir()
+			if info, err := os.Stat(m.browseDir); err != nil || !info.IsDir() {
+				m.browseDir = home
+			}
+			m.loadFolders()
+			m.step = StepBrowse
+			return m, nil
 		}
-		home, _ := os.UserHomeDir()
-		if info, err := os.Stat(m.browseDir); err != nil || !info.IsDir() {
-			m.browseDir = home
-		}
-		m.loadFolders()
-		m.step = StepBrowse
-		return m, nil
 	case "esc", "left":
 		// Let parent handle going back to menu
 		return m, nil
@@ -221,10 +234,12 @@ func (m InitModel) updateBrowse(msg tea.KeyMsg) (InitModel, tea.Cmd) {
 		// Select current directory
 		m.baseDir = m.browseDir
 		config.SetDefaultDirectory(m.baseDir)
+		m.directoryCursor = 0 // Reset cursor to selected directory
 		m.step = StepDirectory
 		return m, nil
 	case "esc":
 		// Cancel browse, go back to directory confirm
+		m.directoryCursor = 0 // Reset cursor
 		m.step = StepDirectory
 		return m, nil
 	}
@@ -371,18 +386,37 @@ func (m InitModel) viewDirectory() string {
 	hintStyle := lipgloss.NewStyle().Foreground(theme.Muted).MarginLeft(2)
 	pathStyle := lipgloss.NewStyle().Foreground(theme.Accent).MarginLeft(2)
 	keyStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
+	selectedStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
 
 	b.WriteString(labelStyle.Render("Project location"))
 	b.WriteString("\n\n")
 
-	// Show current directory with cursor
-	b.WriteString("  " + keyStyle.Render("●") + " " + pathStyle.Render(m.baseDir))
+	// Option 1: Use current directory
+	cursor0 := "  "
+	style0 := pathStyle
+	if m.directoryCursor == 0 {
+		cursor0 = keyStyle.Render("●") + " "
+		style0 = selectedStyle
+	} else {
+		cursor0 = "  "
+	}
+	b.WriteString("  " + cursor0 + style0.Render(m.baseDir))
 	b.WriteString("\n")
-	b.WriteString(hintStyle.Render("    Browse..."))
+
+	// Option 2: Browse
+	cursor1 := "  "
+	style1 := hintStyle
+	if m.directoryCursor == 1 {
+		cursor1 = keyStyle.Render("●") + " "
+		style1 = selectedStyle
+	} else {
+		cursor1 = "  "
+	}
+	b.WriteString("  " + cursor1 + style1.Render("Browse..."))
 	b.WriteString("\n\n")
 
 	// Hints
-	b.WriteString(hintStyle.Render(keyStyle.Render("→") + " continue  " + keyStyle.Render("↓") + " browse"))
+	b.WriteString(hintStyle.Render(keyStyle.Render("↑↓") + " navigate  " + keyStyle.Render("→") + " select"))
 	b.WriteString("\n")
 
 	return b.String()

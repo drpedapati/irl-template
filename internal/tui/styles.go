@@ -22,10 +22,11 @@ var (
 
 	LogoStyle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(theme.Primary)
+			Foreground(lipgloss.AdaptiveColor{Light: "#CC785C", Dark: "#D97757"}) // Claude orange
 
 	TitleStyle = lipgloss.NewStyle().
-			Foreground(theme.Muted).
+			Bold(true).
+			Foreground(lipgloss.AdaptiveColor{Light: "#1F1F1F", Dark: "#F5F5F5"}). // High contrast text
 			PaddingLeft(1)
 
 	VersionStyle = lipgloss.NewStyle().
