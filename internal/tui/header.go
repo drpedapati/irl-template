@@ -29,17 +29,19 @@ func (h Header) View() string {
 	logo := LogoStyle.Render("IRL")
 	title := TitleStyle.Render("Idempotent Research Loop")
 	version := VersionStyle.Render("v" + h.version)
+	verLabel := VersionStyle.Render("ver")
 	avatar := LogoStyle.Render("🐢")
 
 	left := logo + title + " " + version
+	right := verLabel + " " + avatar
 
-	// Calculate padding to right-align avatar
-	padding := h.width - lipgloss.Width(left) - lipgloss.Width(avatar) - 4
+	// Calculate padding to right-align version label and avatar
+	padding := h.width - lipgloss.Width(left) - lipgloss.Width(right) - 4
 	if padding < 1 {
 		padding = 1
 	}
 
-	return left + strings.Repeat(" ", padding) + avatar
+	return left + strings.Repeat(" ", padding) + right
 }
 
 // Divider returns a horizontal divider line
