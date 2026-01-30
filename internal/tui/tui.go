@@ -442,8 +442,8 @@ func (m Model) updateFolder(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.folderView, cmd = m.folderView.Update(msg)
 
-	// If saved, go back to menu
-	if m.folderView.IsSaved() {
+	// If saved or wants back, go back to menu
+	if m.folderView.IsSaved() || m.folderView.WantsBack() {
 		m.view = ViewMenu
 		m.statusBar.SetKeys(DefaultMenuKeys())
 	}

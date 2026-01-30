@@ -21,6 +21,7 @@ type FolderModel struct {
 	cursor     int // 0 = "Use this folder", 1+ = subfolders
 	scroll     int
 	saved      bool
+	wantsBack  bool // True when user presses back while on "Use this folder"
 }
 
 const folderVisibleItems = 8
@@ -107,12 +108,17 @@ func (m FolderModel) Update(msg tea.Msg) (FolderModel, tea.Cmd) {
 				}
 			}
 		case "left", "h":
-			// Go up one level
-			parent := filepath.Dir(m.currentDir)
-			if parent != m.currentDir {
-				m.currentDir = parent
-				m.loadFolders()
-				m.cursor = 0 // Reset to "Use this folder"
+			if m.cursor == 0 {
+				// On "Use this folder" - signal to go back to menu
+				m.wantsBack = true
+			} else {
+				// On a subfolder - go up one directory level
+				parent := filepath.Dir(m.currentDir)
+				if parent != m.currentDir {
+					m.currentDir = parent
+					m.loadFolders()
+					m.cursor = 0 // Reset to "Use this folder"
+				}
 			}
 		}
 	}
@@ -122,6 +128,11 @@ func (m FolderModel) Update(msg tea.Msg) (FolderModel, tea.Cmd) {
 // IsSaved returns true if folder was saved
 func (m FolderModel) IsSaved() bool {
 	return m.saved
+}
+
+// WantsBack returns true if user pressed back while on "Use this folder"
+func (m FolderModel) WantsBack() bool {
+	return m.wantsBack
 }
 
 // View renders the folder selection view
