@@ -29,8 +29,7 @@ IRL is a document-centric workflow for working with AI assistants. Instead of ch
 
 ```
 my-project/
-├── 01-plans/
-│   └── main-plan.md    ← Your control surface
+├── main-plan.md    ← Your control surface
 ├── 02-data/
 │   ├── raw/
 │   └── derived/
@@ -39,7 +38,7 @@ my-project/
 ```
 
 **The workflow:**
-1. Edit `01-plans/main-plan.md` with your objectives
+1. Edit `main-plan.md` with your objectives
 2. AI reads the plan and executes tasks
 3. Review outputs and diffs
 4. Commit, revise, repeat

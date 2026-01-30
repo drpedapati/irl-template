@@ -142,7 +142,7 @@ irl:
 	if [ -n "$$TEMPLATE" ]; then \
 		echo "${CYAN}Setting up template:${RESET} ${GREEN}$$TEMPLATE${RESET}"; \
 		if [ -f "$$PROJECT_NAME/$(TEMPLATE_DIR)/$$TEMPLATE.md" ]; then \
-			cp "$$PROJECT_NAME/$(TEMPLATE_DIR)/$$TEMPLATE.md" "$$PROJECT_NAME/01-plans/main-plan.md"; \
+			cp "$$PROJECT_NAME/$(TEMPLATE_DIR)/$$TEMPLATE.md" "$$PROJECT_NAME/main-plan.md"; \
 			echo "${BOLD}${GREEN}✓${RESET} Template applied"; \
 		else \
 			echo "${BOLD}${YELLOW}⚠${RESET} Warning: Template '$$TEMPLATE' not found, starting with empty plan"; \
@@ -162,7 +162,7 @@ irl:
 	echo "${BOLD}${YELLOW}Next steps:${RESET}"; \
 	echo ""; \
 	echo "  ${CYAN}cd${RESET} ${GREEN}$$PROJECT_NAME${RESET}"; \
-	echo "  ${CYAN}# Edit 01-plans/main-plan.md to customize your plan${RESET}"; \
+	echo "  ${CYAN}# Edit main-plan.md to customize your plan${RESET}"; \
 	echo "  ${CYAN}# Start your first iteration!${RESET}"; \
 	echo ""
 

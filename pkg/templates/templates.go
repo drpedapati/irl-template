@@ -44,7 +44,7 @@ var defaultBasicTemplate = `# IRL Plan
 - [Instructions]
 
 ## Post-Instruction Hooks
-- Update logs/activity_log.md
+- Update logs/activity.md
 - Make a surgical git commit
 `
 

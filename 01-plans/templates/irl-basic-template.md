@@ -25,6 +25,6 @@ Create on first run:
 - [Instructions]
 
 ## Post-instruction Hooks
-- Update logs/activity_log.md
+- Update logs/activity.md
 - Render outputs
 - git commit changes

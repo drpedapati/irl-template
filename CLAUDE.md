@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-This is a template repository for the **Idempotent Research Loop (IRL)** - a document-centric workflow pattern for AI-assisted research. Instead of chat-based interaction, IRL uses a **plan document** (`01-plans/main-plan.md`) as the control surface. The AI reads the plan, executes tasks, and produces versioned artifacts.
+This is a template repository for the **Idempotent Research Loop (IRL)** - a document-centric workflow pattern for AI-assisted research. Instead of chat-based interaction, IRL uses a **plan document** (`main-plan.md`) as the control surface. The AI reads the plan, executes tasks, and produces versioned artifacts.
 
 ## Creating IRL Projects
 
@@ -34,9 +34,8 @@ make irl my-project         # Named project
 
 ## Directory Structure
 
-- `01-plans/` - Plan documents (human-editable intent)
-  - `main-plan.md` - The control surface
-  - `templates/` - Reusable templates
+- `main-plan.md` - The control surface
+- `01-plans/templates/` - Reusable templates (repo source)
 - `02-data/` - Data files (raw/, derived/)
 - `03-outputs/` - Rendered outputs
 - `04-logs/` - Activity logs
@@ -56,7 +55,7 @@ Test: `./irl init "test project" && rm -rf 260129-test-project`
 
 ## IRL Workflow Pattern
 
-1. **Edit the plan** (`01-plans/main-plan.md`)
+1. **Edit the plan** (`main-plan.md`)
 2. **AI executes** tasks according to the plan
 3. **Outputs rendered**, logs updated
 4. **Review diffs**, accept or revise
@@ -66,4 +65,4 @@ Test: `./irl init "test project" && rm -rf 260129-test-project`
 
 - **Do not edit the plan file unless explicitly permitted**
 - **Make surgical git commits** before and after edits
-- **Update logs** (`04-logs/activity_log.md`) after iterations
+- **Update logs** (`logs/activity.md`) after iterations
