@@ -65,10 +65,10 @@ func New(version string) Model {
 	m.header.SetWidth(appWidth)
 	m.menu.SetWidth(appWidth)
 	m.statusBar.SetWidth(appWidth)
-	m.templatesView.SetSize(appWidth, appHeight-6)
-	m.doctorView.SetSize(appWidth, appHeight-6)
-	m.initView.SetSize(appWidth, appHeight-6)
-	m.configView.SetSize(appWidth, appHeight-6)
+	m.templatesView.SetSize(appWidth, appHeight-7)
+	m.doctorView.SetSize(appWidth, appHeight-7)
+	m.initView.SetSize(appWidth, appHeight-7)
+	m.configView.SetSize(appWidth, appHeight-7)
 
 	return m
 }
@@ -201,7 +201,7 @@ func (m Model) selectView(v ViewType) (tea.Model, tea.Cmd) {
 		m.view = v
 		m.statusBar.SetKeys(InitViewKeys())
 		m.initView = views.NewInitModel()
-		m.initView.SetSize(appWidth, appHeight-6)
+		m.initView.SetSize(appWidth, appHeight-7)
 		cmd = m.initView.Init()
 	case ViewConfig:
 		m.view = v
@@ -385,7 +385,7 @@ func (m Model) View() string {
 
 	// Truncate or pad content to fixed height
 	contentLines := strings.Split(content, "\n")
-	maxContentLines := appHeight - 6 // header, subheader, top divider, bottom divider, path, footer
+	maxContentLines := appHeight - 7 // header, subheader, top divider, hint, bottom divider, path, footer
 
 	// Truncate if too long
 	if len(contentLines) > maxContentLines {
@@ -412,6 +412,17 @@ func (m Model) View() string {
 
 	inner.WriteString("\n")
 	inner.WriteString(strings.Join(contentLines, "\n"))
+
+	// Context hint (centered, above footer)
+	hint := m.getContextHint()
+	if hint != "" {
+		hintPadding := (appWidth - lipgloss.Width(hint)) / 2
+		if hintPadding < 0 {
+			hintPadding = 0
+		}
+		inner.WriteString("\n")
+		inner.WriteString(strings.Repeat(" ", hintPadding) + hint)
+	}
 
 	// Footer divider
 	inner.WriteString("\n")
@@ -459,19 +470,35 @@ func (m Model) renderMenuView() string {
 	b.WriteString(m.menu.View())
 	b.WriteString("\n")
 
-	// Tip at bottom
-	tipStyle := lipgloss.NewStyle().Foreground(theme.Muted)
-	cmdStyle := lipgloss.NewStyle().Foreground(theme.Accent)
-
-	b.WriteString(tipStyle.Render("  Or run: ") + cmdStyle.Render("irl init \"your project\""))
-	b.WriteString("\n")
-
 	return b.String()
 }
 
 func (m Model) renderLoading(msg string) string {
 	style := lipgloss.NewStyle().PaddingLeft(2).PaddingTop(1)
 	return style.Render(m.spinner.View() + " " + msg) + "\n"
+}
+
+// getContextHint returns the appropriate hint for current view state
+func (m Model) getContextHint() string {
+	keyStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
+	mutedStyle := lipgloss.NewStyle().Foreground(theme.Muted)
+
+	switch m.view {
+	case ViewMenu:
+		return mutedStyle.Render("Or run: ") + keyStyle.Render("irl init \"your project\"")
+	case ViewTemplates:
+		if m.templatesView.IsPreviewing() {
+			return keyStyle.Render("↑↓") + mutedStyle.Render(" scroll  ") + keyStyle.Render("←") + mutedStyle.Render(" back")
+		}
+		return keyStyle.Render("→") + mutedStyle.Render(" preview  ") + keyStyle.Render("r") + mutedStyle.Render(" refresh")
+	case ViewInit:
+		return keyStyle.Render("↑↓") + mutedStyle.Render(" navigate  ") + keyStyle.Render("→") + mutedStyle.Render(" select")
+	case ViewDoctor:
+		return ""
+	case ViewConfig:
+		return keyStyle.Render("e") + mutedStyle.Render(" edit")
+	}
+	return ""
 }
 
 // Run starts the TUI

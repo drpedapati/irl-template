@@ -197,13 +197,6 @@ func (m TemplatesModel) viewList() string {
 		b.WriteString("\n")
 	}
 
-	// Hint at bottom
-	b.WriteString("\n")
-	hintStyle := lipgloss.NewStyle().Foreground(theme.Muted).MarginLeft(2)
-	keyStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
-	b.WriteString(hintStyle.Render(keyStyle.Render("→") + " preview  " + keyStyle.Render("r") + " refresh"))
-	b.WriteString("\n")
-
 	return b.String()
 }
 
@@ -256,14 +249,6 @@ func (m TemplatesModel) viewPreview() string {
 	for i := m.scroll; i < end; i++ {
 		b.WriteString(lines[i])
 		b.WriteString("\n")
-	}
-
-	// Scroll indicator
-	if len(lines) > visibleLines {
-		hintStyle := lipgloss.NewStyle().Foreground(theme.Muted)
-		keyStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
-		scrollInfo := hintStyle.Render("  " + keyStyle.Render("↑↓") + " scroll  " + keyStyle.Render("←") + " back")
-		b.WriteString(scrollInfo)
 	}
 
 	return b.String()
