@@ -283,18 +283,12 @@ func (m Model) View() string {
 
 	// Current project path - right aligned under turtle
 	defaultDir := config.GetDefaultDirectory()
-	pathStyle := lipgloss.NewStyle().Foreground(theme.Muted)
-	var pathText string
+	pathStyle := lipgloss.NewStyle().Foreground(theme.Muted).Align(lipgloss.Right).Width(appWidth)
 	if defaultDir == "" {
-		pathText = "No default project path set"
+		inner.WriteString(pathStyle.Render("No default project path set"))
 	} else {
-		pathText = defaultDir
+		inner.WriteString(pathStyle.Render(defaultDir))
 	}
-	pathPadding := appWidth - lipgloss.Width(pathText)
-	if pathPadding < 0 {
-		pathPadding = 0
-	}
-	inner.WriteString(strings.Repeat(" ", pathPadding) + pathStyle.Render(pathText))
 	inner.WriteString("\n")
 
 	inner.WriteString(Divider(appWidth))
