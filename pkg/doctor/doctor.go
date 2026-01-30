@@ -75,14 +75,7 @@ func GetSystemInfo() SystemInfo {
 
 // FormatSystemInfo returns a formatted string of system info
 func (s SystemInfo) String() string {
-	parts := []string{s.Platform, fmt.Sprintf("%d cores", s.Cores)}
-	if s.Memory != "" {
-		parts = append(parts, s.Memory)
-	}
-	if s.Disk != "" {
-		parts = append(parts, s.Disk)
-	}
-	return strings.Join(parts, " · ")
+	return s.Platform
 }
 
 // CoreTools returns the list of core tools to check
@@ -100,7 +93,7 @@ func AITools() []Tool {
 	return []Tool{
 		{Name: "Claude Code", Cmd: "claude", Install: "npm i -g @anthropic-ai/claude-code", Category: "AI Assistants"},
 		{Name: "Codex", Cmd: "codex", Install: "npm i -g @openai/codex", Category: "AI Assistants"},
-		{Name: "Copilot CLI", Cmd: "gh copilot", Install: "gh extension install github/gh-copilot", Category: "AI Assistants"},
+		{Name: "Copilot", Cmd: "copilot", Install: "brew install --cask github-copilot", Category: "AI Assistants"},
 	}
 }
 
@@ -134,8 +127,6 @@ func AllTools() []Tool {
 // CheckTool checks if a tool is available
 func CheckTool(t Tool) bool {
 	switch t.Cmd {
-	case "gh copilot":
-		return checkGhCopilot()
 	case "positron":
 		return checkApp("Positron")
 	case "cursor":
@@ -163,14 +154,6 @@ func CheckAllTools() []ToolResult {
 func checkCmd(name string) bool {
 	_, err := exec.LookPath(name)
 	return err == nil
-}
-
-func checkGhCopilot() bool {
-	out, err := exec.Command("gh", "extension", "list").Output()
-	if err != nil {
-		return false
-	}
-	return strings.Contains(string(out), "copilot")
 }
 
 func checkApp(name string) bool {

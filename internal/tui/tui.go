@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/drpedapati/irl-template/internal/tui/views"
 	"github.com/drpedapati/irl-template/pkg/config"
+	"github.com/drpedapati/irl-template/pkg/doctor"
 	"github.com/drpedapati/irl-template/pkg/theme"
 )
 
@@ -282,7 +283,7 @@ func (m Model) View() string {
 	inner.WriteString(m.header.View())
 	inner.WriteString("\n")
 
-	// Subheader: folder path on left, datetime on right
+	// Subheader: folder path + disk space on left, datetime on right
 	defaultDir := config.GetDefaultDirectory()
 	mutedStyle := lipgloss.NewStyle().Foreground(theme.Muted)
 
@@ -290,7 +291,12 @@ func (m Model) View() string {
 	if defaultDir == "" {
 		pathText = "No default project path"
 	} else {
-		pathText = defaultDir
+		sysInfo := doctor.GetSystemInfo()
+		if sysInfo.Disk != "" {
+			pathText = defaultDir + " (" + sysInfo.Disk + ")"
+		} else {
+			pathText = defaultDir
+		}
 	}
 
 	// Format: Mon Jan 30 2:45 PM MST
