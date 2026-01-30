@@ -352,15 +352,6 @@ func (m InitModel) createProject() tea.Cmd {
 func (m InitModel) View() string {
 	var b strings.Builder
 
-	titleStyle := lipgloss.NewStyle().
-		Bold(true).
-		Foreground(theme.Primary).
-		MarginLeft(2).
-		MarginTop(1)
-
-	b.WriteString(titleStyle.Render("New Project"))
-	b.WriteString("\n\n")
-
 	switch m.step {
 	case StepDirectory:
 		b.WriteString(m.viewDirectory())

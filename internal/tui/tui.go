@@ -283,11 +283,36 @@ func (m Model) View() string {
 	inner.WriteString(m.header.View())
 	inner.WriteString("\n")
 
-	// Subheader: datetime right-aligned
+	// View title (when in submenu) - italic style under header
 	mutedStyle := lipgloss.NewStyle().Foreground(theme.Muted)
+	viewTitleStyle := lipgloss.NewStyle().Foreground(theme.Muted).Italic(true)
 	now := time.Now()
 	dateTime := now.Format("Mon Jan 2 3:04 PM MST")
-	inner.WriteString(mutedStyle.Render(strings.Repeat(" ", appWidth-lipgloss.Width(dateTime)) + dateTime))
+
+	viewTitle := ""
+	switch m.view {
+	case ViewTemplates:
+		viewTitle = "Templates"
+	case ViewDoctor:
+		viewTitle = "Environment"
+	case ViewInit:
+		viewTitle = "New Project"
+	case ViewConfig:
+		viewTitle = "Configuration"
+	}
+
+	if viewTitle != "" {
+		// Show view title on left, datetime on right
+		titleText := viewTitleStyle.Render(viewTitle)
+		padding := appWidth - lipgloss.Width(viewTitle) - lipgloss.Width(dateTime)
+		if padding < 1 {
+			padding = 1
+		}
+		inner.WriteString(titleText + strings.Repeat(" ", padding) + mutedStyle.Render(dateTime))
+	} else {
+		// Just datetime right-aligned
+		inner.WriteString(mutedStyle.Render(strings.Repeat(" ", appWidth-lipgloss.Width(dateTime)) + dateTime))
+	}
 	inner.WriteString("\n")
 
 	inner.WriteString(Divider(appWidth))

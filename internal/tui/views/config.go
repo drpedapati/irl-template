@@ -105,15 +105,6 @@ func (m ConfigModel) updateEditing(msg tea.KeyMsg) (ConfigModel, tea.Cmd) {
 func (m ConfigModel) View() string {
 	var b strings.Builder
 
-	titleStyle := lipgloss.NewStyle().
-		Bold(true).
-		Foreground(theme.Primary).
-		MarginLeft(2).
-		MarginTop(1)
-
-	b.WriteString(titleStyle.Render("Configuration"))
-	b.WriteString("\n\n")
-
 	labelStyle := lipgloss.NewStyle().Foreground(theme.Muted).MarginLeft(2)
 	valueStyle := lipgloss.NewStyle().Foreground(theme.Accent).MarginLeft(4)
 	hintStyle := lipgloss.NewStyle().Foreground(theme.Muted).MarginLeft(2)

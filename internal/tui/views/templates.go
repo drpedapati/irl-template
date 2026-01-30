@@ -97,15 +97,6 @@ func (m TemplatesModel) Update(msg tea.Msg) (TemplatesModel, tea.Cmd) {
 func (m TemplatesModel) View() string {
 	var b strings.Builder
 
-	titleStyle := lipgloss.NewStyle().
-		Bold(true).
-		Foreground(theme.Primary).
-		MarginLeft(2).
-		MarginTop(1)
-
-	b.WriteString(titleStyle.Render("Templates"))
-	b.WriteString("\n\n")
-
 	if m.err != nil {
 		errStyle := lipgloss.NewStyle().Foreground(theme.Error).MarginLeft(2)
 		b.WriteString(errStyle.Render("Error: " + m.err.Error()))
