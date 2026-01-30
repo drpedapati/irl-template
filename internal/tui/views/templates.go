@@ -671,10 +671,10 @@ func (m TemplatesModel) viewCopying() string {
 	source := m.filtered[m.copySourceIdx]
 
 	b.WriteString("\n")
-	b.WriteString(labelStyle.Render("Copy template as custom"))
+	b.WriteString(labelStyle.Render("Create custom template"))
 	b.WriteString("\n\n")
 
-	b.WriteString(hintStyle.Render("Source: ") + accentStyle.Render(source.Name))
+	b.WriteString(hintStyle.Render("Based on: ") + accentStyle.Render(source.Name))
 	b.WriteString("\n\n")
 
 	b.WriteString(labelStyle.Render("Template name:"))

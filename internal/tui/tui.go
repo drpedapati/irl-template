@@ -745,7 +745,7 @@ func (m Model) getContextHint() string {
 		if m.templatesView.IsPreviewing() {
 			return keyStyle.Render("↑↓") + mutedStyle.Render(" scroll  ") + keyStyle.Render("g") + mutedStyle.Render(" GitHub  ") + keyStyle.Render("←") + mutedStyle.Render(" back")
 		}
-		return keyStyle.Render("t") + mutedStyle.Render(" copy  ") + keyStyle.Render("e") + mutedStyle.Render(" edit  ") + keyStyle.Render("a") + mutedStyle.Render("ll ") + keyStyle.Render("d") + mutedStyle.Render("efault ") + keyStyle.Render("c") + mutedStyle.Render("ustom  ") + keyStyle.Render("r") + mutedStyle.Render(" refresh")
+		return keyStyle.Render("t") + mutedStyle.Render(" new  ") + keyStyle.Render("e") + mutedStyle.Render(" edit  ") + keyStyle.Render("x") + mutedStyle.Render(" del  ") + keyStyle.Render("a") + mutedStyle.Render("ll ") + keyStyle.Render("d") + mutedStyle.Render("efault ") + keyStyle.Render("c") + mutedStyle.Render("ustom  ") + keyStyle.Render("r") + mutedStyle.Render(" refresh")
 	case ViewInit:
 		return keyStyle.Render("↑↓") + mutedStyle.Render(" navigate  ") + keyStyle.Render("→") + mutedStyle.Render(" select")
 	case ViewDoctor:
