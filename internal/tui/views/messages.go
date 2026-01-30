@@ -15,6 +15,7 @@ type TemplatesLoadedMsg struct {
 type TemplateItem struct {
 	Name        string
 	Description string
+	Content     string
 }
 
 // DoctorResultMsg is sent when doctor checks complete

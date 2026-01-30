@@ -228,12 +228,21 @@ func (m Model) updateTemplates(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.quitting = true
 		return m, tea.Quit
 	case "esc", "left", "h":
+		// If previewing, let the view handle it to exit preview
+		if m.templatesView.IsPreviewing() {
+			var cmd tea.Cmd
+			m.templatesView, cmd = m.templatesView.Update(msg)
+			return m, cmd
+		}
+		// Otherwise go back to menu
 		m.view = ViewMenu
 		m.statusBar.SetKeys(DefaultMenuKeys())
 		return m, nil
 	case "r":
-		m.loading = true
-		return m, tea.Batch(m.spinner.Tick, m.templatesView.RefreshTemplates())
+		if !m.templatesView.IsPreviewing() {
+			m.loading = true
+			return m, tea.Batch(m.spinner.Tick, m.templatesView.RefreshTemplates())
+		}
 	}
 
 	var cmd tea.Cmd
