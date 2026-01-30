@@ -108,6 +108,14 @@ func loadCachedTemplates(cacheDir string) ([]Template, bool) {
 		return nil, false
 	}
 
+	// Load content from cached files (since Content has json:"-")
+	for i := range templates {
+		cachePath := filepath.Join(cacheDir, templates[i].Name+".md")
+		if content, err := os.ReadFile(cachePath); err == nil {
+			templates[i].Content = string(content)
+		}
+	}
+
 	return templates, true
 }
 
