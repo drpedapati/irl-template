@@ -273,6 +273,9 @@ func (m Model) View() string {
 	// Build inner content
 	var inner strings.Builder
 
+	// Add breathing room at top
+	inner.WriteString("\n\n")
+
 	// Header
 	inner.WriteString(m.header.View())
 	inner.WriteString("\n")
