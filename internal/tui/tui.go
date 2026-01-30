@@ -63,10 +63,10 @@ func New(version string) Model {
 	m.header.SetWidth(appWidth)
 	m.menu.SetWidth(appWidth)
 	m.statusBar.SetWidth(appWidth)
-	m.templatesView.SetSize(appWidth, appHeight-5)
-	m.doctorView.SetSize(appWidth, appHeight-5)
-	m.initView.SetSize(appWidth, appHeight-5)
-	m.configView.SetSize(appWidth, appHeight-5)
+	m.templatesView.SetSize(appWidth, appHeight-6)
+	m.doctorView.SetSize(appWidth, appHeight-6)
+	m.initView.SetSize(appWidth, appHeight-6)
+	m.configView.SetSize(appWidth, appHeight-6)
 
 	return m
 }
@@ -181,7 +181,7 @@ func (m Model) selectView(v ViewType) (tea.Model, tea.Cmd) {
 	case ViewInit:
 		m.statusBar.SetKeys(InitViewKeys())
 		m.initView = views.NewInitModel()
-		m.initView.SetSize(appWidth, appHeight-5)
+		m.initView.SetSize(appWidth, appHeight-6)
 		cmd = m.initView.Init()
 	case ViewConfig:
 		m.statusBar.SetKeys(ViewKeys())
@@ -283,33 +283,11 @@ func (m Model) View() string {
 	inner.WriteString(m.header.View())
 	inner.WriteString("\n")
 
-	// Subheader: folder path + disk space on left, datetime on right
-	defaultDir := config.GetDefaultDirectory()
+	// Subheader: datetime right-aligned
 	mutedStyle := lipgloss.NewStyle().Foreground(theme.Muted)
-
-	var pathText string
-	if defaultDir == "" {
-		pathText = "No default project path"
-	} else {
-		sysInfo := doctor.GetSystemInfo()
-		if sysInfo.Disk != "" {
-			pathText = defaultDir + " (" + sysInfo.Disk + ")"
-		} else {
-			pathText = defaultDir
-		}
-	}
-
-	// Format: Mon Jan 30 2:45 PM MST
 	now := time.Now()
 	dateTime := now.Format("Mon Jan 2 3:04 PM MST")
-
-	// Calculate padding between path and datetime
-	padding := appWidth - lipgloss.Width(pathText) - lipgloss.Width(dateTime)
-	if padding < 1 {
-		padding = 1
-	}
-
-	inner.WriteString(mutedStyle.Render(pathText) + strings.Repeat(" ", padding) + mutedStyle.Render(dateTime))
+	inner.WriteString(mutedStyle.Render(strings.Repeat(" ", appWidth-lipgloss.Width(dateTime)) + dateTime))
 	inner.WriteString("\n")
 
 	inner.WriteString(Divider(appWidth))
@@ -339,7 +317,7 @@ func (m Model) View() string {
 
 	// Truncate or pad content to fixed height
 	contentLines := strings.Split(content, "\n")
-	maxContentLines := appHeight - 5 // header, subheader, top divider, bottom divider, footer
+	maxContentLines := appHeight - 6 // header, subheader, top divider, bottom divider, path, footer
 
 	// Truncate if too long
 	if len(contentLines) > maxContentLines {
@@ -370,6 +348,27 @@ func (m Model) View() string {
 	// Footer divider
 	inner.WriteString("\n")
 	inner.WriteString(Divider(appWidth))
+	inner.WriteString("\n")
+
+	// Folder path with disk space
+	defaultDir := config.GetDefaultDirectory()
+	var pathText string
+	if defaultDir == "" {
+		pathText = "No default project path"
+	} else {
+		sysInfo := doctor.GetSystemInfo()
+		if sysInfo.Disk != "" {
+			pathText = defaultDir + " (" + sysInfo.Disk + ")"
+		} else {
+			pathText = defaultDir
+		}
+	}
+	// Truncate long paths from the left
+	maxPathLen := appWidth - 4
+	if len(pathText) > maxPathLen {
+		pathText = "..." + pathText[len(pathText)-maxPathLen+3:]
+	}
+	inner.WriteString(mutedStyle.Render(pathText))
 	inner.WriteString("\n")
 
 	// Footer: centered command help
