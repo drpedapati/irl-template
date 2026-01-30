@@ -57,13 +57,13 @@ func New(version string) Model {
 	}
 
 	// Set fixed widths
-	m.header.SetWidth(appWidth - 4)
-	m.menu.SetWidth(appWidth - 4)
-	m.statusBar.SetWidth(appWidth - 4)
-	m.templatesView.SetSize(appWidth-4, appHeight-8)
-	m.doctorView.SetSize(appWidth-4, appHeight-8)
-	m.initView.SetSize(appWidth-4, appHeight-8)
-	m.configView.SetSize(appWidth-4, appHeight-8)
+	m.header.SetWidth(appWidth)
+	m.menu.SetWidth(appWidth)
+	m.statusBar.SetWidth(appWidth)
+	m.templatesView.SetSize(appWidth, appHeight-3)
+	m.doctorView.SetSize(appWidth, appHeight-3)
+	m.initView.SetSize(appWidth, appHeight-3)
+	m.configView.SetSize(appWidth, appHeight-3)
 
 	return m
 }
@@ -276,7 +276,7 @@ func (m Model) View() string {
 	// Header
 	inner.WriteString(m.header.View())
 	inner.WriteString("\n")
-	inner.WriteString(Divider(appWidth - 4))
+	inner.WriteString(Divider(appWidth))
 
 	// Content area
 	content := ""
@@ -303,7 +303,7 @@ func (m Model) View() string {
 
 	// Truncate or pad content to fixed height
 	contentLines := strings.Split(content, "\n")
-	maxContentLines := appHeight - 4 // header, 2 dividers, status bar
+	maxContentLines := appHeight - 3 // header, divider, status bar
 
 	// Truncate if too long
 	if len(contentLines) > maxContentLines {
@@ -317,22 +317,11 @@ func (m Model) View() string {
 
 	inner.WriteString("\n")
 	inner.WriteString(strings.Join(contentLines, "\n"))
-
-	// Divider before status bar
-	inner.WriteString("\n")
-	inner.WriteString(Divider(appWidth - 4))
 	inner.WriteString("\n")
 	inner.WriteString(m.statusBar.View())
 
-	// Create the framed box - fixed width and height
-	boxStyle := lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(theme.Muted).
-		Padding(0, 1).
-		Width(appWidth).
-		Height(appHeight)
-
-	return boxStyle.Render(inner.String())
+	// No border - clean Claude Code style
+	return inner.String()
 }
 
 func (m Model) renderMenuView() string {
