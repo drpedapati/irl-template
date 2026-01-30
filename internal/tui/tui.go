@@ -1,6 +1,8 @@
 package tui
 
 import (
+	"os/exec"
+	"runtime"
 	"strings"
 	"time"
 
@@ -161,34 +163,63 @@ func (m Model) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if v, ok := m.menu.SelectByKey("c"); ok {
 			return m.selectView(v)
 		}
+	case "o":
+		if v, ok := m.menu.SelectByKey("o"); ok {
+			return m.selectView(v)
+		}
 	}
 	return m, nil
 }
 
 func (m Model) selectView(v ViewType) (tea.Model, tea.Cmd) {
-	m.view = v
 	var cmd tea.Cmd
 
 	switch v {
+	case ViewDocs:
+		// Open docs in browser, stay on menu
+		openBrowser("https://docs.irloop.org")
+		return m, nil
 	case ViewTemplates:
+		m.view = v
 		m.statusBar.SetKeys(TemplateViewKeys())
 		m.loading = true
 		cmd = tea.Batch(m.spinner.Tick, m.templatesView.LoadTemplates())
 	case ViewDoctor:
+		m.view = v
 		m.statusBar.SetKeys(ViewKeys())
 		m.loading = true
 		cmd = tea.Batch(m.spinner.Tick, m.doctorView.RunChecks())
 	case ViewInit:
+		m.view = v
 		m.statusBar.SetKeys(InitViewKeys())
 		m.initView = views.NewInitModel()
 		m.initView.SetSize(appWidth, appHeight-6)
 		cmd = m.initView.Init()
 	case ViewConfig:
+		m.view = v
 		m.statusBar.SetKeys(ViewKeys())
 		cmd = m.configView.Load()
+	default:
+		m.view = v
 	}
 
 	return m, cmd
+}
+
+// openBrowser opens a URL in the default browser
+func openBrowser(url string) {
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "darwin":
+		cmd = exec.Command("open", url)
+	case "linux":
+		cmd = exec.Command("xdg-open", url)
+	case "windows":
+		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
+	}
+	if cmd != nil {
+		cmd.Start()
+	}
 }
 
 func (m Model) updateTemplates(msg tea.KeyMsg) (tea.Model, tea.Cmd) {

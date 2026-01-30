@@ -24,6 +24,7 @@ const (
 	ViewTemplates
 	ViewDoctor
 	ViewConfig
+	ViewDocs // Opens browser to docs.irloop.org
 )
 
 // Menu represents the main menu
@@ -42,6 +43,7 @@ func NewMenu() Menu {
 			{Title: "Templates", Desc: "Browse available templates", Key: "t", ViewType: ViewTemplates},
 			{Title: "Doctor", Desc: "Check environment setup", Key: "d", ViewType: ViewDoctor},
 			{Title: "Config", Desc: "View and edit settings", Key: "c", ViewType: ViewConfig},
+			{Title: "Docs", Desc: "Open documentation in browser", Key: "o", ViewType: ViewDocs},
 		},
 		cursor:   0,
 		selected: ViewMenu,
