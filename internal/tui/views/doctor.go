@@ -68,23 +68,14 @@ func (m DoctorModel) Update(msg tea.Msg) (DoctorModel, tea.Cmd) {
 func (m DoctorModel) View() string {
 	var b strings.Builder
 
-	titleStyle := lipgloss.NewStyle().
-		Bold(true).
-		Foreground(theme.Primary).
-		MarginLeft(2).
-		MarginTop(1)
-
-	b.WriteString(titleStyle.Render("Environment"))
-	b.WriteString("\n\n")
-
 	if !m.loaded {
 		return b.String()
 	}
 
-	// System info
+	// System info on first line
 	infoStyle := lipgloss.NewStyle().Foreground(theme.Muted).MarginLeft(2)
 	b.WriteString(infoStyle.Render(m.systemInfo))
-	b.WriteString("\n\n")
+	b.WriteString("\n")
 
 	// Group results by category
 	grouped := make(map[string][]ToolResult)
