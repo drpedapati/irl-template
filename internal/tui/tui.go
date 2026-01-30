@@ -289,7 +289,7 @@ func (m Model) View() string {
 	now := time.Now()
 	dateTime := now.Format("Mon Jan 2 3:04 PM MST")
 
-	viewTitle := ""
+	viewTitle := "Main Menu"
 	switch m.view {
 	case ViewTemplates:
 		viewTitle = "Templates"
@@ -301,18 +301,13 @@ func (m Model) View() string {
 		viewTitle = "Configuration"
 	}
 
-	if viewTitle != "" {
-		// Show view title on left, datetime on right
-		titleText := viewTitleStyle.Render(viewTitle)
-		padding := appWidth - lipgloss.Width(viewTitle) - lipgloss.Width(dateTime)
-		if padding < 1 {
-			padding = 1
-		}
-		inner.WriteString(titleText + strings.Repeat(" ", padding) + mutedStyle.Render(dateTime))
-	} else {
-		// Just datetime right-aligned
-		inner.WriteString(mutedStyle.Render(strings.Repeat(" ", appWidth-lipgloss.Width(dateTime)) + dateTime))
+	// Show view title on left, datetime on right
+	titleText := viewTitleStyle.Render(viewTitle)
+	padding := appWidth - lipgloss.Width(viewTitle) - lipgloss.Width(dateTime)
+	if padding < 1 {
+		padding = 1
 	}
+	inner.WriteString(titleText + strings.Repeat(" ", padding) + mutedStyle.Render(dateTime))
 	inner.WriteString("\n")
 
 	inner.WriteString(Divider(appWidth))
