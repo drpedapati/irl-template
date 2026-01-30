@@ -191,7 +191,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 
 	fmt.Printf("\n%sNext steps:%s\n", style.Bold, style.Reset)
 	fmt.Printf("  %scd%s %s\n", style.Cyan, style.Reset, projectPath)
-	fmt.Printf("  %s# Edit 01-plans/main-plan.md%s\n", style.Dim, style.Reset)
+	fmt.Printf("  %s# Edit main-plan.md%s\n", style.Dim, style.Reset)
 
 	fmt.Printf("\n%sOpen in IDE:%s\n", style.Bold, style.Reset)
 	fmt.Printf("  %scursor%s %s\n", style.Cyan, style.Reset, projectPath)

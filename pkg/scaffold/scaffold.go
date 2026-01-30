@@ -7,47 +7,9 @@ import (
 	"path/filepath"
 )
 
-// Directories defines the IRL project structure
-var Directories = []string{
-	"01-plans",
-	"02-data/raw",
-	"02-data/derived",
-	"03-outputs/figures",
-	"04-logs",
-}
-
-// Create sets up a new IRL project directory structure
+// Create sets up a minimal IRL project - just the plan file
+// Structure is defined in the plan and created by the AI on first run
 func Create(projectPath string) error {
-	for _, dir := range Directories {
-		fullPath := filepath.Join(projectPath, dir)
-		if err := os.MkdirAll(fullPath, 0755); err != nil {
-			return fmt.Errorf("failed to create %s: %w", dir, err)
-		}
-	}
-
-	// Create .gitkeep files in empty directories
-	gitkeeps := []string{
-		"02-data/raw/.gitkeep",
-		"02-data/derived/.gitkeep",
-		"03-outputs/.gitkeep",
-		"03-outputs/figures/.gitkeep",
-		"04-logs/.gitkeep",
-	}
-
-	for _, gk := range gitkeeps {
-		path := filepath.Join(projectPath, gk)
-		if err := os.WriteFile(path, []byte{}, 0644); err != nil {
-			return fmt.Errorf("failed to create %s: %w", gk, err)
-		}
-	}
-
-	// Create default activity log
-	logPath := filepath.Join(projectPath, "04-logs", "activity_log.md")
-	logContent := "# Activity Log\n\n## Iteration History\n\n"
-	if err := os.WriteFile(logPath, []byte(logContent), 0644); err != nil {
-		return fmt.Errorf("failed to create activity log: %w", err)
-	}
-
 	// Create .gitignore
 	gitignorePath := filepath.Join(projectPath, ".gitignore")
 	if err := os.WriteFile(gitignorePath, []byte(gitignoreContent), 0644); err != nil {
@@ -57,9 +19,9 @@ func Create(projectPath string) error {
 	return nil
 }
 
-// WritePlan writes the main-plan.md file
+// WritePlan writes the main-plan.md file at the project root
 func WritePlan(projectPath, content string) error {
-	planPath := filepath.Join(projectPath, "01-plans", "main-plan.md")
+	planPath := filepath.Join(projectPath, "main-plan.md")
 	return os.WriteFile(planPath, []byte(content), 0644)
 }
 
@@ -68,7 +30,7 @@ func GitInit(projectPath string) error {
 	commands := [][]string{
 		{"git", "init", "-q"},
 		{"git", "add", "-A"},
-		{"git", "commit", "-q", "-m", "Initial commit from IRL template"},
+		{"git", "commit", "-q", "-m", "Initial commit from IRL"},
 	}
 
 	for _, args := range commands {
@@ -104,6 +66,9 @@ venv/
 # Quarto
 /.quarto/
 *_files/
+
+# Node
+node_modules/
 
 # Environment
 .env
