@@ -37,8 +37,9 @@ build/
 __pycache__/
 *.class
 
-# Go binary
+# Go binaries
 /irl
+/irl-template
 
 # Environment variables
 .env
