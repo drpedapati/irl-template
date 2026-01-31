@@ -135,7 +135,7 @@ func (m FolderModel) Update(msg tea.Msg) (FolderModel, tea.Cmd) {
 		key := msg.String()
 
 		switch key {
-		case "up", "k":
+		case "up":
 			if m.cursor > 0 {
 				m.cursor--
 				// Adjust scroll if needed
@@ -144,7 +144,7 @@ func (m FolderModel) Update(msg tea.Msg) (FolderModel, tea.Cmd) {
 				}
 			}
 			return m, nil
-		case "down", "j":
+		case "down":
 			if m.cursor < m.totalItems()-1 {
 				m.cursor++
 				// Adjust scroll if needed
@@ -153,7 +153,7 @@ func (m FolderModel) Update(msg tea.Msg) (FolderModel, tea.Cmd) {
 				}
 			}
 			return m, nil
-		case "right", "l", "enter":
+		case "right", "enter":
 			if m.cursor == 0 {
 				// Select current directory
 				config.SetDefaultDirectory(m.currentDir)
@@ -187,11 +187,7 @@ func (m FolderModel) Update(msg tea.Msg) (FolderModel, tea.Cmd) {
 				}
 			}
 			return m, nil
-		case "left", "h":
-			// If filter has text, let it handle cursor movement
-			if m.HasFilterText() {
-				break // Fall through to filter input
-			}
+		case "left":
 			if m.cursor == 0 {
 				// On "Use this folder" - signal to go back to menu
 				m.wantsBack = true
