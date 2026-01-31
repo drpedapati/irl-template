@@ -50,6 +50,10 @@ type ProjectsModel struct {
 	sortBy      string // "date-desc", "date-asc", "name-asc", "name-desc"
 	editors     []Editor
 	openMsg     string // Message shown after opening
+
+	// Project detail view
+	viewing    bool
+	actionView ProjectActionModel
 }
 
 const projectsVisibleItems = 10
@@ -193,6 +197,11 @@ func scanForProjects(baseDir string) ([]Project, error) {
 	return projects, nil
 }
 
+// IsViewing returns true when viewing a project detail
+func (m ProjectsModel) IsViewing() bool {
+	return m.viewing
+}
+
 // Update handles messages
 func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 	switch msg := msg.(type) {
@@ -207,6 +216,16 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 		return m, textinput.Blink
 
 	case tea.KeyMsg:
+		// If viewing a project, delegate to actionView
+		if m.viewing {
+			var cmd tea.Cmd
+			m.actionView, cmd = m.actionView.Update(msg)
+			if m.actionView.IsDone() {
+				m.viewing = false
+			}
+			return m, cmd
+		}
+
 		key := msg.String()
 
 		// Check for editor shortcuts first (only when there's a selection)
@@ -220,6 +239,13 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 		}
 
 		switch key {
+		case "right", "enter":
+			// Enter project detail view
+			if m.SelectedProject() != "" {
+				m.viewing = true
+				m.actionView = NewProjectActionModel(m.SelectedProject(), false)
+			}
+			return m, nil
 		case "s":
 			// Cycle through sort options: date newest → date oldest → name A-Z → name Z-A
 			switch m.sortBy {
@@ -380,6 +406,11 @@ func (m ProjectsModel) GetEditorHints() string {
 
 // View renders the projects view
 func (m ProjectsModel) View() string {
+	// Show project action view if viewing
+	if m.viewing {
+		return m.actionView.View()
+	}
+
 	var b strings.Builder
 
 	mutedStyle := lipgloss.NewStyle().Foreground(theme.Muted)

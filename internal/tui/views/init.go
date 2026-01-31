@@ -3,7 +3,6 @@ package views
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -57,8 +56,8 @@ type InitModel struct {
 	browseCursor  int
 	browseScroll  int
 
-	// Detected editors for success screen
-	editors []Editor
+	// Project action view for success screen
+	actionView ProjectActionModel
 }
 
 const browseVisibleItems = 8
@@ -160,7 +159,7 @@ func (m InitModel) Update(msg tea.Msg) (InitModel, tea.Cmd) {
 		m.projectPath = msg.Path
 		m.err = msg.Err
 		if msg.Err == nil {
-			m.editors = detectEditors()
+			m.actionView = NewProjectActionModel(msg.Path, true)
 		}
 	}
 
@@ -322,39 +321,15 @@ func (m InitModel) updateTemplate(msg tea.KeyMsg) (InitModel, tea.Cmd) {
 }
 
 func (m InitModel) updateDone(msg tea.KeyMsg) (InitModel, tea.Cmd) {
-	key := msg.String()
+	var cmd tea.Cmd
+	m.actionView, cmd = m.actionView.Update(msg)
 
-	// Check for editor hotkeys
-	for _, editor := range m.editors {
-		if key == editor.Key {
-			if editor.Cmd == "terminal" {
-				// Open terminal in project directory
-				cmd := exec.Command("open", "-a", "Terminal", m.projectPath)
-				cmd.Start()
-			} else {
-				// Open the project in the selected editor
-				cmd := exec.Command(editor.Cmd, m.projectPath)
-				cmd.Start() // Don't wait for it to finish
-			}
-			m.done = true
-			return m, nil
-		}
+	// Check if user wants to exit
+	if m.actionView.IsDone() {
+		m.done = true
 	}
 
-	// Handle navigation
-	switch key {
-	case "f":
-		// Open in Finder (macOS)
-		cmd := exec.Command("open", m.projectPath)
-		cmd.Start()
-		m.done = true
-		return m, nil
-	case "enter", "esc", "left":
-		m.done = true
-		return m, nil
-	}
-
-	return m, nil
+	return m, cmd
 }
 
 // InitTemplatesLoadedMsg is sent when templates are loaded for init wizard
@@ -677,9 +652,8 @@ func (m InitModel) viewCreating() string {
 }
 
 func (m InitModel) viewDone() string {
-	var b strings.Builder
-
 	if m.err != nil {
+		var b strings.Builder
 		errStyle := lipgloss.NewStyle().Foreground(theme.Error).MarginLeft(2)
 		b.WriteString(errStyle.Render("Error: " + m.err.Error()))
 		b.WriteString("\n\n")
@@ -688,64 +662,5 @@ func (m InitModel) viewDone() string {
 		return b.String()
 	}
 
-	checkStyle := lipgloss.NewStyle().Foreground(theme.Success)
-	pathStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
-	keyStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
-	nameStyle := lipgloss.NewStyle().Foreground(theme.Primary)
-	hintStyle := lipgloss.NewStyle().Foreground(theme.Muted)
-	headerStyle := lipgloss.NewStyle().Foreground(theme.Muted).Bold(true)
-
-	// Success message
-	b.WriteString("\n")
-	b.WriteString("  " + checkStyle.Render("✓") + " Project created successfully")
-	b.WriteString("\n\n")
-
-	// Project path
-	b.WriteString("  📁 " + pathStyle.Render(m.projectPath))
-	b.WriteString("\n\n")
-
-	// Open with section (only shows available editors from detectEditors)
-	if len(m.editors) > 0 {
-		b.WriteString("  " + headerStyle.Render("Open with:"))
-		b.WriteString("\n\n")
-
-		// Show available editors in a grid (3 columns)
-		colWidth := 16
-		col := 0
-		for _, editor := range m.editors {
-			if col == 0 {
-				b.WriteString("  ")
-			}
-
-			item := keyStyle.Render(editor.Key) + " " + nameStyle.Render(editor.Name)
-
-			// Pad to column width
-			padding := colWidth - len(editor.Key) - 1 - len(editor.Name)
-			if padding > 0 {
-				item += strings.Repeat(" ", padding)
-			}
-
-			b.WriteString(item)
-			col++
-			if col >= 3 {
-				b.WriteString("\n")
-				col = 0
-			}
-		}
-		if col != 0 {
-			b.WriteString("\n")
-		}
-
-		// Finder option (always available on macOS)
-		b.WriteString("\n")
-		b.WriteString("  " + keyStyle.Render("f") + " " + nameStyle.Render("Finder"))
-		b.WriteString("\n")
-	}
-
-	// Footer hint
-	b.WriteString("\n")
-	b.WriteString("  " + hintStyle.Render("Press a key to open, or ← to go back"))
-	b.WriteString("\n")
-
-	return b.String()
+	return m.actionView.View()
 }
