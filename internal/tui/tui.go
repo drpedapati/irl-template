@@ -747,7 +747,7 @@ func (m Model) getContextHint() string {
 		}
 		return keyStyle.Render("t") + mutedStyle.Render(" new  ") + keyStyle.Render("→") + mutedStyle.Render(" preview  ") + mutedStyle.Render("│ ") + keyStyle.Render("a") + mutedStyle.Render("ll ") + keyStyle.Render("d") + mutedStyle.Render("efault ") + keyStyle.Render("c") + mutedStyle.Render("ustom  ") + keyStyle.Render("r") + mutedStyle.Render(" refresh")
 	case ViewInit:
-		return keyStyle.Render("↑↓") + mutedStyle.Render(" navigate  ") + keyStyle.Render("→") + mutedStyle.Render(" select")
+		return keyStyle.Render("↑↓") + mutedStyle.Render(" navigate  ") + keyStyle.Render("Enter") + mutedStyle.Render(" select")
 	case ViewDoctor:
 		return ""
 	case ViewConfig:

@@ -283,7 +283,7 @@ func (m InitModel) updatePurpose(msg tea.KeyMsg) (InitModel, tea.Cmd) {
 
 	// Then check for confirmation keys
 	switch key {
-	case "enter", "right":
+	case "enter":
 		m.purpose = m.purposeInput.Value()
 		if m.purpose == "" {
 			return m, cmd // Still return the textinput command
