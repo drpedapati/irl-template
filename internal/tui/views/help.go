@@ -1598,7 +1598,7 @@ func (m HelpModel) renderWhatCanYouBuildSlide() string {
 	case 1:
 		return m.renderUniversalWorkflowSlide()
 	case 2:
-		return m.renderPrePostInstructionsSlide()
+		return m.renderBeforeAfterRunSlide()
 	case 3:
 		return m.renderTemplateSetupSlide()
 	case 4:
@@ -1691,7 +1691,7 @@ func (m HelpModel) renderUniversalWorkflowSlide() string {
 	)
 }
 
-func (m HelpModel) renderPrePostInstructionsSlide() string {
+func (m HelpModel) renderBeforeAfterRunSlide() string {
 	titleStyle := lipgloss.NewStyle().
 		Foreground(theme.Primary).
 		Bold(true)
@@ -1701,27 +1701,27 @@ func (m HelpModel) renderPrePostInstructionsSlide() string {
 		BorderForeground(theme.Success).
 		Padding(1, 2)
 
-	preStyle := lipgloss.NewStyle().
+	beforeStyle := lipgloss.NewStyle().
 		Foreground(theme.Success).
 		Bold(true)
 
-	postStyle := lipgloss.NewStyle().
+	afterStyle := lipgloss.NewStyle().
 		Foreground(theme.Warning).
 		Bold(true)
 
 	mutedStyle := lipgloss.NewStyle().
 		Foreground(theme.Muted)
 
-	title := titleStyle.Render("Pre-Instructions & Post-Instructions")
+	title := titleStyle.Render("Before Each Run & After Each Run")
 
 	content := lipgloss.JoinVertical(
 		lipgloss.Left,
-		preStyle.Render("Pre-Instructions")+"  "+mutedStyle.Render("(before work begins)"),
+		beforeStyle.Render("Before Each Run")+"  "+mutedStyle.Render("(start of each loop)"),
 		mutedStyle.Render("  \"Read each paper's methods section first\""),
 		mutedStyle.Render("  \"Use APA 7th citation format\""),
 		mutedStyle.Render("  \"Focus on quantitative findings only\""),
 		"",
-		postStyle.Render("Post-Instructions")+"  "+mutedStyle.Render("(after work completes)"),
+		afterStyle.Render("After Each Run")+"   "+mutedStyle.Render("(end of each loop)"),
 		mutedStyle.Render("  \"Summarize key themes in a table\""),
 		mutedStyle.Render("  \"Flag any contradictory findings\""),
 		mutedStyle.Render("  \"Export to Word format\""),
@@ -1729,7 +1729,7 @@ func (m HelpModel) renderPrePostInstructionsSlide() string {
 
 	box := boxStyle.Render(content)
 
-	hint := mutedStyle.Render("Your standards, applied every time.")
+	hint := mutedStyle.Render("Your standards, applied every loop.")
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
