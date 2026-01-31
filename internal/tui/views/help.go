@@ -147,6 +147,26 @@ func (m HelpModel) TotalSlides() int {
 	}
 }
 
+// SectionTitle returns the title of the current section
+func (m HelpModel) SectionTitle() string {
+	switch m.section {
+	case HelpSectionWhatIsIRL:
+		return "What is IRL?"
+	case HelpSectionHowIRLHelps:
+		return "How IRL helps"
+	case HelpSectionWhoIsIRLFor:
+		return "Who is IRL for?"
+	case HelpSectionWhatCanYouBuild:
+		return "What can you build?"
+	case HelpSectionWhatYouNeed:
+		return "What you need"
+	case HelpSectionSeeItInAction:
+		return "See it in action"
+	default:
+		return ""
+	}
+}
+
 // Update handles messages
 func (m HelpModel) Update(msg tea.Msg) (HelpModel, tea.Cmd) {
 	switch msg := msg.(type) {
@@ -378,16 +398,20 @@ func (m HelpModel) renderSlides() string {
 		content = m.renderSeeItInActionSlide()
 	}
 
-	// Fixed footer height (2 lines: dots/hints + padding)
+	// Header with lesson title and slide counter
+	header := m.renderSlideHeader()
+
+	// Fixed heights
+	const headerHeight = 2
 	const footerHeight = 2
 
-	// Content area fills everything except footer
-	contentHeight := m.height - footerHeight
-	if contentHeight < 10 {
-		contentHeight = 10
+	// Content area fills everything except header and footer
+	contentHeight := m.height - headerHeight - footerHeight
+	if contentHeight < 8 {
+		contentHeight = 8
 	}
 
-	// Center content in its dedicated area (this creates a fixed-height block)
+	// Center content in its dedicated area
 	centeredContent := lipgloss.Place(
 		m.width,
 		contentHeight,
@@ -396,10 +420,42 @@ func (m HelpModel) renderSlides() string {
 		content,
 	)
 
-	// Footer is always at the bottom (fixed height block)
+	// Footer with navigation
 	footer := m.renderSlideFooterFixed()
 
-	return centeredContent + footer
+	return header + centeredContent + footer
+}
+
+func (m HelpModel) renderSlideHeader() string {
+	titleStyle := lipgloss.NewStyle().
+		Foreground(theme.Muted)
+
+	counterStyle := lipgloss.NewStyle().
+		Foreground(theme.Accent)
+
+	title := titleStyle.Render(m.SectionTitle())
+	counter := counterStyle.Render("(" + string('0'+byte(m.currentSlide+1)) + "/" + string('0'+byte(m.TotalSlides())) + ")")
+
+	// Handle slide counts > 9
+	if m.TotalSlides() > 9 || m.currentSlide+1 > 9 {
+		counter = counterStyle.Render("(" + slideItoa(m.currentSlide+1) + "/" + slideItoa(m.TotalSlides()) + ")")
+	}
+
+	header := title + "  " + counter
+
+	// Left-justify with padding
+	return lipgloss.NewStyle().
+		PaddingLeft(2).
+		PaddingBottom(1).
+		Render(header)
+}
+
+// slideItoa converts small ints to string for slide counters
+func slideItoa(n int) string {
+	if n < 10 {
+		return string('0' + byte(n))
+	}
+	return string('0'+byte(n/10)) + string('0'+byte(n%10))
 }
 
 func (m HelpModel) renderSlideFooter() string {
@@ -477,16 +533,12 @@ func (m HelpModel) renderSlideFooterFixed() string {
 			accentStyle.Render("esc") + mutedStyle.Render(" menu")
 	}
 
-	footer := lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		dots,
-		"    ",
-		navHint,
-	)
+	footer := dots + "    " + navHint
 
-	// Center horizontally, return exactly 2 lines (content + blank line for padding)
-	centered := lipgloss.PlaceHorizontal(m.width, lipgloss.Center, footer)
-	return centered + "\n"
+	// Left-justify with padding to match header
+	return lipgloss.NewStyle().
+		PaddingLeft(2).
+		Render(footer) + "\n"
 }
 
 // ============================================================================
