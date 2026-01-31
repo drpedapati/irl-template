@@ -291,25 +291,18 @@ func (m HelpModel) renderMenu() string {
 		}
 	}
 
-	// Center the menu
+	// Left-justify the menu with padding
 	menuContent := content.String()
-	contentHeight := m.height - 3
-	if contentHeight < 10 {
-		contentHeight = 10
-	}
 
-	centered := lipgloss.Place(
-		m.width,
-		contentHeight,
-		lipgloss.Center,
-		lipgloss.Center,
-		menuContent,
-	)
+	// Add left padding for consistent alignment
+	paddedMenu := lipgloss.NewStyle().
+		PaddingLeft(2).
+		Render(menuContent)
 
 	// Footer
 	footer := m.renderMenuFooter()
 
-	return centered + footer
+	return paddedMenu + "\n" + footer
 }
 
 func (m HelpModel) renderMenuItem(index int, item helpMenuItem) string {
@@ -1575,7 +1568,7 @@ func (m HelpModel) renderWhoIsIRLForSummarySlide() string {
 
 	box := boxStyle.Render(content)
 
-	tagline := successStyle.Render("AI you can stand behind.")
+	tagline := successStyle.Render("Reproducible AI-assisted research.")
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
