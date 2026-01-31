@@ -23,14 +23,27 @@ const (
 	FieldCount
 )
 
+type ProfileAction int
+
+const (
+	ActionClearProfile ProfileAction = iota
+	ActionClearProjectDirectory
+	ActionCount
+)
+
 // PersonalizeModel handles profile editing
 type PersonalizeModel struct {
-	width        int
-	height       int
-	inputs       []textinput.Model
-	focusIndex   int
-	saved        bool
-	instructions string // Separate since it's multiline
+	width           int
+	height          int
+	inputs          []textinput.Model
+	focusIndex      int
+	done            bool
+	doneMessage     string
+	err             error
+	confirming      bool
+	pendingAction   ProfileAction
+	confirmPrompt   string
+	confirmIsDanger bool
 }
 
 // NewPersonalizeModel creates a new personalize view
@@ -77,9 +90,8 @@ func NewPersonalizeModel() PersonalizeModel {
 	inputs[FieldInstructions].Width = 50
 
 	return PersonalizeModel{
-		inputs:       inputs,
-		focusIndex:   0,
-		instructions: profile.Instructions,
+		inputs:     inputs,
+		focusIndex: 0,
 	}
 }
 
@@ -91,7 +103,7 @@ func (m *PersonalizeModel) SetSize(width, height int) {
 
 // IsSaved returns true if profile was saved
 func (m PersonalizeModel) IsSaved() bool {
-	return m.saved
+	return m.done
 }
 
 // Init returns the initial command
@@ -99,30 +111,120 @@ func (m PersonalizeModel) Init() tea.Cmd {
 	return textinput.Blink
 }
 
+func (m PersonalizeModel) totalItems() int {
+	return int(FieldCount) + int(ActionCount)
+}
+
+func (m PersonalizeModel) isFieldIndex(index int) bool {
+	return index >= 0 && index < int(FieldCount)
+}
+
+func (m PersonalizeModel) isActionIndex(index int) bool {
+	return index >= int(FieldCount) && index < m.totalItems()
+}
+
+func (m PersonalizeModel) focusedAction() ProfileAction {
+	return ProfileAction(m.focusIndex - int(FieldCount))
+}
+
+func (m *PersonalizeModel) setFocus(index int) tea.Cmd {
+	if m.isFieldIndex(m.focusIndex) {
+		m.inputs[m.focusIndex].Blur()
+	}
+
+	m.focusIndex = index
+
+	if m.isFieldIndex(m.focusIndex) {
+		m.inputs[m.focusIndex].Focus()
+		return textinput.Blink
+	}
+
+	return nil
+}
+
+func (m *PersonalizeModel) startConfirm(action ProfileAction, prompt string, danger bool) {
+	m.confirming = true
+	m.pendingAction = action
+	m.confirmPrompt = prompt
+	m.confirmIsDanger = danger
+}
+
+func (m *PersonalizeModel) performAction(action ProfileAction) {
+	m.err = nil
+
+	var err error
+	var message string
+
+	switch action {
+	case ActionClearProfile:
+		err = config.ClearProfile()
+		message = "Profile cleared"
+		if err == nil {
+			for i := range m.inputs {
+				m.inputs[i].SetValue("")
+			}
+		}
+	case ActionClearProjectDirectory:
+		err = config.ClearDefaultDirectory()
+		message = "Project directory cleared"
+	default:
+		return
+	}
+
+	if err != nil {
+		m.err = err
+		return
+	}
+
+	m.done = true
+	m.doneMessage = message
+}
+
 // Update handles messages
 func (m PersonalizeModel) Update(msg tea.Msg) (PersonalizeModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		if m.confirming {
+			switch msg.String() {
+			case "y", "Y":
+				m.confirming = false
+				m.performAction(m.pendingAction)
+				return m, nil
+			case "n", "N", "esc":
+				m.confirming = false
+				return m, nil
+			}
+			return m, nil
+		}
+
 		switch msg.String() {
 		case "tab", "down":
-			m.inputs[m.focusIndex].Blur()
-			m.focusIndex++
-			if m.focusIndex >= int(FieldCount) {
-				m.focusIndex = 0
+			next := m.focusIndex + 1
+			if next >= m.totalItems() {
+				next = 0
 			}
-			m.inputs[m.focusIndex].Focus()
-			return m, textinput.Blink
+			return m, m.setFocus(next)
 
 		case "shift+tab", "up":
-			m.inputs[m.focusIndex].Blur()
-			m.focusIndex--
-			if m.focusIndex < 0 {
-				m.focusIndex = int(FieldCount) - 1
+			prev := m.focusIndex - 1
+			if prev < 0 {
+				prev = m.totalItems() - 1
 			}
-			m.inputs[m.focusIndex].Focus()
-			return m, textinput.Blink
+			return m, m.setFocus(prev)
 
 		case "enter":
+			if m.isActionIndex(m.focusIndex) {
+				switch m.focusedAction() {
+				case ActionClearProfile:
+					m.startConfirm(ActionClearProfile, "Clear saved profile? (y/n)", true)
+					return m, nil
+				case ActionClearProjectDirectory:
+					m.startConfirm(ActionClearProjectDirectory, "Clear default project directory? (y/n)", true)
+					return m, nil
+				}
+				return m, nil
+			}
+
 			// Save profile
 			profile := config.Profile{
 				Name:         m.inputs[FieldName].Value(),
@@ -132,13 +234,21 @@ func (m PersonalizeModel) Update(msg tea.Msg) (PersonalizeModel, tea.Cmd) {
 				Email:        m.inputs[FieldEmail].Value(),
 				Instructions: m.inputs[FieldInstructions].Value(),
 			}
-			config.SetProfile(profile)
-			m.saved = true
+			if err := config.SetProfile(profile); err != nil {
+				m.err = err
+				return m, nil
+			}
+			m.done = true
+			m.doneMessage = "Profile saved"
 			return m, nil
 		}
 	}
 
 	// Update current input
+	if !m.isFieldIndex(m.focusIndex) {
+		return m, nil
+	}
+
 	var cmd tea.Cmd
 	m.inputs[m.focusIndex], cmd = m.inputs[m.focusIndex].Update(msg)
 	return m, cmd
@@ -151,15 +261,32 @@ func (m PersonalizeModel) View() string {
 	labelStyle := lipgloss.NewStyle().Foreground(theme.Muted).Width(14)
 	focusedLabelStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true).Width(14)
 	successStyle := lipgloss.NewStyle().Foreground(theme.Success).MarginLeft(2)
+	warningStyle := lipgloss.NewStyle().Foreground(theme.Warning).MarginLeft(2)
+	errorStyle := lipgloss.NewStyle().Foreground(theme.Error).MarginLeft(2)
+	hintStyle := lipgloss.NewStyle().Foreground(theme.Muted).MarginLeft(2)
 
-	if m.saved {
+	if m.done {
 		b.WriteString("\n")
-		b.WriteString(successStyle.Render("Profile saved"))
+		b.WriteString(successStyle.Render(m.doneMessage))
 		b.WriteString("\n")
 		return b.String()
 	}
 
 	b.WriteString("\n")
+
+	if m.err != nil {
+		b.WriteString(errorStyle.Render("Error: " + m.err.Error()))
+		b.WriteString("\n\n")
+	}
+
+	if m.confirming {
+		style := warningStyle
+		if m.confirmIsDanger {
+			style = errorStyle
+		}
+		b.WriteString(style.Render(m.confirmPrompt))
+		b.WriteString("\n\n")
+	}
 
 	fields := []string{"Name", "Title", "Institution", "Department", "Email", "Instructions"}
 
@@ -173,6 +300,38 @@ func (m PersonalizeModel) View() string {
 		b.WriteString(style.Render(fields[i]))
 		b.WriteString(input.View())
 		b.WriteString("\n")
+	}
+
+	// Actions menu
+	b.WriteString("\n")
+	b.WriteString(hintStyle.Render("Actions"))
+	b.WriteString("\n\n")
+
+	actionNames := []string{
+		"Clear profile",
+		"Clear project directory",
+	}
+	actionDescs := []string{
+		"Removes saved profile fields",
+		"Unsets the default project directory (does not delete files)",
+	}
+
+	actionCursorStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
+	actionNormalStyle := lipgloss.NewStyle().Foreground(theme.Muted)
+	actionSelectedStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
+
+	for i := 0; i < int(ActionCount); i++ {
+		cursor := "  "
+		style := actionNormalStyle
+		if m.focusIndex == int(FieldCount)+i {
+			cursor = actionCursorStyle.Render("● ")
+			style = actionSelectedStyle
+		}
+
+		b.WriteString("  " + cursor + style.Render(actionNames[i]))
+		b.WriteString("\n")
+		b.WriteString("     " + actionNormalStyle.Render(actionDescs[i]))
+		b.WriteString("\n\n")
 	}
 
 	return b.String()

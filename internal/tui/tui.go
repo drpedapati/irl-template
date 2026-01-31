@@ -769,7 +769,7 @@ func (m Model) renderMenuView() string {
 
 func (m Model) renderLoading(msg string) string {
 	style := lipgloss.NewStyle().PaddingLeft(2).PaddingTop(1)
-	return style.Render(m.spinner.View() + " " + msg) + "\n"
+	return style.Render(m.spinner.View()+" "+msg) + "\n"
 }
 
 func (m Model) renderInlineProgress() string {
@@ -835,7 +835,7 @@ func (m Model) getContextHint() string {
 	case ViewFolder:
 		return keyStyle.Render("←") + mutedStyle.Render(" up a level  ") + keyStyle.Render("↑↓") + mutedStyle.Render(" navigate  ") + keyStyle.Render("Enter") + mutedStyle.Render(" select")
 	case ViewPersonalize:
-		return keyStyle.Render("Tab") + mutedStyle.Render(" next field  ") + keyStyle.Render("Enter") + mutedStyle.Render(" save")
+		return keyStyle.Render("Tab") + mutedStyle.Render(" next item  ") + keyStyle.Render("Enter") + mutedStyle.Render(" save/select  ") + keyStyle.Render("y/n") + mutedStyle.Render(" confirm")
 	}
 	return ""
 }

@@ -9,9 +9,9 @@ import (
 // Profile contains academic/personal info for template injection
 type Profile struct {
 	Name         string `json:"name"`
-	Title        string `json:"title"`        // e.g., "PhD Candidate", "Professor"
-	Institution  string `json:"institution"`  // e.g., "Stanford University"
-	Department   string `json:"department"`   // e.g., "Department of Psychology"
+	Title        string `json:"title"`       // e.g., "PhD Candidate", "Professor"
+	Institution  string `json:"institution"` // e.g., "Stanford University"
+	Department   string `json:"department"`  // e.g., "Department of Psychology"
 	Email        string `json:"email"`
 	Instructions string `json:"instructions"` // Common instructions for AI
 }
@@ -92,6 +92,14 @@ func SetProfile(profile Profile) error {
 	}
 	cfg.Profile = profile
 	return cfg.Save()
+}
+
+func ClearProfile() error {
+	return SetProfile(Profile{})
+}
+
+func ClearDefaultDirectory() error {
+	return SetDefaultDirectory("")
 }
 
 // HasProfile returns true if any profile fields are set
