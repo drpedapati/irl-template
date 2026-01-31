@@ -35,7 +35,7 @@ var EmbeddedTemplates = map[string]Template{
 
 var defaultBasicTemplate = `# IRL Plan
 
-## Overall Strategy
+## Overall Approach
 - [Describe your approach]
 
 ## Instruction Sets
@@ -43,7 +43,7 @@ var defaultBasicTemplate = `# IRL Plan
 ### Task 1: [Description]
 - [Instructions]
 
-## Post-Instruction Hooks
+## After Each Run
 - Update logs/activity.md
 - Make a surgical git commit
 `

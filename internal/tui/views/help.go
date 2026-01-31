@@ -39,19 +39,19 @@ var helpMenuItems = []helpMenuItem{
 	{
 		title:       "How IRL helps",
 		description: "A concrete example",
-		duration:    "10 slides · 3 min",
+		duration:    "11 slides · 3 min",
 		section:     HelpSectionHowIRLHelps,
 	},
 	{
 		title:       "Who is IRL for?",
 		description: "Find your use case",
-		duration:    "4 slides · 1 min",
+		duration:    "6 slides · 2 min",
 		section:     HelpSectionWhoIsIRLFor,
 	},
 	{
 		title:       "What can you build?",
 		description: "See example projects",
-		duration:    "5 slides · 2 min",
+		duration:    "8 slides · 3 min",
 		section:     HelpSectionWhatCanYouBuild,
 	},
 	{
@@ -69,9 +69,9 @@ var helpMenuItems = []helpMenuItem{
 }
 
 const whatIsIRLSlides = 5
-const howIRLHelpsSlides = 10
-const whoIsIRLForSlides = 4
-const whatCanYouBuildSlides = 5
+const howIRLHelpsSlides = 11
+const whoIsIRLForSlides = 6
+const whatCanYouBuildSlides = 8
 const whatYouNeedSlides = 3
 const seeItInActionSlides = 6
 
@@ -385,17 +385,16 @@ func (m HelpModel) renderSlides() string {
 		content = m.renderSeeItInActionSlide()
 	}
 
-	// Build footer with navigation
-	footer := m.renderSlideFooter()
-	footerHeight := lipgloss.Height(footer)
+	// Fixed footer height (2 lines: dots/hints + padding)
+	const footerHeight = 2
 
-	// Calculate available height for content
-	contentHeight := m.height - footerHeight - 1
+	// Content area fills everything except footer
+	contentHeight := m.height - footerHeight
 	if contentHeight < 10 {
 		contentHeight = 10
 	}
 
-	// Center content both horizontally and vertically
+	// Center content in its dedicated area (this creates a fixed-height block)
 	centeredContent := lipgloss.Place(
 		m.width,
 		contentHeight,
@@ -403,6 +402,9 @@ func (m HelpModel) renderSlides() string {
 		lipgloss.Center,
 		content,
 	)
+
+	// Footer is always at the bottom (fixed height block)
+	footer := m.renderSlideFooterFixed()
 
 	return centeredContent + footer
 }
@@ -447,6 +449,51 @@ func (m HelpModel) renderSlideFooter() string {
 	)
 
 	return lipgloss.Place(m.width, 2, lipgloss.Center, lipgloss.Bottom, footer)
+}
+
+// renderSlideFooterFixed returns footer with exactly 2 lines height
+func (m HelpModel) renderSlideFooterFixed() string {
+	totalSlides := m.TotalSlides()
+
+	// Slide indicator dots
+	var dots string
+	for i := 0; i < totalSlides; i++ {
+		if i == m.currentSlide {
+			dots += lipgloss.NewStyle().Foreground(theme.Primary).Render("●")
+		} else {
+			dots += lipgloss.NewStyle().Foreground(theme.Muted).Render("○")
+		}
+		if i < totalSlides-1 {
+			dots += " "
+		}
+	}
+
+	// Navigation hints
+	mutedStyle := lipgloss.NewStyle().Foreground(theme.Muted)
+	accentStyle := lipgloss.NewStyle().Foreground(theme.Accent)
+
+	var navHint string
+	if m.currentSlide == 0 {
+		navHint = accentStyle.Render("←") + mutedStyle.Render(" menu  ") +
+			accentStyle.Render("→") + mutedStyle.Render(" next")
+	} else if m.currentSlide == totalSlides-1 {
+		navHint = accentStyle.Render("←") + mutedStyle.Render(" back  ") +
+			accentStyle.Render("esc") + mutedStyle.Render(" menu")
+	} else {
+		navHint = accentStyle.Render("← →") + mutedStyle.Render(" navigate  ") +
+			accentStyle.Render("esc") + mutedStyle.Render(" menu")
+	}
+
+	footer := lipgloss.JoinHorizontal(
+		lipgloss.Center,
+		dots,
+		"    ",
+		navHint,
+	)
+
+	// Center horizontally, return exactly 2 lines (content + blank line for padding)
+	centered := lipgloss.PlaceHorizontal(m.width, lipgloss.Center, footer)
+	return centered + "\n"
 }
 
 // ============================================================================
@@ -677,14 +724,16 @@ func (m HelpModel) renderHowIRLHelpsSlide() string {
 	case 4:
 		return m.renderWriteYourPlanSlide()
 	case 5:
-		return m.renderPointToSourcesSlide()
+		return m.renderYourMethodologySlide()
 	case 6:
-		return m.renderAIDoesTheWorkSlide()
+		return m.renderPointToSourcesSlide()
 	case 7:
-		return m.renderSeeYourOutputsSlide()
+		return m.renderAIDoesTheWorkSlide()
 	case 8:
-		return m.renderIterateSlide()
+		return m.renderSeeYourOutputsSlide()
 	case 9:
+		return m.renderIterateSlide()
+	case 10:
 		return m.renderTheDifferenceSlide()
 	}
 	return ""
@@ -762,39 +811,39 @@ func (m HelpModel) renderTraditionalWaySlide() string {
 		Foreground(theme.Primary).
 		Bold(true)
 
-	// Red-ish border for "pain"
 	boxStyle := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(theme.Error).
+		BorderForeground(theme.Warning).
 		Padding(1, 2)
 
 	labelStyle := lipgloss.NewStyle().
-		Foreground(theme.Error).
+		Foreground(theme.Accent).
 		Bold(true)
+
+	accentStyle := lipgloss.NewStyle().
+		Foreground(theme.Accent)
 
 	mutedStyle := lipgloss.NewStyle().
 		Foreground(theme.Muted)
 
-	dimStyle := lipgloss.NewStyle().
-		Foreground(theme.Muted).
-		Faint(true)
+	title := titleStyle.Render("Your Method Is Sound")
+	label := labelStyle.Render("The challenge isn't the method—it's scale")
 
-	title := titleStyle.Render("Traditional Approach")
-	label := labelStyle.Render("Manual Work")
-
-	steps := lipgloss.JoinVertical(
+	points := lipgloss.JoinVertical(
 		lipgloss.Left,
-		mutedStyle.Render("1. Read each paper (hours)"),
-		mutedStyle.Render("2. Take notes by hand"),
-		mutedStyle.Render("3. Organize into themes"),
-		mutedStyle.Render("4. Write synthesis"),
-		mutedStyle.Render("5. Realize you missed something"),
-		mutedStyle.Render("6. Start over..."),
+		accentStyle.Render("You have a systematic approach"),
+		mutedStyle.Render("  ...but applying it to 20 papers is exhausting"),
+		"",
+		accentStyle.Render("You know exactly what to extract"),
+		mutedStyle.Render("  ...but consistency fades under fatigue"),
+		"",
+		accentStyle.Render("Deadlines arrive"),
+		mutedStyle.Render("  ...and your careful method gets compromised"),
 	)
 
-	box := boxStyle.Render(steps)
+	box := boxStyle.Render(points)
 
-	pain := dimStyle.Render("Time: days  ·  Repeatable: no  ·  Fun: no")
+	insight := mutedStyle.Render("The method works. Scaling it is the hard part.")
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
@@ -803,7 +852,7 @@ func (m HelpModel) renderTraditionalWaySlide() string {
 		"",
 		box,
 		"",
-		pain,
+		insight,
 	)
 }
 
@@ -812,7 +861,6 @@ func (m HelpModel) renderChatWaySlide() string {
 		Foreground(theme.Primary).
 		Bold(true)
 
-	// Yellow-ish border for "warning"
 	boxStyle := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(theme.Warning).
@@ -822,29 +870,33 @@ func (m HelpModel) renderChatWaySlide() string {
 		Foreground(theme.Warning).
 		Bold(true)
 
+	accentStyle := lipgloss.NewStyle().
+		Foreground(theme.Accent)
+
 	mutedStyle := lipgloss.NewStyle().
 		Foreground(theme.Muted)
 
-	dimStyle := lipgloss.NewStyle().
-		Foreground(theme.Muted).
-		Faint(true)
+	errorStyle := lipgloss.NewStyle().
+		Foreground(theme.Error)
 
-	title := titleStyle.Render("Chat Approach")
-	label := labelStyle.Render("AI Chat (ChatGPT, etc.)")
+	title := titleStyle.Render("Chat Interfaces")
+	label := labelStyle.Render("You adapt to it—not the other way around")
 
-	steps := lipgloss.JoinVertical(
+	points := lipgloss.JoinVertical(
 		lipgloss.Left,
-		mutedStyle.Render("1. Paste paper content"),
-		mutedStyle.Render("2. Ask for summary"),
-		mutedStyle.Render("3. Repeat for each paper"),
-		mutedStyle.Render("4. Ask for themes"),
-		mutedStyle.Render("5. Conversation gets lost"),
-		mutedStyle.Render("6. Can't reproduce it"),
+		accentStyle.Render("Your method doesn't transfer"),
+		mutedStyle.Render("  You work the way the chat wants"),
+		"",
+		accentStyle.Render("Each conversation starts fresh"),
+		mutedStyle.Render("  No memory of your approach"),
+		"",
+		accentStyle.Render("Results vanish"),
+		mutedStyle.Render("  Can't re-run, can't share, can't cite"),
 	)
 
-	box := boxStyle.Render(steps)
+	box := boxStyle.Render(points)
 
-	pain := dimStyle.Render("Time: faster  ·  Repeatable: no  ·  History: lost")
+	insight := errorStyle.Render("You lose your methodology") + mutedStyle.Render(" when you use chat.")
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
@@ -853,7 +905,7 @@ func (m HelpModel) renderChatWaySlide() string {
 		"",
 		box,
 		"",
-		pain,
+		insight,
 	)
 }
 
@@ -902,6 +954,64 @@ func (m HelpModel) renderWriteYourPlanSlide() string {
 	box := boxStyle.Render(plan)
 
 	hint := commentStyle.Render("← No special syntax. Just describe what you want.")
+
+	return lipgloss.JoinVertical(
+		lipgloss.Center,
+		title,
+		label,
+		"",
+		box,
+		"",
+		hint,
+	)
+}
+
+func (m HelpModel) renderYourMethodologySlide() string {
+	titleStyle := lipgloss.NewStyle().
+		Foreground(theme.Primary).
+		Bold(true)
+
+	labelStyle := lipgloss.NewStyle().
+		Foreground(theme.Accent).
+		Bold(true)
+
+	boxStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(theme.Accent).
+		Padding(0, 2)
+
+	headingStyle := lipgloss.NewStyle().
+		Foreground(theme.Accent).
+		Bold(true)
+
+	detailStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("252"))
+
+	mutedStyle := lipgloss.NewStyle().
+		Foreground(theme.Muted)
+
+	successStyle := lipgloss.NewStyle().
+		Foreground(theme.Success).
+		Bold(true)
+
+	title := titleStyle.Render("Go As Deep As You Need")
+	label := labelStyle.Render("\"Summary of each paper\" can become...")
+
+	// Show expanded, detailed instructions
+	plan := lipgloss.JoinVertical(
+		lipgloss.Left,
+		headingStyle.Render("## For each paper, extract:"),
+		detailStyle.Render("- Full citation (APA 7th)"),
+		detailStyle.Render("- Study design & sample size"),
+		detailStyle.Render("- Statistical methods used"),
+		detailStyle.Render("- Effect sizes with 95% CI"),
+		detailStyle.Render("- Limitations noted by authors"),
+		detailStyle.Render("- Direct quotes with page numbers"),
+	)
+
+	box := boxStyle.Render(plan)
+
+	hint := mutedStyle.Render("This is ") + successStyle.Render("your") + mutedStyle.Render(" methodology. The AI follows ") + successStyle.Render("your") + mutedStyle.Render(" standards.")
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
@@ -970,9 +1080,13 @@ func (m HelpModel) renderAIDoesTheWorkSlide() string {
 		Foreground(theme.Primary).
 		Bold(true)
 
+	labelStyle := lipgloss.NewStyle().
+		Foreground(theme.Success).
+		Bold(true)
+
 	boxStyle := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(theme.Accent).
+		BorderForeground(theme.Success).
 		Padding(1, 3)
 
 	accentStyle := lipgloss.NewStyle().
@@ -985,27 +1099,29 @@ func (m HelpModel) renderAIDoesTheWorkSlide() string {
 		Foreground(theme.Success).
 		Bold(true)
 
-	title := titleStyle.Render("IRL: AI Does the Work")
+	title := titleStyle.Render("IRL: You Direct, AI Executes")
+	label := labelStyle.Render("Your plan is the control surface")
 
 	steps := lipgloss.JoinVertical(
 		lipgloss.Left,
-		accentStyle.Render("AI reads your plan..."),
-		mutedStyle.Render("  \"Compare 2 papers, find agreements\""),
+		accentStyle.Render("Your plan says what to do"),
+		mutedStyle.Render("  AI follows your instructions—nothing more"),
 		"",
-		accentStyle.Render("AI reads your sources..."),
-		mutedStyle.Render("  walker-2017.pdf, nature.com/..."),
+		accentStyle.Render("Your sources define the scope"),
+		mutedStyle.Render("  AI only sees what you provide"),
 		"",
-		accentStyle.Render("AI creates outputs..."),
-		mutedStyle.Render("  Following your instructions exactly"),
+		accentStyle.Render("Your outputs prove compliance"),
+		mutedStyle.Render("  Verify the AI did exactly what you asked"),
 	)
 
 	box := boxStyle.Render(steps)
 
-	result := successStyle.Render("You get organized files, not chat bubbles")
+	result := successStyle.Render("You stay in control. The outputs prove it.")
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
 		title,
+		label,
 		"",
 		box,
 		"",
@@ -1030,6 +1146,9 @@ func (m HelpModel) renderSeeYourOutputsSlide() string {
 	fileStyle := lipgloss.NewStyle().
 		Foreground(theme.Success)
 
+	familiarStyle := lipgloss.NewStyle().
+		Foreground(theme.Warning)
+
 	mutedStyle := lipgloss.NewStyle().
 		Foreground(theme.Muted)
 
@@ -1038,17 +1157,18 @@ func (m HelpModel) renderSeeYourOutputsSlide() string {
 	tree := lipgloss.JoinVertical(
 		lipgloss.Left,
 		folderStyle.Render("03-outputs/"),
-		fileStyle.Render("  synthesis.md")+"      "+mutedStyle.Render("← Your comparison"),
-		fileStyle.Render("  paper1-notes.md")+"   "+mutedStyle.Render("← Walker summary"),
-		fileStyle.Render("  paper2-notes.md")+"   "+mutedStyle.Render("← Nature summary"),
+		fileStyle.Render("  synthesis.md")+"      "+mutedStyle.Render("← Working draft"),
+		fileStyle.Render("  paper1-notes.md")+"   "+mutedStyle.Render("← Extracted notes"),
 		"",
-		folderStyle.Render("04-logs/"),
-		fileStyle.Render("  activity.md")+"       "+mutedStyle.Render("← What happened"),
+		mutedStyle.Render("  Renders to formats you know:"),
+		familiarStyle.Render("  synthesis.docx")+"     "+mutedStyle.Render("← Word"),
+		familiarStyle.Render("  synthesis.pdf")+"      "+mutedStyle.Render("← PDF"),
+		familiarStyle.Render("  slides.pptx")+"        "+mutedStyle.Render("← PowerPoint"),
 	)
 
 	box := boxStyle.Render(tree)
 
-	hint := mutedStyle.Render("Real files. Version controlled. Yours forever.")
+	hint := mutedStyle.Render("Quarto renders to Word, PDF, PowerPoint, and more.")
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
@@ -1191,11 +1311,15 @@ func (m HelpModel) renderWhoIsIRLForSlide() string {
 	case 0:
 		return m.renderWhoIsIRLForTitleSlide()
 	case 1:
-		return m.renderResearchersSlide()
+		return m.renderTaskContinuumSlide()
 	case 2:
-		return m.renderStudentsSlide()
+		return m.renderResearchersSlide()
 	case 3:
+		return m.renderStudentsSlide()
+	case 4:
 		return m.renderProfessionalsSlide()
+	case 5:
+		return m.renderWhoIsIRLForSummarySlide()
 	}
 	return ""
 }
@@ -1212,7 +1336,7 @@ func (m HelpModel) renderWhoIsIRLForTitleSlide() string {
 		Foreground(theme.Muted)
 
 	title := titleStyle.Render("Who is IRL for?")
-	subtitle := subtitleStyle.Render("Anyone who needs reproducible AI workflows")
+	subtitle := subtitleStyle.Render("A responsible way to bring AI into your work")
 
 	personas := mutedStyle.Render("Researchers  ·  Students  ·  Professionals")
 
@@ -1227,20 +1351,77 @@ func (m HelpModel) renderWhoIsIRLForTitleSlide() string {
 	)
 }
 
-func (m HelpModel) renderResearchersSlide() string {
-	// Create a styled card for researchers
-	cardStyle := lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(theme.Primary).
-		Padding(1, 3)
-
+func (m HelpModel) renderTaskContinuumSlide() string {
 	titleStyle := lipgloss.NewStyle().
 		Foreground(theme.Primary).
 		Bold(true)
 
-	accentStyle := lipgloss.NewStyle().
-		Foreground(theme.Accent).
+	boxStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(theme.Accent).
+		Padding(1, 2)
+
+	smallStyle := lipgloss.NewStyle().
+		Foreground(theme.Success)
+
+	medStyle := lipgloss.NewStyle().
+		Foreground(theme.Warning)
+
+	largeStyle := lipgloss.NewStyle().
+		Foreground(theme.Primary)
+
+	mutedStyle := lipgloss.NewStyle().
+		Foreground(theme.Muted)
+
+	arrowStyle := lipgloss.NewStyle().
+		Foreground(theme.Accent)
+
+	title := titleStyle.Render("From Small Tasks to Large Projects")
+
+	// Visual continuum
+	continuum := lipgloss.JoinVertical(
+		lipgloss.Center,
+		smallStyle.Render("    Small    ")+"     "+medStyle.Render("    Medium    ")+"     "+largeStyle.Render("    Large    "),
+		arrowStyle.Render("      │       ")+"     "+arrowStyle.Render("       │       ")+"     "+arrowStyle.Render("      │      "),
+		arrowStyle.Render("      ▼       ")+"     "+arrowStyle.Render("       ▼       ")+"     "+arrowStyle.Render("      ▼      "),
+		"",
+		smallStyle.Render("  Abstract   ")+"     "+medStyle.Render("  Lit Review   ")+"     "+largeStyle.Render("   Grant    "),
+		smallStyle.Render("   Email     ")+"     "+medStyle.Render("   Analysis    ")+"     "+largeStyle.Render("  Report    "),
+		smallStyle.Render("   Summary   ")+"     "+medStyle.Render("  Data Viz     ")+"     "+largeStyle.Render("   Thesis   "),
+	)
+
+	box := boxStyle.Render(continuum)
+
+	hint := mutedStyle.Render("Same responsible harness. Any size task.")
+
+	return lipgloss.JoinVertical(
+		lipgloss.Center,
+		title,
+		"",
+		box,
+		"",
+		hint,
+	)
+}
+
+func (m HelpModel) renderResearchersSlide() string {
+	titleStyle := lipgloss.NewStyle().
+		Foreground(theme.Primary).
 		Bold(true)
+
+	cardStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(theme.Primary).
+		Padding(1, 2)
+
+	smallStyle := lipgloss.NewStyle().
+		Foreground(theme.Success)
+
+	medStyle := lipgloss.NewStyle().
+		Foreground(theme.Warning)
+
+	largeStyle := lipgloss.NewStyle().
+		Foreground(theme.Primary)
 
 	mutedStyle := lipgloss.NewStyle().
 		Foreground(theme.Muted)
@@ -1249,40 +1430,43 @@ func (m HelpModel) renderResearchersSlide() string {
 
 	cardContent := lipgloss.JoinVertical(
 		lipgloss.Left,
-		accentStyle.Render("Literature reviews"),
-		mutedStyle.Render("Systematic, reproducible searches"),
-		"",
-		accentStyle.Render("Data analysis"),
-		mutedStyle.Render("Version-controlled pipelines"),
-		"",
-		accentStyle.Render("Grant writing"),
-		mutedStyle.Render("Iterative document refinement"),
+		smallStyle.Render("Small")+"    "+mutedStyle.Render("Conference abstract, paper summary"),
+		medStyle.Render("Medium")+"   "+mutedStyle.Render("Literature review, methods section"),
+		largeStyle.Render("Large")+"    "+mutedStyle.Render("Grant proposal, systematic review"),
 	)
 
 	card := cardStyle.Render(cardContent)
+
+	hint := mutedStyle.Render("Your methodology, applied consistently at any scale")
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
 		header,
 		"",
 		card,
+		"",
+		hint,
 	)
 }
 
 func (m HelpModel) renderStudentsSlide() string {
-	// Create a styled card for students
-	cardStyle := lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(theme.Accent).
-		Padding(1, 3)
-
 	titleStyle := lipgloss.NewStyle().
 		Foreground(theme.Primary).
 		Bold(true)
 
-	accentStyle := lipgloss.NewStyle().
-		Foreground(theme.Accent).
-		Bold(true)
+	cardStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(theme.Accent).
+		Padding(1, 2)
+
+	smallStyle := lipgloss.NewStyle().
+		Foreground(theme.Success)
+
+	medStyle := lipgloss.NewStyle().
+		Foreground(theme.Warning)
+
+	largeStyle := lipgloss.NewStyle().
+		Foreground(theme.Primary)
 
 	mutedStyle := lipgloss.NewStyle().
 		Foreground(theme.Muted)
@@ -1291,40 +1475,43 @@ func (m HelpModel) renderStudentsSlide() string {
 
 	cardContent := lipgloss.JoinVertical(
 		lipgloss.Left,
-		accentStyle.Render("Thesis & dissertation"),
-		mutedStyle.Render("Track every revision"),
-		"",
-		accentStyle.Render("Course projects"),
-		mutedStyle.Render("Organized deliverables"),
-		"",
-		accentStyle.Render("Learning new methods"),
-		mutedStyle.Render("Document your journey"),
+		smallStyle.Render("Small")+"    "+mutedStyle.Render("Reading notes, weekly summary"),
+		medStyle.Render("Medium")+"   "+mutedStyle.Render("Course paper, qualifying exam prep"),
+		largeStyle.Render("Large")+"    "+mutedStyle.Render("Thesis chapter, dissertation"),
 	)
 
 	card := cardStyle.Render(cardContent)
+
+	hint := mutedStyle.Render("Build your portfolio with a clear audit trail")
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
 		header,
 		"",
 		card,
+		"",
+		hint,
 	)
 }
 
 func (m HelpModel) renderProfessionalsSlide() string {
-	// Create a styled card for professionals
-	cardStyle := lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(theme.Success).
-		Padding(1, 3)
-
 	titleStyle := lipgloss.NewStyle().
 		Foreground(theme.Primary).
 		Bold(true)
 
-	accentStyle := lipgloss.NewStyle().
-		Foreground(theme.Accent).
-		Bold(true)
+	cardStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(theme.Success).
+		Padding(1, 2)
+
+	smallStyle := lipgloss.NewStyle().
+		Foreground(theme.Success)
+
+	medStyle := lipgloss.NewStyle().
+		Foreground(theme.Warning)
+
+	largeStyle := lipgloss.NewStyle().
+		Foreground(theme.Primary)
 
 	mutedStyle := lipgloss.NewStyle().
 		Foreground(theme.Muted)
@@ -1333,23 +1520,70 @@ func (m HelpModel) renderProfessionalsSlide() string {
 
 	cardContent := lipgloss.JoinVertical(
 		lipgloss.Left,
-		accentStyle.Render("Technical documentation"),
-		mutedStyle.Render("Living documents that evolve"),
-		"",
-		accentStyle.Render("Analysis reports"),
-		mutedStyle.Render("Audit trails for compliance"),
-		"",
-		accentStyle.Render("Knowledge bases"),
-		mutedStyle.Render("Build team resources"),
+		smallStyle.Render("Small")+"    "+mutedStyle.Render("Status update, meeting notes"),
+		medStyle.Render("Medium")+"   "+mutedStyle.Render("Technical report, analysis deck"),
+		largeStyle.Render("Large")+"    "+mutedStyle.Render("White paper, regulatory filing"),
 	)
 
 	card := cardStyle.Render(cardContent)
+
+	hint := mutedStyle.Render("Transparent AI use for compliance and handoff")
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
 		header,
 		"",
 		card,
+		"",
+		hint,
+	)
+}
+
+func (m HelpModel) renderWhoIsIRLForSummarySlide() string {
+	titleStyle := lipgloss.NewStyle().
+		Foreground(theme.Primary).
+		Bold(true)
+
+	boxStyle := lipgloss.NewStyle().
+		Border(lipgloss.DoubleBorder()).
+		BorderForeground(theme.Success).
+		Padding(1, 3)
+
+	accentStyle := lipgloss.NewStyle().
+		Foreground(theme.Accent).
+		Bold(true)
+
+	successStyle := lipgloss.NewStyle().
+		Foreground(theme.Success)
+
+	mutedStyle := lipgloss.NewStyle().
+		Foreground(theme.Muted)
+
+	title := titleStyle.Render("The IRL Promise")
+
+	content := lipgloss.JoinVertical(
+		lipgloss.Left,
+		accentStyle.Render("Responsible"),
+		mutedStyle.Render("  AI that follows your instructions"),
+		"",
+		accentStyle.Render("Transparent"),
+		mutedStyle.Render("  See exactly what was done"),
+		"",
+		accentStyle.Render("Auditable"),
+		mutedStyle.Render("  Every version preserved in git"),
+	)
+
+	box := boxStyle.Render(content)
+
+	tagline := successStyle.Render("AI you can stand behind.")
+
+	return lipgloss.JoinVertical(
+		lipgloss.Center,
+		title,
+		"",
+		box,
+		"",
+		tagline,
 	)
 }
 
@@ -1362,12 +1596,18 @@ func (m HelpModel) renderWhatCanYouBuildSlide() string {
 	case 0:
 		return m.renderWhatCanYouBuildTitleSlide()
 	case 1:
-		return m.renderLitReviewSlide()
+		return m.renderUniversalWorkflowSlide()
 	case 2:
-		return m.renderDataAnalysisSlide()
+		return m.renderPrePostInstructionsSlide()
 	case 3:
-		return m.renderCodeProjectSlide()
+		return m.renderTemplateSetupSlide()
 	case 4:
+		return m.renderLitReviewSlide()
+	case 5:
+		return m.renderDataAnalysisSlide()
+	case 6:
+		return m.renderCodeProjectSlide()
+	case 7:
 		return m.renderWritingProjectSlide()
 	}
 	return ""
@@ -1387,7 +1627,7 @@ func (m HelpModel) renderWhatCanYouBuildTitleSlide() string {
 	title := titleStyle.Render("What can you build?")
 	subtitle := subtitleStyle.Render("Templates for every workflow")
 
-	examples := mutedStyle.Render("Literature reviews  ·  Data analysis  ·  Code projects  ·  Writing")
+	hint := mutedStyle.Render("All projects share a common structure")
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
@@ -1396,7 +1636,156 @@ func (m HelpModel) renderWhatCanYouBuildTitleSlide() string {
 		"",
 		subtitle,
 		"",
-		examples,
+		hint,
+	)
+}
+
+func (m HelpModel) renderUniversalWorkflowSlide() string {
+	titleStyle := lipgloss.NewStyle().
+		Foreground(theme.Primary).
+		Bold(true)
+
+	labelStyle := lipgloss.NewStyle().
+		Foreground(theme.Accent).
+		Bold(true)
+
+	boxStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(theme.Accent).
+		Padding(1, 2)
+
+	phaseStyle := lipgloss.NewStyle().
+		Foreground(theme.Success).
+		Bold(true)
+
+	mutedStyle := lipgloss.NewStyle().
+		Foreground(theme.Muted)
+
+	arrowStyle := lipgloss.NewStyle().
+		Foreground(theme.Accent)
+
+	title := titleStyle.Render("How Professionals Work")
+	label := labelStyle.Render("Every project follows this pattern")
+
+	workflow := lipgloss.JoinVertical(
+		lipgloss.Center,
+		phaseStyle.Render("    PLAN    ")+"  "+arrowStyle.Render("→")+"  "+phaseStyle.Render("   EXECUTE   ")+"  "+arrowStyle.Render("→")+"  "+phaseStyle.Render("   REVIEW   "),
+		"",
+		mutedStyle.Render(" Define goals ")+"     "+mutedStyle.Render("  Do the work  ")+"     "+mutedStyle.Render(" Check quality "),
+		mutedStyle.Render("  Set method  ")+"     "+mutedStyle.Render(" Follow method ")+"     "+mutedStyle.Render(" Format output "),
+		mutedStyle.Render("List sources  ")+"     "+mutedStyle.Render("Create outputs ")+"     "+mutedStyle.Render("   Finalize   "),
+	)
+
+	box := boxStyle.Render(workflow)
+
+	hint := mutedStyle.Render("IRL templates encode this pattern.")
+
+	return lipgloss.JoinVertical(
+		lipgloss.Center,
+		title,
+		label,
+		"",
+		box,
+		"",
+		hint,
+	)
+}
+
+func (m HelpModel) renderPrePostInstructionsSlide() string {
+	titleStyle := lipgloss.NewStyle().
+		Foreground(theme.Primary).
+		Bold(true)
+
+	boxStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(theme.Success).
+		Padding(1, 2)
+
+	preStyle := lipgloss.NewStyle().
+		Foreground(theme.Success).
+		Bold(true)
+
+	postStyle := lipgloss.NewStyle().
+		Foreground(theme.Warning).
+		Bold(true)
+
+	mutedStyle := lipgloss.NewStyle().
+		Foreground(theme.Muted)
+
+	title := titleStyle.Render("Pre-Instructions & Post-Instructions")
+
+	content := lipgloss.JoinVertical(
+		lipgloss.Left,
+		preStyle.Render("Pre-Instructions")+"  "+mutedStyle.Render("(before work begins)"),
+		mutedStyle.Render("  \"Read each paper's methods section first\""),
+		mutedStyle.Render("  \"Use APA 7th citation format\""),
+		mutedStyle.Render("  \"Focus on quantitative findings only\""),
+		"",
+		postStyle.Render("Post-Instructions")+"  "+mutedStyle.Render("(after work completes)"),
+		mutedStyle.Render("  \"Summarize key themes in a table\""),
+		mutedStyle.Render("  \"Flag any contradictory findings\""),
+		mutedStyle.Render("  \"Export to Word format\""),
+	)
+
+	box := boxStyle.Render(content)
+
+	hint := mutedStyle.Render("Your standards, applied every time.")
+
+	return lipgloss.JoinVertical(
+		lipgloss.Center,
+		title,
+		"",
+		box,
+		"",
+		hint,
+	)
+}
+
+func (m HelpModel) renderTemplateSetupSlide() string {
+	titleStyle := lipgloss.NewStyle().
+		Foreground(theme.Primary).
+		Bold(true)
+
+	labelStyle := lipgloss.NewStyle().
+		Foreground(theme.Accent).
+		Bold(true)
+
+	boxStyle := lipgloss.NewStyle().
+		Border(lipgloss.DoubleBorder()).
+		BorderForeground(theme.Accent).
+		Padding(1, 2)
+
+	sectionStyle := lipgloss.NewStyle().
+		Foreground(theme.Success).
+		Bold(true)
+
+	mutedStyle := lipgloss.NewStyle().
+		Foreground(theme.Muted)
+
+	title := titleStyle.Render("You Define the Setup")
+	label := labelStyle.Render("Every plan has these sections—you fill in the details")
+
+	sections := lipgloss.JoinVertical(
+		lipgloss.Left,
+		sectionStyle.Render("## Setup")+"          "+mutedStyle.Render("← Folders you need (you choose)"),
+		sectionStyle.Render("## Before Each Run")+" "+mutedStyle.Render("← What happens before each loop"),
+		sectionStyle.Render("## Approach")+"        "+mutedStyle.Render("← Your methodology and goals"),
+		sectionStyle.Render("## Tasks")+"           "+mutedStyle.Render("← The work to be done"),
+		sectionStyle.Render("## After Each Run")+"  "+mutedStyle.Render("← What happens after each loop"),
+	)
+
+	box := boxStyle.Render(sections)
+
+	hint := mutedStyle.Render("Lit review needs abstracts/. Code project needs repo/. You decide.")
+
+	return lipgloss.JoinVertical(
+		lipgloss.Center,
+		title,
+		label,
+		"",
+		box,
+		"",
+		hint,
 	)
 }
 
@@ -1563,7 +1952,7 @@ func (m HelpModel) renderWritingProjectSlide() string {
 	diagram := lipgloss.JoinVertical(
 		lipgloss.Left,
 		accentStyle.Render("01-plans/"),
-		mutedStyle.Render("  outline.md   ← Structure"),
+		mutedStyle.Render("  outline.md   ← Setup"),
 		mutedStyle.Render("  notes.md     ← Research"),
 		"",
 		accentStyle.Render("03-outputs/"),

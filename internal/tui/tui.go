@@ -113,7 +113,7 @@ func New(version string) Model {
 	m.doctorView.SetSize(appWidth, appHeight-7)
 	m.initView.SetSize(appWidth, appHeight-7)
 	m.configView.SetSize(appWidth, appHeight-7)
-	m.helpView.SetSize(appWidth, appHeight-7)
+	m.helpView.SetSize(appWidth-2, appHeight-7) // -2 for left margin
 
 	return m
 }

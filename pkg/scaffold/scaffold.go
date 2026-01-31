@@ -8,7 +8,7 @@ import (
 )
 
 // Create sets up a minimal IRL project - just the plan file
-// Structure is defined in the plan and created by the AI on first run
+// Setup is defined in the plan and created by the AI on first run
 func Create(projectPath string) error {
 	// Create .gitignore
 	gitignorePath := filepath.Join(projectPath, ".gitignore")
