@@ -150,14 +150,14 @@ func (m InitModel) Update(msg tea.Msg) (InitModel, tea.Cmd) {
 			cmds = append(cmds, cmd)
 		}
 
-	case templatesLoadedMsg:
-		m.templates = msg.templates
+	case InitTemplatesLoadedMsg:
+		m.templates = msg.Templates
 		m.step = StepTemplate
 
-	case projectCreatedMsg:
+	case InitProjectCreatedMsg:
 		m.step = StepDone
-		m.projectPath = msg.path
-		m.err = msg.err
+		m.projectPath = msg.Path
+		m.err = msg.Err
 	}
 
 	return m, tea.Batch(cmds...)
@@ -317,19 +317,21 @@ func (m InitModel) updateTemplate(msg tea.KeyMsg) (InitModel, tea.Cmd) {
 	return m, nil
 }
 
-type templatesLoadedMsg struct {
-	templates []templates.Template
+// InitTemplatesLoadedMsg is sent when templates are loaded for init wizard
+type InitTemplatesLoadedMsg struct {
+	Templates []templates.Template
 }
 
-type projectCreatedMsg struct {
-	path string
-	err  error
+// InitProjectCreatedMsg is sent when project creation completes
+type InitProjectCreatedMsg struct {
+	Path string
+	Err  error
 }
 
 func (m InitModel) loadTemplates() tea.Cmd {
 	return func() tea.Msg {
 		list, _ := templates.ListTemplates()
-		return templatesLoadedMsg{templates: list}
+		return InitTemplatesLoadedMsg{Templates: list}
 	}
 }
 
@@ -383,22 +385,22 @@ func (m InitModel) createProject() tea.Cmd {
 
 		// Check if exists
 		if _, err := os.Stat(projectPath); !os.IsNotExist(err) {
-			return projectCreatedMsg{err: fmt.Errorf("'%s' already exists", projectPath)}
+			return InitProjectCreatedMsg{Err: fmt.Errorf("'%s' already exists", projectPath)}
 		}
 
 		// Create base directory if needed
 		if err := os.MkdirAll(m.baseDir, 0755); err != nil {
-			return projectCreatedMsg{err: err}
+			return InitProjectCreatedMsg{Err: err}
 		}
 
 		// Create project directory
 		if err := os.MkdirAll(projectPath, 0755); err != nil {
-			return projectCreatedMsg{err: err}
+			return InitProjectCreatedMsg{Err: err}
 		}
 
 		// Create scaffold
 		if err := scaffold.Create(projectPath); err != nil {
-			return projectCreatedMsg{err: err}
+			return InitProjectCreatedMsg{Err: err}
 		}
 
 		// Apply template
@@ -414,13 +416,13 @@ func (m InitModel) createProject() tea.Cmd {
 		planContent = injectProfile(planContent)
 
 		if err := scaffold.WritePlan(projectPath, planContent); err != nil {
-			return projectCreatedMsg{err: err}
+			return InitProjectCreatedMsg{Err: err}
 		}
 
 		// Git init
 		scaffold.GitInit(projectPath) // Ignore errors
 
-		return projectCreatedMsg{path: projectPath}
+		return InitProjectCreatedMsg{Path: projectPath}
 	}
 }
 

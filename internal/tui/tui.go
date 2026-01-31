@@ -256,6 +256,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case views.InitCompleteMsg:
 		m.initView, _ = m.initView.Update(msg)
 
+	case views.InitTemplatesLoadedMsg:
+		m.initView, _ = m.initView.Update(msg)
+
+	case views.InitProjectCreatedMsg:
+		m.initView, _ = m.initView.Update(msg)
+
 	case views.BackToMenuMsg:
 		m.view = ViewMenu
 		m.statusBar.SetKeys(m.getMenuKeys())
