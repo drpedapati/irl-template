@@ -331,22 +331,7 @@ func (m Model) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "q":
 		m.quitting = true
 		return m, tea.Quit
-	case "?":
-		// Direct access to help - reset to first slide
-		m.helpView = views.NewHelpModel()
-		m.helpView.SetSize(appWidth, appHeight-7)
-		m.view = ViewHelp
-		m.statusBar.SetKeys(ViewKeys())
-		return m, m.helpView.LoadHelp()
 	case "up":
-		// If at top of menu, switch to help view
-		if m.menu.Cursor() == 0 {
-			m.helpView = views.NewHelpModel()
-			m.helpView.SetSize(appWidth, appHeight-7)
-			m.view = ViewHelp
-			m.statusBar.SetKeys(ViewKeys())
-			return m, m.helpView.LoadHelp()
-		}
 		m.menu.Up()
 	case "down":
 		m.menu.Down()
@@ -392,6 +377,10 @@ func (m Model) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 	case "f":
 		if v, ok := m.menu.SelectByKey("f"); ok {
+			return m.selectView(v)
+		}
+	case "?":
+		if v, ok := m.menu.SelectByKey("?"); ok {
 			return m.selectView(v)
 		}
 	case "i":
