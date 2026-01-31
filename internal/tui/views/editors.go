@@ -115,15 +115,14 @@ type EditorsModel struct {
 }
 
 // Calculate visible items based on available height
-// Each item takes 1 line, with some header/footer space
 func (m EditorsModel) visibleItems() int {
-	// Reserve lines for: header(3) + filter tabs(2) + count(2) + footer(3) + margins(2) = 12
-	available := m.height - 12
+	// Reserve lines for: tabs(2) + footer(3) + scroll(1) = 6
+	available := m.height - 6
 	if available < 5 {
 		available = 5
 	}
-	if available > 15 {
-		available = 15
+	if available > 20 {
+		available = 20
 	}
 	return available
 }
@@ -438,8 +437,7 @@ func openURL(url string) bool {
 func (m EditorsModel) View() string {
 	var b strings.Builder
 
-	titleStyle := lipgloss.NewStyle().Foreground(theme.Primary).Bold(true)
-	headerStyle := lipgloss.NewStyle().Foreground(theme.Muted)
+	mutedStyle := lipgloss.NewStyle().Foreground(theme.Muted)
 	keyStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
 	nameStyle := lipgloss.NewStyle().Foreground(theme.Primary)
 	descStyle := lipgloss.NewStyle().Foreground(theme.Muted)
@@ -450,31 +448,28 @@ func (m EditorsModel) View() string {
 	messageStyle := lipgloss.NewStyle().Foreground(theme.Success)
 	errorStyle := lipgloss.NewStyle().Foreground(theme.Error)
 	activeTabStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
+	favoriteStyle := lipgloss.NewStyle().Foreground(theme.Warning)
 
 	if !m.loaded {
-		b.WriteString("\n  Scanning for installed applications...\n")
+		b.WriteString("\n  Scanning...\n")
 		return b.String()
 	}
 
-	// Title and description
-	b.WriteString("\n")
-	b.WriteString("  " + titleStyle.Render("Editors & Tools"))
-	b.WriteString("\n")
-	b.WriteString("  " + headerStyle.Render("See what's installed and test launching applications"))
-	b.WriteString("\n\n")
-
-	// Message if any
-	if m.message != "" {
-		if strings.HasPrefix(m.message, "Failed") || strings.HasPrefix(m.message, "Could not") {
-			b.WriteString("  " + errorStyle.Render("✗ "+m.message))
-		} else {
-			b.WriteString("  " + messageStyle.Render("✓ "+m.message))
+	// Count stats
+	filtered := m.filteredApps()
+	installedCount := 0
+	favoriteCount := 0
+	for _, app := range filtered {
+		if app.Installed {
+			installedCount++
 		}
-		b.WriteString("\n\n")
+		if app.Favorite {
+			favoriteCount++
+		}
 	}
 
-	// Category filter tabs
-	b.WriteString("  ")
+	// Header line: category tabs + stats on same line
+	b.WriteString("\n  ")
 	categories := []struct {
 		key  string
 		name string
@@ -488,34 +483,22 @@ func (m EditorsModel) View() string {
 
 	for i, cat := range categories {
 		if i > 0 {
-			b.WriteString("  ")
+			b.WriteString(" ")
 		}
 		isActive := int(cat.cat) == int(m.category) || (cat.cat < 0 && m.category < 0)
 		if isActive {
-			b.WriteString(activeTabStyle.Render("[" + cat.key + "] " + cat.name))
+			b.WriteString(activeTabStyle.Render("[" + cat.name + "]"))
 		} else {
-			b.WriteString(keyStyle.Render(cat.key) + " " + descStyle.Render(cat.name))
+			b.WriteString(keyStyle.Render(cat.key) + mutedStyle.Render(cat.name))
 		}
 	}
-	b.WriteString("\n\n")
 
-	// Count installed and favorites
-	filtered := m.filteredApps()
-	installedCount := 0
-	favoriteCount := 0
-	for _, app := range filtered {
-		if app.Installed {
-			installedCount++
-		}
-		if app.Favorite {
-			favoriteCount++
-		}
-	}
-	stats := itoa(installedCount) + " of " + itoa(len(filtered)) + " installed"
+	// Stats inline
+	stats := "  " + itoa(installedCount) + "/" + itoa(len(filtered))
 	if favoriteCount > 0 {
-		stats += ", " + itoa(favoriteCount) + " favorites"
+		stats += " " + favoriteStyle.Render(itoa(favoriteCount)+"★")
 	}
-	b.WriteString("  " + headerStyle.Render(stats))
+	b.WriteString(mutedStyle.Render(stats))
 	b.WriteString("\n\n")
 
 	// App list
@@ -529,8 +512,6 @@ func (m EditorsModel) View() string {
 			endIdx = len(filtered)
 		}
 
-		favoriteStyle := lipgloss.NewStyle().Foreground(theme.Warning)
-
 		for i := m.scroll; i < endIdx; i++ {
 			app := filtered[i]
 
@@ -542,7 +523,7 @@ func (m EditorsModel) View() string {
 				style = selectedStyle
 			}
 
-			// Status indicator (installed + favorite)
+			// Status indicator
 			var status string
 			if app.Installed {
 				if app.Favorite {
@@ -554,11 +535,11 @@ func (m EditorsModel) View() string {
 				status = notInstalledStyle.Render("○")
 			}
 
-			// Build line: cursor + status + name + description
+			// Build line
 			line := cursor + status + " " + style.Render(app.Name)
 
-			// Add description inline, truncated if needed
-			desc := " - " + app.Description
+			// Add description inline
+			desc := " " + app.Description
 			maxDescLen := m.width - lipgloss.Width(line) - 6
 			if maxDescLen > 10 && len(desc) > maxDescLen {
 				desc = desc[:maxDescLen-3] + "..."
@@ -570,43 +551,49 @@ func (m EditorsModel) View() string {
 			b.WriteString("  " + line + "\n")
 		}
 
-		// Scroll indicator
+		// Scroll indicator (inline with list)
 		if len(filtered) > visibleItems {
-			b.WriteString("\n")
-			b.WriteString("  " + descStyle.Render("↑↓ "+itoa(m.scroll+1)+"-"+itoa(endIdx)+" of "+itoa(len(filtered))))
-			b.WriteString("\n")
+			b.WriteString("  " + mutedStyle.Render("  "+itoa(m.scroll+1)+"-"+itoa(endIdx)+" of "+itoa(len(filtered))) + "\n")
 		}
 	}
 
-	// Footer hints
+	// Fixed footer area
 	b.WriteString("\n")
+
+	// Status message (fixed position, single line)
+	if m.message != "" {
+		if strings.HasPrefix(m.message, "Failed") || strings.HasPrefix(m.message, "Could not") {
+			b.WriteString("  " + errorStyle.Render("✗ "+m.message) + "\n")
+		} else {
+			b.WriteString("  " + messageStyle.Render("✓ "+m.message) + "\n")
+		}
+	} else {
+		// Empty line to maintain consistent height
+		b.WriteString("\n")
+	}
+
+	// Single footer with all hints
 	var hints []string
-	hints = append(hints, keyStyle.Render("↑↓")+" navigate")
+	hints = append(hints, keyStyle.Render("↑↓")+"nav")
 
 	if m.cursor < len(filtered) {
 		app := filtered[m.cursor]
 		if app.Installed {
-			hints = append(hints, keyStyle.Render("Enter")+" test")
+			hints = append(hints, keyStyle.Render("Enter")+"test")
 			if app.Favorite {
-				hints = append(hints, keyStyle.Render("Space")+" unfavorite")
+				hints = append(hints, keyStyle.Render("Space")+"−★")
 			} else {
-				hints = append(hints, keyStyle.Render("Space")+" favorite")
+				hints = append(hints, keyStyle.Render("Space")+"+★")
 			}
 		} else if app.URL != "" {
-			hints = append(hints, keyStyle.Render("Enter")+" get it")
+			hints = append(hints, keyStyle.Render("Enter")+"get")
 		}
 		if app.URL != "" {
-			hints = append(hints, keyStyle.Render("b")+" website")
+			hints = append(hints, keyStyle.Render("b")+"web")
 		}
 	}
 
-	b.WriteString("  " + descStyle.Render(strings.Join(hints, "  ")))
-
-	// Explanation of favorites
-	if favoriteCount > 0 {
-		b.WriteString("\n")
-		b.WriteString("  " + descStyle.Render("★ = favorite (only favorites shown in project actions)"))
-	}
+	b.WriteString("  " + mutedStyle.Render(strings.Join(hints, " ")))
 
 	return b.String()
 }
