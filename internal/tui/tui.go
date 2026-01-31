@@ -22,6 +22,11 @@ type NewTemplatesAvailableMsg struct {
 	Count int
 }
 
+// SystemInfoLoadedMsg is sent when system info is loaded
+type SystemInfoLoadedMsg struct {
+	DiskInfo string
+}
+
 const (
 	appWidth  = 72 // Fixed app width for Claude Code-like feel
 	appHeight = 24 // Fixed app height (taller for markdown preview)
@@ -63,6 +68,10 @@ type Model struct {
 	inlineUpdateDone     bool
 	inlineUpdateErr      error
 	inlineUpdateCount    int
+
+	// Cached values (avoid expensive calls in View())
+	cachedDiskInfo       string
+	cachedDefaultDir     string
 }
 
 // New creates a new TUI model
@@ -107,7 +116,15 @@ func New(version string) Model {
 func (m Model) Init() tea.Cmd {
 	// Check for new templates asynchronously on startup
 	m.checkingForUpdates = true
-	return tea.Batch(m.spinner.Tick, checkForNewTemplates())
+	return tea.Batch(m.spinner.Tick, checkForNewTemplates(), loadSystemInfo())
+}
+
+// loadSystemInfo loads system info in the background
+func loadSystemInfo() tea.Cmd {
+	return func() tea.Msg {
+		sysInfo := doctor.GetSystemInfo()
+		return SystemInfoLoadedMsg{DiskInfo: sysInfo.Disk}
+	}
 }
 
 // checkForNewTemplates returns a command that checks for new templates
@@ -204,6 +221,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.view == ViewMenu {
 			m.statusBar.SetKeys(m.getMenuKeys())
 		}
+
+	case SystemInfoLoadedMsg:
+		m.cachedDiskInfo = msg.DiskInfo
+		m.cachedDefaultDir = config.GetDefaultDirectory()
 
 	case InlineUpdateTickMsg:
 		if m.inlineUpdating && !m.inlineUpdateDone {
@@ -578,6 +599,8 @@ func (m Model) updateConfig(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "esc", "left":
 		m.view = ViewMenu
 		m.statusBar.SetKeys(m.getMenuKeys())
+		// Refresh cached directory in case it changed
+		m.cachedDefaultDir = config.GetDefaultDirectory()
 		return m, nil
 	}
 
@@ -601,7 +624,12 @@ func (m Model) updateFolder(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	m.folderView, cmd = m.folderView.Update(msg)
 
 	// If saved or wants back, go back to menu
-	if m.folderView.IsSaved() || m.folderView.WantsBack() {
+	if m.folderView.IsSaved() {
+		m.view = ViewMenu
+		m.statusBar.SetKeys(m.getMenuKeys())
+		// Refresh cached directory
+		m.cachedDefaultDir = config.GetDefaultDirectory()
+	} else if m.folderView.WantsBack() {
 		m.view = ViewMenu
 		m.statusBar.SetKeys(m.getMenuKeys())
 	}
@@ -775,14 +803,13 @@ func (m Model) View() string {
 
 	// Folder path with disk space (centered) and [f] indicator
 	keyStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
-	defaultDir := config.GetDefaultDirectory()
+	defaultDir := m.cachedDefaultDir
 	var pathText string
 	if defaultDir == "" {
 		pathText = "No default project path"
 	} else {
-		sysInfo := doctor.GetSystemInfo()
-		if sysInfo.Disk != "" {
-			pathText = defaultDir + " (" + sysInfo.Disk + ")"
+		if m.cachedDiskInfo != "" {
+			pathText = defaultDir + " (" + m.cachedDiskInfo + ")"
 		} else {
 			pathText = defaultDir
 		}

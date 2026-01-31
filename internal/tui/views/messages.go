@@ -32,6 +32,7 @@ type TemplateItem struct {
 type DoctorResultMsg struct {
 	SystemInfo string
 	Results    []ToolResult
+	HasDocker  bool
 }
 
 // ToolResult represents a tool check result

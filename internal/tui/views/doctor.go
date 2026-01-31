@@ -16,6 +16,7 @@ type DoctorModel struct {
 	width      int
 	height     int
 	loaded     bool
+	hasDocker  bool
 }
 
 // NewDoctorModel creates a new doctor view
@@ -37,6 +38,7 @@ func (m *DoctorModel) RunChecks() tea.Cmd {
 		return DoctorResultMsg{
 			SystemInfo: sysInfo.String(),
 			Results:    convertResults(results),
+			HasDocker:  doctor.HasDocker(),
 		}
 	}
 }
@@ -60,6 +62,7 @@ func (m DoctorModel) Update(msg tea.Msg) (DoctorModel, tea.Cmd) {
 		m.loaded = true
 		m.systemInfo = msg.SystemInfo
 		m.results = msg.Results
+		m.hasDocker = msg.HasDocker
 	}
 	return m, nil
 }
@@ -96,7 +99,7 @@ func (m DoctorModel) View() string {
 	b.WriteString(m.renderTwoColumns(grouped["IDEs"], grouped["Sandbox"], colWidth))
 
 	// Docker hint
-	if doctor.HasDocker() {
+	if m.hasDocker {
 		b.WriteString("\n")
 		hintStyle := lipgloss.NewStyle().Foreground(theme.Muted).MarginLeft(2)
 		cmdStyle := lipgloss.NewStyle().Foreground(theme.Accent)
