@@ -336,7 +336,7 @@ func (m TemplatesModel) updateList(msg tea.KeyMsg) (TemplatesModel, tea.Cmd) {
 		}
 		m.applySort()
 		return m, nil
-	case "up", "k":
+	case "up":
 		if m.cursor > 0 {
 			m.cursor--
 			if m.cursor < m.scroll {
@@ -344,7 +344,7 @@ func (m TemplatesModel) updateList(msg tea.KeyMsg) (TemplatesModel, tea.Cmd) {
 			}
 		}
 		return m, nil
-	case "down", "j":
+	case "down":
 		if m.cursor < len(m.filtered)-1 {
 			m.cursor++
 			if m.cursor >= m.scroll+templatesVisibleItems {
@@ -352,7 +352,7 @@ func (m TemplatesModel) updateList(msg tea.KeyMsg) (TemplatesModel, tea.Cmd) {
 			}
 		}
 		return m, nil
-	case "right", "enter", "l":
+	case "right", "enter":
 		// Enter preview mode
 		if len(m.filtered) > 0 && m.cursor < len(m.filtered) {
 			m.previewing = true
@@ -571,16 +571,16 @@ func (m *TemplatesModel) openInEditor(e Editor) {
 
 func (m TemplatesModel) updatePreview(msg tea.KeyMsg) (TemplatesModel, tea.Cmd) {
 	switch msg.String() {
-	case "left", "esc", "h":
+	case "left", "esc":
 		// Exit preview mode
 		m.previewing = false
 		m.previewName = ""
 		m.scroll = 0
-	case "up", "k":
+	case "up":
 		if m.scroll > 0 {
 			m.scroll--
 		}
-	case "down", "j":
+	case "down":
 		m.scroll++
 	case "g":
 		// Open template on GitHub

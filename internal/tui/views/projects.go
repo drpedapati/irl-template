@@ -234,7 +234,7 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 			}
 			m.applySort()
 			return m, nil
-		case "up", "k":
+		case "up":
 			if m.cursor > 0 {
 				m.cursor--
 				if m.cursor < m.scroll {
@@ -242,7 +242,7 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 				}
 			}
 			return m, nil
-		case "down", "j":
+		case "down":
 			if m.cursor < len(m.filtered)-1 {
 				m.cursor++
 				if m.cursor >= m.scroll+projectsVisibleItems {

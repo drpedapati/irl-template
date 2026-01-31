@@ -104,7 +104,7 @@ func (m PersonalizeModel) Update(msg tea.Msg) (PersonalizeModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "tab", "down", "j":
+		case "tab", "down":
 			m.inputs[m.focusIndex].Blur()
 			m.focusIndex++
 			if m.focusIndex >= int(FieldCount) {
@@ -113,7 +113,7 @@ func (m PersonalizeModel) Update(msg tea.Msg) (PersonalizeModel, tea.Cmd) {
 			m.inputs[m.focusIndex].Focus()
 			return m, textinput.Blink
 
-		case "shift+tab", "up", "k":
+		case "shift+tab", "up":
 			m.inputs[m.focusIndex].Blur()
 			m.focusIndex--
 			if m.focusIndex < 0 {

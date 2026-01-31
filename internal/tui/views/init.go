@@ -165,11 +165,11 @@ func (m InitModel) Update(msg tea.Msg) (InitModel, tea.Cmd) {
 
 func (m InitModel) updateDirectory(msg tea.KeyMsg) (InitModel, tea.Cmd) {
 	switch msg.String() {
-	case "up", "k":
+	case "up":
 		if m.directoryCursor > 0 {
 			m.directoryCursor--
 		}
-	case "down", "j":
+	case "down":
 		if m.directoryCursor < 1 {
 			m.directoryCursor++
 		}
@@ -220,27 +220,27 @@ func (m *InitModel) loadFolders() {
 
 func (m InitModel) updateBrowse(msg tea.KeyMsg) (InitModel, tea.Cmd) {
 	switch msg.String() {
-	case "up", "k":
+	case "up":
 		if m.browseCursor > 0 {
 			m.browseCursor--
 			if m.browseCursor < m.browseScroll {
 				m.browseScroll = m.browseCursor
 			}
 		}
-	case "down", "j":
+	case "down":
 		if m.browseCursor < len(m.browseFolders)-1 {
 			m.browseCursor++
 			if m.browseCursor >= m.browseScroll+browseVisibleItems {
 				m.browseScroll = m.browseCursor - browseVisibleItems + 1
 			}
 		}
-	case "right", "l":
+	case "right":
 		// Enter selected folder
 		if len(m.browseFolders) > 0 && m.browseCursor < len(m.browseFolders) {
 			m.browseDir = filepath.Join(m.browseDir, m.browseFolders[m.browseCursor])
 			m.loadFolders()
 		}
-	case "left", "h":
+	case "left":
 		// Go up one level
 		parent := filepath.Dir(m.browseDir)
 		if parent != m.browseDir {
@@ -298,11 +298,11 @@ func (m InitModel) updatePurpose(msg tea.KeyMsg) (InitModel, tea.Cmd) {
 
 func (m InitModel) updateTemplate(msg tea.KeyMsg) (InitModel, tea.Cmd) {
 	switch msg.String() {
-	case "up", "k":
+	case "up":
 		if m.templateIdx > 0 {
 			m.templateIdx--
 		}
-	case "down", "j":
+	case "down":
 		if m.templateIdx < len(m.templates) {
 			m.templateIdx++ // +1 for "None" option
 		}

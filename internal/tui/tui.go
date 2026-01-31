@@ -210,11 +210,11 @@ func (m Model) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "q":
 		m.quitting = true
 		return m, tea.Quit
-	case "up", "k":
+	case "up":
 		m.menu.Up()
-	case "down", "j":
+	case "down":
 		m.menu.Down()
-	case "enter", "right", "l":
+	case "enter", "right":
 		return m.selectView(m.menu.Select())
 	case "n":
 		if v, ok := m.menu.SelectByKey("n"); ok {
