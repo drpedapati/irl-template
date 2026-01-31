@@ -243,12 +243,11 @@ func (m FolderModel) WantsBack() bool {
 func (m FolderModel) View() string {
 	var b strings.Builder
 
-	titleStyle := lipgloss.NewStyle().Bold(true).MarginLeft(2)
 	pathStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
-	hintStyle := lipgloss.NewStyle().Foreground(theme.Muted).MarginLeft(2)
+	hintStyle := lipgloss.NewStyle().Foreground(theme.Muted)
 	selectedStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
 	normalStyle := lipgloss.NewStyle().Foreground(theme.Muted)
-	successStyle := lipgloss.NewStyle().Foreground(theme.Success).MarginLeft(2)
+	successStyle := lipgloss.NewStyle().Foreground(theme.Success)
 
 	cursorOn := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true).Render("●")
 	cursorOff := " "
@@ -256,39 +255,48 @@ func (m FolderModel) View() string {
 	// Success state
 	if m.saved {
 		b.WriteString("\n")
-		b.WriteString(successStyle.Render("✓ Default folder set to:"))
+		b.WriteString("  " + successStyle.Render("✓ Default folder set to:"))
 		b.WriteString("\n\n")
 		b.WriteString("  " + pathStyle.Render(m.currentDir))
 		b.WriteString("\n\n")
-		b.WriteString(hintStyle.Render("New projects will be created here."))
+		b.WriteString("  " + hintStyle.Render("New projects will be created here."))
 		b.WriteString("\n")
 		return b.String()
 	}
 
-	// Title
-	b.WriteString("\n")
-	b.WriteString(titleStyle.Render("Choose where to save new projects"))
-	b.WriteString("\n\n")
-
-	// Current location breadcrumb
-	b.WriteString(hintStyle.Render("Location: ") + pathStyle.Render(m.currentDir))
-	b.WriteString("\n\n")
-
-	// Filter input
-	b.WriteString("  " + m.filterInput.View())
-	if len(m.folders) > 0 {
-		b.WriteString("  " + hintStyle.Render("("+itoa(len(m.filtered))+"/"+itoa(len(m.folders))+" folders)"))
+	// Centered title
+	title := "Choose where to save new projects"
+	if m.width > 0 {
+		padding := (m.width - len(title)) / 2
+		if padding > 0 {
+			title = strings.Repeat(" ", padding) + title
+		}
 	}
+	b.WriteString("\n")
+	b.WriteString(hintStyle.Render(title))
 	b.WriteString("\n\n")
 
-	// Option 0: Use this folder
+	// Current path with folder icon
+	b.WriteString("  📁 " + pathStyle.Render(m.currentDir))
+	b.WriteString("\n\n")
+
+	// Filter and "Use this folder" on same line
+	filterView := m.filterInput.View()
+	filterCount := ""
+	if len(m.folders) > 0 {
+		filterCount = hintStyle.Render(" (" + itoa(len(m.filtered)) + "/" + itoa(len(m.folders)) + ")")
+	}
+
+	// "Use this folder" button
 	cursor := cursorOff
 	style := normalStyle
 	if m.cursor == 0 {
 		cursor = cursorOn
 		style = selectedStyle
 	}
-	b.WriteString("  " + cursor + " " + style.Render("✓ Use this folder"))
+	useFolder := cursor + " " + style.Render("✓ Use this folder")
+
+	b.WriteString("  " + filterView + filterCount + "       " + useFolder)
 	b.WriteString("\n\n")
 
 	// Subfolders section
