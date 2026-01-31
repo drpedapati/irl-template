@@ -45,7 +45,8 @@ type Model struct {
 	personalizeView views.PersonalizeModel
 	doctorView      views.DoctorModel
 	initView        views.InitModel
-	configView views.ConfigModel
+	configView      views.ConfigModel
+	editorsView     views.EditorsModel
 
 	// Loading state
 	loading bool
@@ -175,6 +176,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m.updateProjects(msg)
 		case ViewTemplates:
 			return m.updateTemplates(msg)
+		case ViewEditors:
+			return m.updateEditors(msg)
 		case ViewDoctor:
 			return m.updateDoctor(msg)
 		case ViewInit:
@@ -253,6 +256,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.doctorView, _ = m.doctorView.Update(msg)
 		m.loading = false
 
+	case views.EditorsLoadedMsg:
+		m.editorsView, _ = m.editorsView.Update(msg)
+		m.loading = false
+
 	case views.InitCompleteMsg:
 		m.initView, _ = m.initView.Update(msg)
 
@@ -292,6 +299,10 @@ func (m Model) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 	case "d":
 		if v, ok := m.menu.SelectByKey("d"); ok {
+			return m.selectView(v)
+		}
+	case "e":
+		if v, ok := m.menu.SelectByKey("e"); ok {
 			return m.selectView(v)
 		}
 	case "c":
@@ -344,6 +355,13 @@ func (m Model) selectView(v ViewType) (tea.Model, tea.Cmd) {
 		m.statusBar.SetKeys(TemplateViewKeys())
 		m.loading = true
 		cmd = tea.Batch(m.spinner.Tick, m.templatesView.LoadTemplates())
+	case ViewEditors:
+		m.view = v
+		m.statusBar.SetKeys(ViewKeys())
+		m.editorsView = views.NewEditorsModel()
+		m.editorsView.SetSize(appWidth, appHeight-7)
+		m.loading = true
+		cmd = tea.Batch(m.spinner.Tick, m.editorsView.DetectApps())
 	case ViewDoctor:
 		m.view = v
 		m.statusBar.SetKeys(ViewKeys())
@@ -495,6 +513,22 @@ func (m Model) updateTemplates(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
+func (m Model) updateEditors(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "q":
+		m.quitting = true
+		return m, tea.Quit
+	case "esc", "left":
+		m.view = ViewMenu
+		m.statusBar.SetKeys(m.getMenuKeys())
+		return m, nil
+	}
+
+	var cmd tea.Cmd
+	m.editorsView, cmd = m.editorsView.Update(msg)
+	return m, cmd
+}
+
 func (m Model) updateDoctor(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "q":
@@ -633,6 +667,8 @@ func (m Model) View() string {
 		} else {
 			viewTitle = "Templates"
 		}
+	case ViewEditors:
+		viewTitle = "Editors & Utilities"
 	case ViewDoctor:
 		viewTitle = "Environment"
 	case ViewInit:
@@ -670,6 +706,12 @@ func (m Model) View() string {
 			content = m.renderLoading("Loading templates...")
 		} else {
 			content = m.templatesView.View()
+		}
+	case ViewEditors:
+		if m.loading {
+			content = m.renderLoading("Detecting applications...")
+		} else {
+			content = m.editorsView.View()
 		}
 	case ViewDoctor:
 		if m.loading {
@@ -834,6 +876,8 @@ func (m Model) getContextHint() string {
 		return keyStyle.Render("t") + mutedStyle.Render(" new  ") + keyStyle.Render("→") + mutedStyle.Render(" preview  ") + mutedStyle.Render("│ ") + keyStyle.Render("a") + mutedStyle.Render("ll ") + keyStyle.Render("d") + mutedStyle.Render("efault ") + keyStyle.Render("c") + mutedStyle.Render("ustom  ") + keyStyle.Render("r") + mutedStyle.Render(" refresh")
 	case ViewInit:
 		return keyStyle.Render("↑↓") + mutedStyle.Render(" navigate  ") + keyStyle.Render("Enter") + mutedStyle.Render(" select")
+	case ViewEditors:
+		return keyStyle.Render("↑↓") + mutedStyle.Render(" navigate  ") + keyStyle.Render("1-3") + mutedStyle.Render(" filter  ") + keyStyle.Render("Enter") + mutedStyle.Render(" open/install")
 	case ViewDoctor:
 		return ""
 	case ViewConfig:
