@@ -45,8 +45,7 @@ type Model struct {
 	personalizeView views.PersonalizeModel
 	doctorView      views.DoctorModel
 	initView        views.InitModel
-	configView      views.ConfigModel
-	updateView      views.UpdateModel
+	configView views.ConfigModel
 
 	// Loading state
 	loading bool
@@ -55,6 +54,14 @@ type Model struct {
 	// Update check state
 	newTemplateCount   int
 	checkingForUpdates bool
+
+	// Inline update progress (shown above footer)
+	inlineUpdating       bool
+	inlineUpdatePercent  float64
+	inlineUpdateStatus   string
+	inlineUpdateDone     bool
+	inlineUpdateErr      error
+	inlineUpdateCount    int
 }
 
 // New creates a new TUI model
@@ -76,7 +83,6 @@ func New(version string) Model {
 		doctorView:         views.NewDoctorModel(),
 		initView:           views.NewInitModel(),
 		configView:         views.NewConfigModel(),
-		updateView:         views.NewUpdateModel(),
 		spinner:            s,
 		checkingForUpdates: true, // Will check on init
 	}
@@ -108,6 +114,34 @@ func checkForNewTemplates() tea.Cmd {
 	return func() tea.Msg {
 		count, _ := templates.CheckForNewTemplates()
 		return NewTemplatesAvailableMsg{Count: count}
+	}
+}
+
+// InlineUpdateTickMsg for progress animation
+type InlineUpdateTickMsg struct{}
+
+// clearInlineUpdateMsg hides the progress bar after completion
+type clearInlineUpdateMsg struct{}
+
+// InlineUpdateCompleteMsg when update finishes
+type InlineUpdateCompleteMsg struct {
+	Count int
+	Err   error
+}
+
+func (m Model) animateInlineUpdate() tea.Cmd {
+	return tea.Tick(time.Millisecond*80, func(t time.Time) tea.Msg {
+		return InlineUpdateTickMsg{}
+	})
+}
+
+func (m Model) fetchTemplatesInline() tea.Cmd {
+	return func() tea.Msg {
+		list, err := templates.FetchTemplates()
+		if err != nil {
+			return InlineUpdateCompleteMsg{Err: err}
+		}
+		return InlineUpdateCompleteMsg{Count: len(list)}
 	}
 }
 
@@ -151,8 +185,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m.updateFolder(msg)
 		case ViewPersonalize:
 			return m.updatePersonalize(msg)
-		case ViewUpdate:
-			return m.updateUpdateView(msg)
 		}
 
 	case spinner.TickMsg:
@@ -169,6 +201,44 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.view == ViewMenu {
 			m.statusBar.SetKeys(m.getMenuKeys())
 		}
+
+	case InlineUpdateTickMsg:
+		if m.inlineUpdating && !m.inlineUpdateDone {
+			// Animate progress up to 90% while waiting
+			if m.inlineUpdatePercent < 0.9 {
+				m.inlineUpdatePercent += 0.03
+				if m.inlineUpdatePercent > 0.3 && m.inlineUpdatePercent < 0.35 {
+					m.inlineUpdateStatus = "Fetching..."
+				} else if m.inlineUpdatePercent > 0.6 && m.inlineUpdatePercent < 0.65 {
+					m.inlineUpdateStatus = "Caching..."
+				}
+			}
+			return m, m.animateInlineUpdate()
+		}
+
+	case InlineUpdateCompleteMsg:
+		m.inlineUpdateDone = true
+		m.inlineUpdatePercent = 1.0
+		m.inlineUpdateCount = msg.Count
+		m.inlineUpdateErr = msg.Err
+		if msg.Err != nil {
+			m.inlineUpdateStatus = "Failed"
+		} else {
+			m.inlineUpdateStatus = fmt.Sprintf("%d templates", msg.Count)
+		}
+		// Reset update count and refresh templates
+		m.newTemplateCount = 0
+		m.templatesView = views.NewTemplatesModel()
+		m.statusBar.SetKeys(m.getMenuKeys())
+		// Clear inline update after a delay
+		return m, tea.Tick(time.Second*2, func(t time.Time) tea.Msg {
+			return clearInlineUpdateMsg{}
+		})
+
+	case clearInlineUpdateMsg:
+		m.inlineUpdating = false
+		m.inlineUpdateDone = false
+		m.inlineUpdatePercent = 0
 
 	// Handle view-specific messages
 	case views.TemplatesLoadedMsg:
@@ -190,16 +260,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.view = ViewMenu
 		m.statusBar.SetKeys(m.getMenuKeys())
 
-	case views.UpdateProgressMsg:
-		m.updateView, _ = m.updateView.Update(msg)
-
-	case views.UpdateCompleteMsg:
-		m.updateView, _ = m.updateView.Update(msg)
-		// Also refresh templates view so it has latest
-		m.templatesView = views.NewTemplatesModel()
-		// Reset the update count since we just updated
-		m.newTemplateCount = 0
-		m.statusBar.SetKeys(m.getMenuKeys())
 	}
 
 	return m, tea.Batch(cmds...)
@@ -237,8 +297,15 @@ func (m Model) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			return m.selectView(v)
 		}
 	case "u":
-		// Direct shortcut to Update view (not in menu anymore)
-		return m.selectView(ViewUpdate)
+		// Start inline update (don't switch views)
+		if !m.inlineUpdating {
+			m.inlineUpdating = true
+			m.inlineUpdatePercent = 0
+			m.inlineUpdateStatus = "Connecting..."
+			m.inlineUpdateDone = false
+			m.inlineUpdateErr = nil
+			return m, tea.Batch(m.animateInlineUpdate(), m.fetchTemplatesInline())
+		}
 	case "p":
 		if v, ok := m.menu.SelectByKey("p"); ok {
 			return m.selectView(v)
@@ -261,12 +328,6 @@ func (m Model) selectView(v ViewType) (tea.Model, tea.Cmd) {
 		// Open docs in browser, stay on menu
 		openBrowser("https://www.irloop.org")
 		return m, nil
-	case ViewUpdate:
-		// Show update view with progress bar
-		m.view = v
-		m.updateView = views.NewUpdateModel()
-		m.updateView.SetSize(appWidth, appHeight-7)
-		return m, m.updateView.StartUpdate()
 	case ViewProjects:
 		m.view = v
 		m.statusBar.SetKeys(ViewKeys())
@@ -531,21 +592,6 @@ func (m Model) updatePersonalize(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m Model) updateUpdateView(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
-	switch msg.String() {
-	case "q":
-		m.quitting = true
-		return m, tea.Quit
-	case "esc", "left", "enter":
-		// Allow going back when done
-		if m.updateView.IsDone() {
-			m.view = ViewMenu
-			m.statusBar.SetKeys(m.getMenuKeys())
-			return m, nil
-		}
-	}
-	return m, nil
-}
 
 // View renders the TUI
 func (m Model) View() string {
@@ -589,8 +635,6 @@ func (m Model) View() string {
 		viewTitle = "Configuration"
 	case ViewPersonalize:
 		viewTitle = "Profile"
-	case ViewUpdate:
-		viewTitle = "Update"
 	}
 
 	// Show view title on left, datetime on right
@@ -635,8 +679,6 @@ func (m Model) View() string {
 		content = m.folderView.View()
 	case ViewPersonalize:
 		content = m.personalizeView.View()
-	case ViewUpdate:
-		content = m.updateView.View()
 	}
 
 	// Truncate or pad content to fixed height (top-justified)
@@ -665,6 +707,17 @@ func (m Model) View() string {
 		}
 		inner.WriteString("\n")
 		inner.WriteString(strings.Repeat(" ", hintPadding) + hint)
+	}
+
+	// Inline update progress bar (above footer)
+	if m.inlineUpdating {
+		inner.WriteString("\n")
+		progressBar := m.renderInlineProgress()
+		progressPadding := (appWidth - lipgloss.Width(progressBar)) / 2
+		if progressPadding < 0 {
+			progressPadding = 0
+		}
+		inner.WriteString(strings.Repeat(" ", progressPadding) + progressBar)
 	}
 
 	// Footer divider
@@ -717,6 +770,33 @@ func (m Model) renderMenuView() string {
 func (m Model) renderLoading(msg string) string {
 	style := lipgloss.NewStyle().PaddingLeft(2).PaddingTop(1)
 	return style.Render(m.spinner.View() + " " + msg) + "\n"
+}
+
+func (m Model) renderInlineProgress() string {
+	// Subtle compact progress bar
+	barWidth := 20
+	filled := int(m.inlineUpdatePercent * float64(barWidth))
+	if filled > barWidth {
+		filled = barWidth
+	}
+
+	barStyle := lipgloss.NewStyle().Foreground(theme.Accent)
+	emptyStyle := lipgloss.NewStyle().Foreground(theme.Muted)
+	statusStyle := lipgloss.NewStyle().Foreground(theme.Muted)
+
+	var icon string
+	if m.inlineUpdateDone {
+		if m.inlineUpdateErr != nil {
+			icon = lipgloss.NewStyle().Foreground(theme.Error).Render("✗")
+		} else {
+			icon = lipgloss.NewStyle().Foreground(theme.Success).Render("✓")
+		}
+	} else {
+		icon = "⟳"
+	}
+
+	bar := barStyle.Render(strings.Repeat("━", filled)) + emptyStyle.Render(strings.Repeat("─", barWidth-filled))
+	return icon + " " + bar + " " + statusStyle.Render(m.inlineUpdateStatus)
 }
 
 // getContextHint returns the appropriate hint for current view state
