@@ -107,6 +107,7 @@ func getAllApps() []AppInfo {
 		{Name: "Sublime Text", Description: "Lightweight and fast", Cmd: "subl", AppName: "Sublime Text", Category: CategoryEditor, URL: "https://sublimetext.com"},
 		{Name: "Neovim", Description: "Modern terminal editor", Cmd: "nvim", Category: CategoryEditor, URL: "https://neovim.io"},
 		{Name: "Helix", Description: "Modal terminal editor", Cmd: "hx", Category: CategoryEditor, URL: "https://helix-editor.com"},
+		{Name: "Fresh", Description: "Intuitive terminal editor", Cmd: "fresh", Category: CategoryEditor, URL: "https://getfresh.dev"},
 
 		// IDEs
 		{Name: "Positron", Description: "Data science IDE from Posit", Cmd: "positron", AppName: "Positron", Category: CategoryIDE, URL: "https://github.com/posit-dev/positron"},
