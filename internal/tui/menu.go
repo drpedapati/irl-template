@@ -48,7 +48,7 @@ func NewMenu() Menu {
 			{Title: "Projects", Desc: "Browse existing IRL projects", Key: "p", ViewType: ViewProjects},
 			{Title: "Folder", Desc: "Set default project folder", Key: "f", ViewType: ViewFolder},
 			{Title: "Templates", Desc: "Browse available templates", Key: "t", ViewType: ViewTemplates},
-			{Title: "Editors", Desc: "Manage editors and utilities", Key: "e", ViewType: ViewEditors},
+			{Title: "Editors", Desc: "See installed editors and tools", Key: "e", ViewType: ViewEditors},
 			{Title: "Doctor", Desc: "Check environment setup", Key: "d", ViewType: ViewDoctor},
 			{Title: "Docs", Desc: "Open documentation in browser", Key: "o", ViewType: ViewDocs},
 		},

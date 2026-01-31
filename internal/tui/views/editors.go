@@ -18,8 +18,21 @@ type AppCategory int
 const (
 	CategoryEditor AppCategory = iota
 	CategoryIDE
-	CategoryUtility
+	CategoryTool
 )
+
+func (c AppCategory) String() string {
+	switch c {
+	case CategoryEditor:
+		return "Editor"
+	case CategoryIDE:
+		return "IDE"
+	case CategoryTool:
+		return "Tool"
+	default:
+		return ""
+	}
+}
 
 // AppInfo represents an editor or utility application
 type AppInfo struct {
@@ -27,7 +40,6 @@ type AppInfo struct {
 	Description string
 	Cmd         string      // Command line name
 	AppName     string      // macOS .app name (if different)
-	Key         string      // Hotkey
 	Category    AppCategory
 	Installed   bool
 	URL         string // Website for installation
@@ -45,7 +57,19 @@ type EditorsModel struct {
 	category AppCategory // Filter by category (-1 = all)
 }
 
-const editorsVisibleItems = 12
+// Calculate visible items based on available height
+// Each item takes 1 line, with some header/footer space
+func (m EditorsModel) visibleItems() int {
+	// Reserve lines for: header(3) + filter tabs(2) + count(2) + footer(3) + margins(2) = 12
+	available := m.height - 12
+	if available < 5 {
+		available = 5
+	}
+	if available > 15 {
+		available = 15
+	}
+	return available
+}
 
 // EditorsLoadedMsg is sent when editor detection completes
 type EditorsLoadedMsg struct {
@@ -77,27 +101,23 @@ func (m *EditorsModel) DetectApps() tea.Cmd {
 func getAllApps() []AppInfo {
 	apps := []AppInfo{
 		// Code Editors
-		{Name: "Cursor", Description: "AI-first code editor", Cmd: "cursor", AppName: "Cursor", Key: "u", Category: CategoryEditor, URL: "https://cursor.sh"},
-		{Name: "VS Code", Description: "Popular extensible editor", Cmd: "code", Key: "v", Category: CategoryEditor, URL: "https://code.visualstudio.com"},
-		{Name: "Zed", Description: "High-performance editor", Cmd: "zed", AppName: "Zed", Key: "z", Category: CategoryEditor, URL: "https://zed.dev"},
-		{Name: "Sublime Text", Description: "Fast, lightweight editor", Cmd: "subl", AppName: "Sublime Text", Key: "s", Category: CategoryEditor, URL: "https://sublimetext.com"},
-		{Name: "Neovim", Description: "Modern Vim-based editor", Cmd: "nvim", Key: "n", Category: CategoryEditor, URL: "https://neovim.io"},
-		{Name: "Vim", Description: "Classic modal editor", Cmd: "vim", Key: "i", Category: CategoryEditor, URL: "https://vim.org"},
-		{Name: "Emacs", Description: "Extensible text editor", Cmd: "emacs", Key: "e", Category: CategoryEditor, URL: "https://gnu.org/software/emacs"},
-		{Name: "Helix", Description: "Post-modern modal editor", Cmd: "hx", Key: "h", Category: CategoryEditor, URL: "https://helix-editor.com"},
+		{Name: "Cursor", Description: "AI-powered code editor", Cmd: "cursor", AppName: "Cursor", Category: CategoryEditor, URL: "https://cursor.sh"},
+		{Name: "VS Code", Description: "Microsoft's popular editor", Cmd: "code", Category: CategoryEditor, URL: "https://code.visualstudio.com"},
+		{Name: "Zed", Description: "Fast, collaborative editor", Cmd: "zed", AppName: "Zed", Category: CategoryEditor, URL: "https://zed.dev"},
+		{Name: "Sublime Text", Description: "Lightweight and fast", Cmd: "subl", AppName: "Sublime Text", Category: CategoryEditor, URL: "https://sublimetext.com"},
+		{Name: "Neovim", Description: "Modern terminal editor", Cmd: "nvim", Category: CategoryEditor, URL: "https://neovim.io"},
+		{Name: "Helix", Description: "Modal terminal editor", Cmd: "hx", Category: CategoryEditor, URL: "https://helix-editor.com"},
 
 		// IDEs
-		{Name: "Positron", Description: "Data science IDE", Cmd: "positron", AppName: "Positron", Key: "p", Category: CategoryIDE, URL: "https://github.com/posit-dev/positron"},
-		{Name: "RStudio", Description: "R programming IDE", Cmd: "rstudio", AppName: "RStudio", Key: "r", Category: CategoryIDE, URL: "https://posit.co/products/open-source/rstudio"},
-		{Name: "PyCharm", Description: "Python IDE", Cmd: "pycharm", AppName: "PyCharm", Key: "y", Category: CategoryIDE, URL: "https://jetbrains.com/pycharm"},
-		{Name: "IntelliJ IDEA", Description: "Java/Kotlin IDE", Cmd: "idea", AppName: "IntelliJ IDEA", Key: "j", Category: CategoryIDE, URL: "https://jetbrains.com/idea"},
-		{Name: "GoLand", Description: "Go IDE", Cmd: "goland", AppName: "GoLand", Key: "g", Category: CategoryIDE, URL: "https://jetbrains.com/go"},
+		{Name: "Positron", Description: "Data science IDE from Posit", Cmd: "positron", AppName: "Positron", Category: CategoryIDE, URL: "https://github.com/posit-dev/positron"},
+		{Name: "RStudio", Description: "IDE for R programming", Cmd: "rstudio", AppName: "RStudio", Category: CategoryIDE, URL: "https://posit.co/products/open-source/rstudio"},
+		{Name: "PyCharm", Description: "Python IDE from JetBrains", Cmd: "pycharm", AppName: "PyCharm", Category: CategoryIDE, URL: "https://jetbrains.com/pycharm"},
 
-		// Utilities
-		{Name: "Terminal", Description: "System terminal", Cmd: "terminal", Key: "t", Category: CategoryUtility, URL: ""},
-		{Name: "Finder", Description: "File manager (macOS)", Cmd: "open", Key: "f", Category: CategoryUtility, URL: ""},
-		{Name: "iTerm2", Description: "Advanced terminal (macOS)", Cmd: "iterm", AppName: "iTerm", Key: "2", Category: CategoryUtility, URL: "https://iterm2.com"},
-		{Name: "Warp", Description: "AI-powered terminal", Cmd: "warp", AppName: "Warp", Key: "w", Category: CategoryUtility, URL: "https://warp.dev"},
+		// Tools
+		{Name: "Finder", Description: "Open folder in Finder", Cmd: "open", Category: CategoryTool, URL: ""},
+		{Name: "Terminal", Description: "macOS Terminal app", Cmd: "terminal", Category: CategoryTool, URL: ""},
+		{Name: "iTerm2", Description: "Enhanced terminal for macOS", Cmd: "iterm", AppName: "iTerm", Category: CategoryTool, URL: "https://iterm2.com"},
+		{Name: "Warp", Description: "Modern terminal with AI", Cmd: "warp", AppName: "Warp", Category: CategoryTool, URL: "https://warp.dev"},
 	}
 
 	// Check installation status
@@ -109,9 +129,9 @@ func getAllApps() []AppInfo {
 }
 
 func isAppInstalled(app AppInfo) bool {
-	// Special cases
+	// Special cases - always available on macOS
 	if app.Cmd == "terminal" || app.Cmd == "open" {
-		return true // Always available
+		return runtime.GOOS == "darwin"
 	}
 
 	// Check command line
@@ -160,6 +180,7 @@ func (m EditorsModel) Update(msg tea.Msg) (EditorsModel, tea.Cmd) {
 
 	case tea.KeyMsg:
 		filtered := m.filteredApps()
+		visibleItems := m.visibleItems()
 		key := msg.String()
 
 		switch key {
@@ -170,46 +191,68 @@ func (m EditorsModel) Update(msg tea.Msg) (EditorsModel, tea.Cmd) {
 					m.scroll = m.cursor
 				}
 			}
+			m.message = ""
 			return m, nil
 		case "down":
 			if m.cursor < len(filtered)-1 {
 				m.cursor++
-				if m.cursor >= m.scroll+editorsVisibleItems {
-					m.scroll = m.cursor - editorsVisibleItems + 1
+				if m.cursor >= m.scroll+visibleItems {
+					m.scroll = m.cursor - visibleItems + 1
 				}
 			}
+			m.message = ""
 			return m, nil
 		case "a":
 			m.category = -1 // All
 			m.cursor = 0
 			m.scroll = 0
+			m.message = ""
 			return m, nil
 		case "1":
 			m.category = CategoryEditor
 			m.cursor = 0
 			m.scroll = 0
+			m.message = ""
 			return m, nil
 		case "2":
 			m.category = CategoryIDE
 			m.cursor = 0
 			m.scroll = 0
+			m.message = ""
 			return m, nil
 		case "3":
-			m.category = CategoryUtility
+			m.category = CategoryTool
 			m.cursor = 0
 			m.scroll = 0
+			m.message = ""
 			return m, nil
-		case "enter", "right":
-			// Open URL or launch app
+		case "enter":
+			// Test launch for installed apps, open website for uninstalled
 			if m.cursor < len(filtered) {
 				app := filtered[m.cursor]
 				if app.Installed {
-					m.message = "Launched " + app.Name
-					// Could launch the app here if desired
+					m.launchApp(app)
 				} else if app.URL != "" {
-					// Open URL in browser
-					openURL(app.URL)
-					m.message = "Opening " + app.Name + " website..."
+					if openURL(app.URL) {
+						m.message = "Opening " + app.Name + " website..."
+					} else {
+						m.message = "Could not open browser"
+					}
+				}
+			}
+			return m, nil
+		case "b":
+			// Open website for any app
+			if m.cursor < len(filtered) {
+				app := filtered[m.cursor]
+				if app.URL != "" {
+					if openURL(app.URL) {
+						m.message = "Opening " + app.Name + " website..."
+					} else {
+						m.message = "Could not open browser"
+					}
+				} else {
+					m.message = "No website available"
 				}
 			}
 			return m, nil
@@ -219,7 +262,37 @@ func (m EditorsModel) Update(msg tea.Msg) (EditorsModel, tea.Cmd) {
 	return m, nil
 }
 
-func openURL(url string) {
+func (m *EditorsModel) launchApp(app AppInfo) {
+	var cmd *exec.Cmd
+
+	switch app.Cmd {
+	case "terminal":
+		if runtime.GOOS == "darwin" {
+			cmd = exec.Command("open", "-a", "Terminal")
+		}
+	case "open":
+		if runtime.GOOS == "darwin" {
+			cmd = exec.Command("open", ".")
+		}
+	default:
+		if runtime.GOOS == "darwin" && app.AppName != "" {
+			// Try to open the .app
+			cmd = exec.Command("open", "-a", app.AppName)
+		} else {
+			cmd = exec.Command(app.Cmd)
+		}
+	}
+
+	if cmd != nil {
+		if err := cmd.Start(); err != nil {
+			m.message = "Failed to launch " + app.Name
+		} else {
+			m.message = "Launched " + app.Name
+		}
+	}
+}
+
+func openURL(url string) bool {
 	var cmd *exec.Cmd
 	switch runtime.GOOS {
 	case "darwin":
@@ -230,35 +303,47 @@ func openURL(url string) {
 		cmd = exec.Command("cmd", "/c", "start", url)
 	}
 	if cmd != nil {
-		cmd.Start()
+		return cmd.Start() == nil
 	}
+	return false
 }
 
 // View renders the editors view
 func (m EditorsModel) View() string {
 	var b strings.Builder
 
-	headerStyle := lipgloss.NewStyle().Foreground(theme.Muted).Bold(true)
+	titleStyle := lipgloss.NewStyle().Foreground(theme.Primary).Bold(true)
+	headerStyle := lipgloss.NewStyle().Foreground(theme.Muted)
 	keyStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
-	nameStyle := lipgloss.NewStyle().Foreground(theme.Primary).Bold(true)
+	nameStyle := lipgloss.NewStyle().Foreground(theme.Primary)
 	descStyle := lipgloss.NewStyle().Foreground(theme.Muted)
 	installedStyle := lipgloss.NewStyle().Foreground(theme.Success)
 	notInstalledStyle := lipgloss.NewStyle().Foreground(theme.Muted)
 	selectedStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
 	cursorStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
 	messageStyle := lipgloss.NewStyle().Foreground(theme.Success)
-	filterStyle := lipgloss.NewStyle().Foreground(theme.Accent)
+	errorStyle := lipgloss.NewStyle().Foreground(theme.Error)
+	activeTabStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
 
 	if !m.loaded {
-		b.WriteString("\n  Detecting applications...\n")
+		b.WriteString("\n  Scanning for installed applications...\n")
 		return b.String()
 	}
 
+	// Title and description
 	b.WriteString("\n")
+	b.WriteString("  " + titleStyle.Render("Editors & Tools"))
+	b.WriteString("\n")
+	b.WriteString("  " + headerStyle.Render("See what's installed and test launching applications"))
+	b.WriteString("\n\n")
 
 	// Message if any
 	if m.message != "" {
-		b.WriteString("  " + messageStyle.Render("✓ "+m.message))
+		if strings.HasPrefix(m.message, "Failed") || strings.HasPrefix(m.message, "Could not") {
+			b.WriteString("  " + errorStyle.Render("✗ "+m.message))
+		} else {
+			b.WriteString("  " + messageStyle.Render("✓ "+m.message))
+		}
 		b.WriteString("\n\n")
 	}
 
@@ -272,18 +357,19 @@ func (m EditorsModel) View() string {
 		{"a", "All", -1},
 		{"1", "Editors", CategoryEditor},
 		{"2", "IDEs", CategoryIDE},
-		{"3", "Utilities", CategoryUtility},
+		{"3", "Tools", CategoryTool},
 	}
 
 	for i, cat := range categories {
 		if i > 0 {
 			b.WriteString("  ")
 		}
-		label := keyStyle.Render(cat.key) + " " + cat.name
-		if int(cat.cat) == int(m.category) || (cat.cat < 0 && m.category < 0) {
-			label = filterStyle.Render("[" + cat.key + " " + cat.name + "]")
+		isActive := int(cat.cat) == int(m.category) || (cat.cat < 0 && m.category < 0)
+		if isActive {
+			b.WriteString(activeTabStyle.Render("[" + cat.key + "] " + cat.name))
+		} else {
+			b.WriteString(keyStyle.Render(cat.key) + " " + descStyle.Render(cat.name))
 		}
-		b.WriteString(label)
 	}
 	b.WriteString("\n\n")
 
@@ -295,7 +381,7 @@ func (m EditorsModel) View() string {
 			installedCount++
 		}
 	}
-	b.WriteString("  " + headerStyle.Render(itoa(installedCount)+"/"+itoa(len(filtered))+" installed"))
+	b.WriteString("  " + headerStyle.Render(itoa(installedCount)+" of "+itoa(len(filtered))+" installed"))
 	b.WriteString("\n\n")
 
 	// App list
@@ -303,7 +389,8 @@ func (m EditorsModel) View() string {
 		b.WriteString("  " + descStyle.Render("No applications in this category"))
 		b.WriteString("\n")
 	} else {
-		endIdx := m.scroll + editorsVisibleItems
+		visibleItems := m.visibleItems()
+		endIdx := m.scroll + visibleItems
 		if endIdx > len(filtered) {
 			endIdx = len(filtered)
 		}
@@ -315,38 +402,60 @@ func (m EditorsModel) View() string {
 			cursor := "  "
 			style := nameStyle
 			if i == m.cursor {
-				cursor = cursorStyle.Render("● ")
+				cursor = cursorStyle.Render("> ")
 				style = selectedStyle
 			}
 
 			// Status indicator
-			status := notInstalledStyle.Render("○")
+			var status string
 			if app.Installed {
 				status = installedStyle.Render("●")
+			} else {
+				status = notInstalledStyle.Render("○")
 			}
 
-			// Key hint
-			keyHint := keyStyle.Render(app.Key)
+			// Build line: cursor + status + name + description
+			line := cursor + status + " " + style.Render(app.Name)
 
-			b.WriteString("  " + cursor + status + " " + keyHint + " " + style.Render(app.Name))
-			b.WriteString("\n")
-			b.WriteString("       " + descStyle.Render(app.Description))
-			b.WriteString("\n")
+			// Add description inline, truncated if needed
+			desc := " - " + app.Description
+			maxDescLen := m.width - lipgloss.Width(line) - 6
+			if maxDescLen > 10 && len(desc) > maxDescLen {
+				desc = desc[:maxDescLen-3] + "..."
+			}
+			if maxDescLen > 10 {
+				line += descStyle.Render(desc)
+			}
+
+			b.WriteString("  " + line + "\n")
 		}
 
 		// Scroll indicator
-		if len(filtered) > editorsVisibleItems {
+		if len(filtered) > visibleItems {
 			b.WriteString("\n")
-			b.WriteString("  " + descStyle.Render(itoa(m.scroll+1)+"-"+itoa(endIdx)+" of "+itoa(len(filtered))))
+			b.WriteString("  " + descStyle.Render("↑↓ "+itoa(m.scroll+1)+"-"+itoa(endIdx)+" of "+itoa(len(filtered))))
 			b.WriteString("\n")
 		}
 	}
 
-	// Footer hint
+	// Footer hints
 	b.WriteString("\n")
-	hint := keyStyle.Render("↑↓") + descStyle.Render(" navigate  ")
-	hint += keyStyle.Render("Enter") + descStyle.Render(" open/install")
-	b.WriteString("  " + hint)
+	var hints []string
+	hints = append(hints, keyStyle.Render("↑↓")+" navigate")
+
+	if m.cursor < len(filtered) {
+		app := filtered[m.cursor]
+		if app.Installed {
+			hints = append(hints, keyStyle.Render("Enter")+" test launch")
+		} else if app.URL != "" {
+			hints = append(hints, keyStyle.Render("Enter")+" get it")
+		}
+		if app.URL != "" {
+			hints = append(hints, keyStyle.Render("b")+" website")
+		}
+	}
+
+	b.WriteString("  " + descStyle.Render(strings.Join(hints, "  ")))
 
 	return b.String()
 }
