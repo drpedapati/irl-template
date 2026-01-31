@@ -311,18 +311,13 @@ func (m HelpModel) renderMenu() string {
 		}
 	}
 
-	// Left-justify the menu with padding
+	// Menu content (outer container provides left margin)
 	menuContent := content.String()
-
-	// Add left padding for consistent alignment
-	paddedMenu := lipgloss.NewStyle().
-		PaddingLeft(2).
-		Render(menuContent)
 
 	// Footer
 	footer := m.renderMenuFooter()
 
-	return paddedMenu + "\n" + footer
+	return menuContent + "\n" + footer
 }
 
 func (m HelpModel) renderMenuItem(index int, item helpMenuItem) string {
@@ -373,7 +368,8 @@ func (m HelpModel) renderMenuFooter() string {
 		accentStyle.Render("Enter") + mutedStyle.Render(" select  ") +
 		accentStyle.Render("esc") + mutedStyle.Render(" back")
 
-	return lipgloss.Place(m.width, 2, lipgloss.Center, lipgloss.Bottom, hint)
+	// Left-justified (outer container provides margin)
+	return hint + "\n"
 }
 
 // ============================================================================
@@ -443,11 +439,8 @@ func (m HelpModel) renderSlideHeader() string {
 
 	header := title + "  " + counter
 
-	// Left-justify with padding
-	return lipgloss.NewStyle().
-		PaddingLeft(2).
-		PaddingBottom(1).
-		Render(header)
+	// No extra padding - outer container (tui.go) provides left margin
+	return header + "\n"
 }
 
 // slideItoa converts small ints to string for slide counters
@@ -535,10 +528,8 @@ func (m HelpModel) renderSlideFooterFixed() string {
 
 	footer := dots + "    " + navHint
 
-	// Left-justify with padding to match header
-	return lipgloss.NewStyle().
-		PaddingLeft(2).
-		Render(footer) + "\n"
+	// No extra padding - outer container (tui.go) provides left margin
+	return footer + "\n"
 }
 
 // ============================================================================
