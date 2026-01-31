@@ -364,13 +364,11 @@ func (m Model) updateProjects(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.view = ViewMenu
 		m.statusBar.SetKeys(m.getMenuKeys())
 		return m, nil
-	case "left", "h":
-		// Go back if filter is empty (otherwise let it move cursor in filter)
-		if !m.projectsView.HasFilterText() {
-			m.view = ViewMenu
-			m.statusBar.SetKeys(m.getMenuKeys())
-			return m, nil
-		}
+	case "left":
+		// Go back to menu
+		m.view = ViewMenu
+		m.statusBar.SetKeys(m.getMenuKeys())
+		return m, nil
 	}
 
 	// Pass all other keys to the projects view (filtering, navigation, editor shortcuts)
@@ -407,19 +405,17 @@ func (m Model) updateTemplates(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.view = ViewMenu
 		m.statusBar.SetKeys(m.getMenuKeys())
 		return m, nil
-	case "left", "h":
+	case "left":
 		// If previewing, let the view handle it to exit preview
 		if m.templatesView.IsPreviewing() {
 			var cmd tea.Cmd
 			m.templatesView, cmd = m.templatesView.Update(msg)
 			return m, cmd
 		}
-		// Go back if filter is empty (otherwise let it move cursor in filter)
-		if !m.templatesView.HasFilterText() {
-			m.view = ViewMenu
-			m.statusBar.SetKeys(m.getMenuKeys())
-			return m, nil
-		}
+		// Go back to menu
+		m.view = ViewMenu
+		m.statusBar.SetKeys(m.getMenuKeys())
+		return m, nil
 	case "r":
 		if !m.templatesView.IsPreviewing() {
 			m.loading = true
@@ -437,7 +433,7 @@ func (m Model) updateDoctor(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "q":
 		m.quitting = true
 		return m, tea.Quit
-	case "esc", "left", "h":
+	case "esc", "left":
 		m.view = ViewMenu
 		m.statusBar.SetKeys(m.getMenuKeys())
 		return m, nil
@@ -450,7 +446,7 @@ func (m Model) updateDoctor(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 func (m Model) updateInit(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
-	case "esc", "left", "h":
+	case "esc", "left":
 		if m.initView.CanGoBack() {
 			var cmd tea.Cmd
 			m.initView, cmd = m.initView.Update(msg)
@@ -478,7 +474,7 @@ func (m Model) updateConfig(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "q":
 		m.quitting = true
 		return m, tea.Quit
-	case "esc", "left", "h":
+	case "esc", "left":
 		m.view = ViewMenu
 		m.statusBar.SetKeys(m.getMenuKeys())
 		return m, nil
@@ -540,7 +536,7 @@ func (m Model) updateUpdateView(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "q":
 		m.quitting = true
 		return m, tea.Quit
-	case "esc", "left", "h", "enter":
+	case "esc", "left", "enter":
 		// Allow going back when done
 		if m.updateView.IsDone() {
 			m.view = ViewMenu
