@@ -30,6 +30,7 @@ const (
 	ViewPersonalize // Academic profile settings
 	ViewDocs        // Opens browser to www.irloop.org
 	ViewUpdate      // Updates templates from GitHub
+	ViewHelp        // Help/tutorial view
 )
 
 // Menu represents the main menu
@@ -122,21 +123,39 @@ func (m Menu) View() string {
 		Bold(true)
 
 	// Calculate max label width for two-column alignment
-	// Format: "  ● [x] Title" - find the longest
+	// Format: "● [x] Title" - find the longest
 	maxLabelWidth := 0
 	for _, item := range m.items {
-		// cursor(2) + space + [key](3) + space + title
-		labelWidth := 2 + 2 + 3 + 1 + len(item.Title)
+		// cursor(2) + [key](3) + space + title
+		labelWidth := 2 + 3 + 1 + len(item.Title)
 		if labelWidth > maxLabelWidth {
 			maxLabelWidth = labelWidth
 		}
 	}
 
-	// Column separator position
-	colSep := maxLabelWidth + 4
+	// Find max description width
+	maxDescWidth := 0
+	for _, item := range m.items {
+		if len(item.Desc) > maxDescWidth {
+			maxDescWidth = len(item.Desc)
+		}
+	}
 
-	// Top padding (uniform with bottom)
-	b.WriteString("\n\n")
+	// Column separator gap
+	gap := 4
+
+	// Total table width
+	tableWidth := maxLabelWidth + gap + maxDescWidth
+
+	// Calculate left margin to center the table
+	leftMargin := (m.width - tableWidth) / 2
+	if leftMargin < 0 {
+		leftMargin = 0
+	}
+	marginStr := strings.Repeat(" ", leftMargin)
+
+	// Top padding
+	b.WriteString("\n")
 
 	for i, item := range m.items {
 		cursor := "  "
@@ -150,11 +169,11 @@ func (m Menu) View() string {
 		// Left column: cursor [key] Title
 		key := keyStyle.Render("[" + item.Key + "]")
 		title := titleStyle.Render(item.Title)
-		leftCol := "  " + cursor + key + " " + title
+		leftCol := cursor + key + " " + title
 
 		// Pad to align descriptions
 		leftWidth := lipgloss.Width(leftCol)
-		padding := colSep - leftWidth
+		padding := maxLabelWidth + gap - leftWidth
 		if padding < 2 {
 			padding = 2
 		}
@@ -162,7 +181,7 @@ func (m Menu) View() string {
 		// Right column: description
 		desc := descStyle.Render(item.Desc)
 
-		b.WriteString(leftCol + strings.Repeat(" ", padding) + desc)
+		b.WriteString(marginStr + leftCol + strings.Repeat(" ", padding) + desc)
 		b.WriteString("\n")
 
 		// Add spacing between items (except after last)
@@ -171,7 +190,7 @@ func (m Menu) View() string {
 		}
 	}
 
-	// Bottom padding (uniform with top)
+	// Bottom padding
 	b.WriteString("\n\n")
 
 	return b.String()
