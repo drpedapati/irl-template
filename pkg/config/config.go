@@ -94,6 +94,16 @@ func SetProfile(profile Profile) error {
 	return cfg.Save()
 }
 
+// ClearProfile removes all saved profile data
+func ClearProfile() error {
+	return SetProfile(Profile{})
+}
+
+// ClearDefaultDirectory removes the saved default directory
+func ClearDefaultDirectory() error {
+	return SetDefaultDirectory("")
+}
+
 // HasProfile returns true if any profile fields are set
 func HasProfile() bool {
 	p := GetProfile()

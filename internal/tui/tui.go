@@ -841,7 +841,7 @@ func (m Model) getContextHint() string {
 	case ViewFolder:
 		return keyStyle.Render("←") + mutedStyle.Render(" up a level  ") + keyStyle.Render("↑↓") + mutedStyle.Render(" navigate  ") + keyStyle.Render("Enter") + mutedStyle.Render(" select")
 	case ViewPersonalize:
-		return keyStyle.Render("Tab") + mutedStyle.Render(" next field  ") + keyStyle.Render("Enter") + mutedStyle.Render(" save")
+		return keyStyle.Render("Tab") + mutedStyle.Render(" next item  ") + keyStyle.Render("Enter") + mutedStyle.Render(" save/select  ") + keyStyle.Render("y/n") + mutedStyle.Render(" confirm")
 	}
 	return ""
 }
