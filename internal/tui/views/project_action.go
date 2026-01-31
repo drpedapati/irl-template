@@ -1,7 +1,6 @@
 package views
 
 import (
-	"os/exec"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -13,8 +12,9 @@ import (
 type ProjectActionModel struct {
 	projectPath string
 	projectName string
-	editors     []Editor
-	message     string // Feedback message after opening
+	editors     []AppInfo // Uses unified AppInfo from editors.go
+	tools       []AppInfo // Finder, Terminal, etc.
+	message     string    // Feedback message after opening
 	done        bool
 	isNew       bool // True if this is a newly created project
 }
@@ -31,7 +31,8 @@ func NewProjectActionModel(projectPath string, isNew bool) ProjectActionModel {
 	return ProjectActionModel{
 		projectPath: projectPath,
 		projectName: name,
-		editors:     detectEditors(),
+		editors:     GetInstalledEditors(), // Uses unified source
+		tools:       GetInstalledTools(),   // Uses unified source
 		isNew:       isNew,
 	}
 }
@@ -55,14 +56,22 @@ func (m ProjectActionModel) Update(msg tea.Msg) (ProjectActionModel, tea.Cmd) {
 		// Check for editor hotkeys
 		for _, editor := range m.editors {
 			if key == editor.Key {
-				if editor.Cmd == "terminal" {
-					cmd := exec.Command("open", "-a", "Terminal", m.projectPath)
-					cmd.Start()
-					m.message = "Opened in Terminal"
+				if errMsg := OpenProjectWith(editor, m.projectPath); errMsg != "" {
+					m.message = errMsg
 				} else {
-					cmd := exec.Command(editor.Cmd, m.projectPath)
-					cmd.Start()
 					m.message = "Opened in " + editor.Name
+				}
+				return m, nil
+			}
+		}
+
+		// Check for tool hotkeys
+		for _, tool := range m.tools {
+			if key == tool.Key {
+				if errMsg := OpenProjectWith(tool, m.projectPath); errMsg != "" {
+					m.message = errMsg
+				} else {
+					m.message = "Opened in " + tool.Name
 				}
 				return m, nil
 			}
@@ -70,12 +79,6 @@ func (m ProjectActionModel) Update(msg tea.Msg) (ProjectActionModel, tea.Cmd) {
 
 		// Handle other keys
 		switch key {
-		case "f":
-			// Open in Finder (macOS)
-			cmd := exec.Command("open", m.projectPath)
-			cmd.Start()
-			m.message = "Opened in Finder"
-			return m, nil
 		case "enter", "esc", "left":
 			m.done = true
 			return m, nil
@@ -107,18 +110,23 @@ func (m ProjectActionModel) View() string {
 	b.WriteString("\n\n")
 
 	// Project path
-	b.WriteString("  📁 " + pathStyle.Render(m.projectPath))
+	b.WriteString("  " + pathStyle.Render(m.projectPath))
 	b.WriteString("\n\n")
 
 	// Feedback message (if any)
 	if m.message != "" {
-		b.WriteString(messageStyle.Render("✓ " + m.message))
+		if strings.HasPrefix(m.message, "Failed") {
+			errorStyle := lipgloss.NewStyle().Foreground(theme.Error).MarginLeft(2)
+			b.WriteString(errorStyle.Render("✗ " + m.message))
+		} else {
+			b.WriteString(messageStyle.Render("✓ " + m.message))
+		}
 		b.WriteString("\n\n")
 	}
 
-	// Open with section
+	// Editors section
 	if len(m.editors) > 0 {
-		b.WriteString("  " + headerStyle.Render("Open with:"))
+		b.WriteString("  " + headerStyle.Render("Editors & IDEs:"))
 		b.WriteString("\n\n")
 
 		// Show available editors in a grid (3 columns)
@@ -147,11 +155,38 @@ func (m ProjectActionModel) View() string {
 		if col != 0 {
 			b.WriteString("\n")
 		}
+	}
 
-		// Finder option
+	// Tools section
+	if len(m.tools) > 0 {
 		b.WriteString("\n")
-		b.WriteString("  " + keyStyle.Render("f") + " " + nameStyle.Render("Finder"))
-		b.WriteString("\n")
+		b.WriteString("  " + headerStyle.Render("Tools:"))
+		b.WriteString("\n\n")
+
+		colWidth := 16
+		col := 0
+		for _, tool := range m.tools {
+			if col == 0 {
+				b.WriteString("  ")
+			}
+
+			item := keyStyle.Render(tool.Key) + " " + nameStyle.Render(tool.Name)
+
+			padding := colWidth - len(tool.Key) - 1 - len(tool.Name)
+			if padding > 0 {
+				item += strings.Repeat(" ", padding)
+			}
+
+			b.WriteString(item)
+			col++
+			if col >= 3 {
+				b.WriteString("\n")
+				col = 0
+			}
+		}
+		if col != 0 {
+			b.WriteString("\n")
+		}
 	}
 
 	// Footer hint

@@ -2,9 +2,7 @@ package views
 
 import (
 	"os"
-	"os/exec"
 	"path/filepath"
-	"runtime"
 	"sort"
 	"strings"
 	"time"
@@ -28,14 +26,6 @@ func (p Project) Title() string       { return p.Name }
 func (p Project) Description() string { return smartDate(p.Modified) }
 func (p Project) FilterValue() string { return p.Name }
 
-// Editor represents an available editor/IDE
-type Editor struct {
-	Name    string
-	Cmd     string
-	Key     string
-	AppName string // For macOS .app detection
-}
-
 // ProjectsModel displays discovered IRL projects
 type ProjectsModel struct {
 	projects    []Project
@@ -48,8 +38,8 @@ type ProjectsModel struct {
 	err         error
 	filterInput textinput.Model
 	sortBy      string // "date-desc", "date-asc", "name-asc", "name-desc"
-	editors     []Editor
-	openMsg     string // Message shown after opening
+	editors     []AppInfo // Uses unified AppInfo from editors.go
+	openMsg     string    // Message shown after opening
 
 	// Project detail view
 	viewing    bool
@@ -61,7 +51,7 @@ const projectsVisibleItems = 10
 // ProjectsLoadedMsg is sent when projects are scanned
 type ProjectsLoadedMsg struct {
 	Projects []Project
-	Editors  []Editor
+	Editors  []AppInfo // Uses unified AppInfo from editors.go
 	Err      error
 }
 
@@ -93,54 +83,9 @@ func (m *ProjectsModel) ScanProjects() tea.Cmd {
 		}
 
 		projects, err := scanForProjects(baseDir)
-		editors := detectEditors()
+		editors := GetInstalledEditors() // Uses unified source
 		return ProjectsLoadedMsg{Projects: projects, Editors: editors, Err: err}
 	}
-}
-
-// detectEditors finds available editors on the system
-func detectEditors() []Editor {
-	allEditors := []Editor{
-		{Name: "Positron", Cmd: "positron", Key: "p", AppName: "Positron"},
-		{Name: "Cursor", Cmd: "cursor", Key: "u", AppName: "Cursor"},
-		{Name: "VS Code", Cmd: "code", Key: "v", AppName: ""},
-		{Name: "RStudio", Cmd: "rstudio", Key: "r", AppName: "RStudio"},
-		{Name: "Terminal", Cmd: "terminal", Key: "t", AppName: ""},
-	}
-
-	var available []Editor
-	for _, e := range allEditors {
-		if e.Cmd == "terminal" {
-			// Terminal is always available
-			available = append(available, e)
-		} else if e.AppName != "" && checkApp(e.AppName) {
-			available = append(available, e)
-		} else if checkCmd(e.Cmd) {
-			available = append(available, e)
-		}
-	}
-	return available
-}
-
-func checkCmd(name string) bool {
-	_, err := exec.LookPath(name)
-	return err == nil
-}
-
-func checkApp(name string) bool {
-	if runtime.GOOS != "darwin" {
-		return checkCmd(strings.ToLower(name))
-	}
-	paths := []string{
-		filepath.Join("/Applications", name+".app"),
-		filepath.Join(os.Getenv("HOME"), "Applications", name+".app"),
-	}
-	for _, p := range paths {
-		if _, err := os.Stat(p); err == nil {
-			return true
-		}
-	}
-	return false
 }
 
 func scanForProjects(baseDir string) ([]Project, error) {
@@ -288,47 +233,15 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 	return m, nil
 }
 
-func (m *ProjectsModel) openInEditor(e Editor) {
+func (m *ProjectsModel) openInEditor(e AppInfo) {
 	path := m.SelectedProject()
 	if path == "" {
 		return
 	}
 
-	var cmd *exec.Cmd
-	switch e.Cmd {
-	case "terminal":
-		// Open terminal in project directory
-		if runtime.GOOS == "darwin" {
-			script := `tell application "Terminal" to do script "cd '` + path + `'"`
-			cmd = exec.Command("osascript", "-e", script)
-		} else {
-			// Linux: try common terminals
-			cmd = exec.Command("x-terminal-emulator", "--working-directory", path)
-		}
-	case "positron":
-		if runtime.GOOS == "darwin" {
-			cmd = exec.Command("open", "-a", "Positron", path)
-		} else {
-			cmd = exec.Command("positron", path)
-		}
-	case "cursor":
-		if runtime.GOOS == "darwin" {
-			cmd = exec.Command("open", "-a", "Cursor", path)
-		} else {
-			cmd = exec.Command("cursor", path)
-		}
-	case "rstudio":
-		if runtime.GOOS == "darwin" {
-			cmd = exec.Command("open", "-a", "RStudio", path)
-		} else {
-			cmd = exec.Command("rstudio", path)
-		}
-	default:
-		cmd = exec.Command(e.Cmd, path)
-	}
-
-	if cmd != nil {
-		cmd.Start()
+	if errMsg := OpenProjectWith(e, path); errMsg != "" {
+		m.openMsg = errMsg
+	} else {
 		m.openMsg = "Opened in " + e.Name
 	}
 }

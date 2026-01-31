@@ -40,9 +40,48 @@ type AppInfo struct {
 	Description string
 	Cmd         string      // Command line name
 	AppName     string      // macOS .app name (if different)
+	Key         string      // Hotkey for quick access (used in project actions)
 	Category    AppCategory
 	Installed   bool
 	URL         string // Website for installation
+}
+
+// GetInstalledEditors returns installed editors/IDEs for project actions.
+// This is the single source of truth for editor lists across the app.
+func GetInstalledEditors() []AppInfo {
+	apps := getAllApps()
+	var installed []AppInfo
+	for _, app := range apps {
+		// Only include editors and IDEs that are installed and have hotkeys
+		if app.Installed && app.Key != "" && (app.Category == CategoryEditor || app.Category == CategoryIDE) {
+			installed = append(installed, app)
+		}
+	}
+	return installed
+}
+
+// GetInstalledTools returns installed tools for project actions (Finder, Terminal, etc.)
+func GetInstalledTools() []AppInfo {
+	apps := getAllApps()
+	var installed []AppInfo
+	for _, app := range apps {
+		if app.Installed && app.Key != "" && app.Category == CategoryTool {
+			installed = append(installed, app)
+		}
+	}
+	return installed
+}
+
+// GetAllInstalledWithKeys returns all installed apps that have hotkeys assigned
+func GetAllInstalledWithKeys() []AppInfo {
+	apps := getAllApps()
+	var installed []AppInfo
+	for _, app := range apps {
+		if app.Installed && app.Key != "" {
+			installed = append(installed, app)
+		}
+	}
+	return installed
 }
 
 // EditorsModel displays and manages editors/utilities
@@ -100,25 +139,25 @@ func (m *EditorsModel) DetectApps() tea.Cmd {
 // getAllApps returns all known applications with their install status
 func getAllApps() []AppInfo {
 	apps := []AppInfo{
-		// Code Editors
-		{Name: "Cursor", Description: "AI-powered code editor", Cmd: "cursor", AppName: "Cursor", Category: CategoryEditor, URL: "https://cursor.sh"},
-		{Name: "VS Code", Description: "Microsoft's popular editor", Cmd: "code", Category: CategoryEditor, URL: "https://code.visualstudio.com"},
-		{Name: "Zed", Description: "Fast, collaborative editor", Cmd: "zed", AppName: "Zed", Category: CategoryEditor, URL: "https://zed.dev"},
-		{Name: "Sublime Text", Description: "Lightweight and fast", Cmd: "subl", AppName: "Sublime Text", Category: CategoryEditor, URL: "https://sublimetext.com"},
-		{Name: "Neovim", Description: "Modern terminal editor", Cmd: "nvim", Category: CategoryEditor, URL: "https://neovim.io"},
-		{Name: "Helix", Description: "Modal terminal editor", Cmd: "hx", Category: CategoryEditor, URL: "https://helix-editor.com"},
-		{Name: "Fresh", Description: "Intuitive terminal editor", Cmd: "fresh", Category: CategoryEditor, URL: "https://getfresh.dev"},
+		// Code Editors (ordered by popularity/preference)
+		{Name: "Cursor", Description: "AI-powered code editor", Cmd: "cursor", AppName: "Cursor", Key: "c", Category: CategoryEditor, URL: "https://cursor.sh"},
+		{Name: "VS Code", Description: "Microsoft's popular editor", Cmd: "code", Key: "v", Category: CategoryEditor, URL: "https://code.visualstudio.com"},
+		{Name: "Zed", Description: "Fast, collaborative editor", Cmd: "zed", AppName: "Zed", Key: "z", Category: CategoryEditor, URL: "https://zed.dev"},
+		{Name: "Sublime Text", Description: "Lightweight and fast", Cmd: "subl", AppName: "Sublime Text", Key: "s", Category: CategoryEditor, URL: "https://sublimetext.com"},
+		{Name: "Neovim", Description: "Modern terminal editor", Cmd: "nvim", Key: "n", Category: CategoryEditor, URL: "https://neovim.io"},
+		{Name: "Helix", Description: "Modal terminal editor", Cmd: "hx", Key: "x", Category: CategoryEditor, URL: "https://helix-editor.com"},
+		{Name: "Fresh", Description: "Intuitive terminal editor", Cmd: "fresh", Key: "h", Category: CategoryEditor, URL: "https://getfresh.dev"},
 
 		// IDEs
-		{Name: "Positron", Description: "Data science IDE from Posit", Cmd: "positron", AppName: "Positron", Category: CategoryIDE, URL: "https://github.com/posit-dev/positron"},
-		{Name: "RStudio", Description: "IDE for R programming", Cmd: "rstudio", AppName: "RStudio", Category: CategoryIDE, URL: "https://posit.co/products/open-source/rstudio"},
-		{Name: "PyCharm", Description: "Python IDE from JetBrains", Cmd: "pycharm", AppName: "PyCharm", Category: CategoryIDE, URL: "https://jetbrains.com/pycharm"},
+		{Name: "Positron", Description: "Data science IDE from Posit", Cmd: "positron", AppName: "Positron", Key: "p", Category: CategoryIDE, URL: "https://github.com/posit-dev/positron"},
+		{Name: "RStudio", Description: "IDE for R programming", Cmd: "rstudio", AppName: "RStudio", Key: "r", Category: CategoryIDE, URL: "https://posit.co/products/open-source/rstudio"},
+		{Name: "PyCharm", Description: "Python IDE from JetBrains", Cmd: "pycharm", AppName: "PyCharm", Key: "y", Category: CategoryIDE, URL: "https://jetbrains.com/pycharm"},
 
 		// Tools
-		{Name: "Finder", Description: "Open folder in Finder", Cmd: "open", Category: CategoryTool, URL: ""},
-		{Name: "Terminal", Description: "macOS Terminal app", Cmd: "terminal", Category: CategoryTool, URL: ""},
-		{Name: "iTerm2", Description: "Enhanced terminal for macOS", Cmd: "iterm", AppName: "iTerm", Category: CategoryTool, URL: "https://iterm2.com"},
-		{Name: "Warp", Description: "Modern terminal with AI", Cmd: "warp", AppName: "Warp", Category: CategoryTool, URL: "https://warp.dev"},
+		{Name: "Finder", Description: "Open folder in Finder", Cmd: "open", Key: "f", Category: CategoryTool, URL: ""},
+		{Name: "Terminal", Description: "macOS Terminal app", Cmd: "terminal", Key: "t", Category: CategoryTool, URL: ""},
+		{Name: "iTerm2", Description: "Enhanced terminal for macOS", Cmd: "iterm", AppName: "iTerm", Key: "i", Category: CategoryTool, URL: "https://iterm2.com"},
+		{Name: "Warp", Description: "Modern terminal with AI", Cmd: "warp", AppName: "Warp", Key: "w", Category: CategoryTool, URL: "https://warp.dev"},
 	}
 
 	// Check installation status
@@ -291,6 +330,44 @@ func (m *EditorsModel) launchApp(app AppInfo) {
 			m.message = "Launched " + app.Name
 		}
 	}
+}
+
+// OpenProjectWith launches an app to open a project directory.
+// Returns an error message or empty string on success.
+func OpenProjectWith(app AppInfo, projectPath string) string {
+	var cmd *exec.Cmd
+
+	switch app.Cmd {
+	case "terminal":
+		if runtime.GOOS == "darwin" {
+			script := `tell application "Terminal" to do script "cd '` + projectPath + `'"`
+			cmd = exec.Command("osascript", "-e", script)
+		} else {
+			cmd = exec.Command("x-terminal-emulator", "--working-directory", projectPath)
+		}
+	case "open":
+		// Finder
+		if runtime.GOOS == "darwin" {
+			cmd = exec.Command("open", projectPath)
+		} else if runtime.GOOS == "linux" {
+			cmd = exec.Command("xdg-open", projectPath)
+		} else {
+			cmd = exec.Command("explorer", projectPath)
+		}
+	default:
+		if runtime.GOOS == "darwin" && app.AppName != "" {
+			cmd = exec.Command("open", "-a", app.AppName, projectPath)
+		} else {
+			cmd = exec.Command(app.Cmd, projectPath)
+		}
+	}
+
+	if cmd != nil {
+		if err := cmd.Start(); err != nil {
+			return "Failed to launch " + app.Name
+		}
+	}
+	return ""
 }
 
 func openURL(url string) bool {

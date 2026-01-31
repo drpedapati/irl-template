@@ -41,7 +41,7 @@ type TemplatesModel struct {
 
 	// Edit mode state
 	editing bool
-	editors []Editor
+	editors []AppInfo // Uses unified AppInfo from editors.go
 
 	// Delete confirmation state
 	deleting        bool
@@ -386,7 +386,7 @@ func (m *TemplatesModel) startCopyMode() {
 
 func (m *TemplatesModel) startEditMode() {
 	m.editing = true
-	m.editors = detectEditors()
+	m.editors = GetInstalledEditors() // Uses unified source
 }
 
 func (m TemplatesModel) updateCopying(msg tea.KeyMsg) (TemplatesModel, tea.Cmd) {
@@ -515,7 +515,7 @@ func (m *TemplatesModel) deleteCustomTemplate() error {
 	return os.RemoveAll(templateDir)
 }
 
-func (m *TemplatesModel) openInEditor(e Editor) {
+func (m *TemplatesModel) openInEditor(e AppInfo) {
 	if m.cursor >= len(m.filtered) {
 		return
 	}
@@ -530,43 +530,9 @@ func (m *TemplatesModel) openInEditor(e Editor) {
 		return
 	}
 
-	filePath := filepath.Join(baseDir, "_templates", t.Name, "main-plan.md")
-
-	var cmd *exec.Cmd
-	switch e.Cmd {
-	case "terminal":
-		dir := filepath.Dir(filePath)
-		if runtime.GOOS == "darwin" {
-			script := `tell application "Terminal" to do script "cd '` + dir + `'"`
-			cmd = exec.Command("osascript", "-e", script)
-		} else {
-			cmd = exec.Command("x-terminal-emulator", "--working-directory", dir)
-		}
-	case "positron":
-		if runtime.GOOS == "darwin" {
-			cmd = exec.Command("open", "-a", "Positron", filePath)
-		} else {
-			cmd = exec.Command("positron", filePath)
-		}
-	case "cursor":
-		if runtime.GOOS == "darwin" {
-			cmd = exec.Command("open", "-a", "Cursor", filePath)
-		} else {
-			cmd = exec.Command("cursor", filePath)
-		}
-	case "rstudio":
-		if runtime.GOOS == "darwin" {
-			cmd = exec.Command("open", "-a", "RStudio", filePath)
-		} else {
-			cmd = exec.Command("rstudio", filePath)
-		}
-	default:
-		cmd = exec.Command(e.Cmd, filePath)
-	}
-
-	if cmd != nil {
-		cmd.Start()
-	}
+	// Open the template directory (not just the file)
+	templateDir := filepath.Join(baseDir, "_templates", t.Name)
+	OpenProjectWith(e, templateDir)
 }
 
 func (m TemplatesModel) updatePreview(msg tea.KeyMsg) (TemplatesModel, tea.Cmd) {
