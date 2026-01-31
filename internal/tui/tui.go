@@ -52,6 +52,7 @@ type Model struct {
 	initView        views.InitModel
 	configView      views.ConfigModel
 	editorsView     views.EditorsModel
+	helpView        views.HelpModel
 
 	// Loading state
 	loading bool
@@ -70,8 +71,11 @@ type Model struct {
 	inlineUpdateCount    int
 
 	// Cached values (avoid expensive calls in View())
-	cachedDiskInfo       string
-	cachedDefaultDir     string
+	cachedDiskInfo   string
+	cachedDefaultDir string
+
+	// Twinkle animation for "What is IRL?" hint
+	twinkleFrame int
 }
 
 // New creates a new TUI model
@@ -93,6 +97,7 @@ func New(version string) Model {
 		doctorView:         views.NewDoctorModel(),
 		initView:           views.NewInitModel(),
 		configView:         views.NewConfigModel(),
+		helpView:           views.NewHelpModel(),
 		spinner:            s,
 		checkingForUpdates: true, // Will check on init
 	}
@@ -108,6 +113,7 @@ func New(version string) Model {
 	m.doctorView.SetSize(appWidth, appHeight-7)
 	m.initView.SetSize(appWidth, appHeight-7)
 	m.configView.SetSize(appWidth, appHeight-7)
+	m.helpView.SetSize(appWidth, appHeight-7)
 
 	return m
 }
@@ -116,7 +122,7 @@ func New(version string) Model {
 func (m Model) Init() tea.Cmd {
 	// Check for new templates asynchronously on startup
 	m.checkingForUpdates = true
-	return tea.Batch(m.spinner.Tick, checkForNewTemplates(), loadSystemInfo())
+	return tea.Batch(m.spinner.Tick, checkForNewTemplates(), loadSystemInfo(), m.animateTwinkle())
 }
 
 // loadSystemInfo loads system info in the background
@@ -141,6 +147,9 @@ type InlineUpdateTickMsg struct{}
 // clearInlineUpdateMsg hides the progress bar after completion
 type clearInlineUpdateMsg struct{}
 
+// TwinkleTickMsg for the "What is IRL?" animation
+type TwinkleTickMsg struct{}
+
 // InlineUpdateCompleteMsg when update finishes
 type InlineUpdateCompleteMsg struct {
 	Count int
@@ -150,6 +159,12 @@ type InlineUpdateCompleteMsg struct {
 func (m Model) animateInlineUpdate() tea.Cmd {
 	return tea.Tick(time.Millisecond*80, func(t time.Time) tea.Msg {
 		return InlineUpdateTickMsg{}
+	})
+}
+
+func (m Model) animateTwinkle() tea.Cmd {
+	return tea.Tick(time.Millisecond*400, func(t time.Time) tea.Msg {
+		return TwinkleTickMsg{}
 	})
 }
 
@@ -205,6 +220,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m.updateFolder(msg)
 		case ViewPersonalize:
 			return m.updatePersonalize(msg)
+		case ViewHelp:
+			return m.updateHelp(msg)
 		}
 
 	case spinner.TickMsg:
@@ -239,6 +256,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, m.animateInlineUpdate()
 		}
+
+	case TwinkleTickMsg:
+		// Advance twinkle animation frame (only when on menu)
+		if m.view == ViewMenu {
+			m.twinkleFrame = (m.twinkleFrame + 1) % 12
+		}
+		return m, m.animateTwinkle()
 
 	case InlineUpdateCompleteMsg:
 		m.inlineUpdateDone = true
@@ -294,6 +318,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.view = ViewMenu
 		m.statusBar.SetKeys(m.getMenuKeys())
 
+	case views.HelpLoadedMsg:
+		m.helpView, _ = m.helpView.Update(msg)
+
 	}
 
 	return m, tea.Batch(cmds...)
@@ -304,7 +331,22 @@ func (m Model) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "q":
 		m.quitting = true
 		return m, tea.Quit
+	case "?":
+		// Direct access to help - reset to first slide
+		m.helpView = views.NewHelpModel()
+		m.helpView.SetSize(appWidth, appHeight-7)
+		m.view = ViewHelp
+		m.statusBar.SetKeys(ViewKeys())
+		return m, m.helpView.LoadHelp()
 	case "up":
+		// If at top of menu, switch to help view
+		if m.menu.Cursor() == 0 {
+			m.helpView = views.NewHelpModel()
+			m.helpView.SetSize(appWidth, appHeight-7)
+			m.view = ViewHelp
+			m.statusBar.SetKeys(ViewKeys())
+			return m, m.helpView.LoadHelp()
+		}
 		m.menu.Up()
 	case "down":
 		m.menu.Down()
@@ -660,6 +702,40 @@ func (m Model) updatePersonalize(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
+func (m Model) updateHelp(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "q":
+		m.quitting = true
+		return m, tea.Quit
+	case "esc":
+		// If at help menu, go back to main menu
+		if m.helpView.IsAtMenu() {
+			m.view = ViewMenu
+			m.statusBar.SetKeys(m.getMenuKeys())
+			return m, nil
+		}
+		// Otherwise let helpView handle (goes back to help menu from slides)
+		var cmd tea.Cmd
+		m.helpView, cmd = m.helpView.Update(msg)
+		return m, cmd
+	case "left", "h":
+		// If at help menu, go back to main menu
+		if m.helpView.IsAtMenu() {
+			m.view = ViewMenu
+			m.statusBar.SetKeys(m.getMenuKeys())
+			return m, nil
+		}
+		// Otherwise let helpView handle navigation
+		var cmd tea.Cmd
+		m.helpView, cmd = m.helpView.Update(msg)
+		return m, cmd
+	}
+
+	// Pass all other keys to the help view
+	var cmd tea.Cmd
+	m.helpView, cmd = m.helpView.Update(msg)
+	return m, cmd
+}
 
 // View renders the TUI
 func (m Model) View() string {
@@ -705,6 +781,8 @@ func (m Model) View() string {
 		viewTitle = "Configuration"
 	case ViewPersonalize:
 		viewTitle = "Profile"
+	case ViewHelp:
+		viewTitle = "Help"
 	}
 
 	// Show view title on left, datetime on right
@@ -717,6 +795,11 @@ func (m Model) View() string {
 	inner.WriteString("\n")
 
 	inner.WriteString(Divider(appWidth))
+
+	// Animated "What is IRL?" hint centered above menu (only on main menu)
+	if m.view == ViewMenu {
+		inner.WriteString(m.renderTwinkleHint())
+	}
 
 	// Content area
 	content := ""
@@ -755,6 +838,8 @@ func (m Model) View() string {
 		content = m.folderView.View()
 	case ViewPersonalize:
 		content = m.personalizeView.View()
+	case ViewHelp:
+		content = m.helpView.View()
 	}
 
 	// Truncate or pad content to fixed height (top-justified)
@@ -874,6 +959,59 @@ func (m Model) renderInlineProgress() string {
 	return icon + " " + bar + " " + statusStyle.Render(m.inlineUpdateStatus)
 }
 
+// renderTwinkleHint renders the animated "What is IRL?" hint
+func (m Model) renderTwinkleHint() string {
+	// Sparkle characters that cycle through
+	sparkles := []string{"✦", "✧", "⋆", "✶", "✦", "✧", "⋆", "✶", "✦", "✧", "⋆", "✶"}
+
+	// Colors that shift subtly - warm palette
+	colors := []lipgloss.Color{
+		lipgloss.Color("#E07A5F"), // coral
+		lipgloss.Color("#D4A373"), // warm tan
+		lipgloss.Color("#E9C46A"), // golden
+		lipgloss.Color("#F4A261"), // sandy
+		lipgloss.Color("#E07A5F"), // coral
+		lipgloss.Color("#C9ADA7"), // dusty rose
+		lipgloss.Color("#E07A5F"), // coral
+		lipgloss.Color("#D4A373"), // warm tan
+		lipgloss.Color("#E9C46A"), // golden
+		lipgloss.Color("#F4A261"), // sandy
+		lipgloss.Color("#E07A5F"), // coral
+		lipgloss.Color("#C9ADA7"), // dusty rose
+	}
+
+	// Get current frame sparkles and colors
+	leftIdx := m.twinkleFrame
+	rightIdx := (m.twinkleFrame + 6) % 12 // Offset for asymmetry
+
+	leftSparkle := sparkles[leftIdx]
+	rightSparkle := sparkles[rightIdx]
+	leftColor := colors[leftIdx]
+	rightColor := colors[rightIdx]
+
+	// Styles
+	leftStyle := lipgloss.NewStyle().Foreground(leftColor)
+	rightStyle := lipgloss.NewStyle().Foreground(rightColor)
+	keyStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
+	textStyle := lipgloss.NewStyle().Foreground(theme.Primary).Bold(true)
+
+	// Build the hint: ✦ [?] What is IRL? ✧
+	hint := leftStyle.Render(leftSparkle) + "  " +
+		keyStyle.Render("[?]") + " " +
+		textStyle.Render("What is IRL?") + "  " +
+		rightStyle.Render(rightSparkle)
+
+	// Center it with even spacing above and below
+	hintWidth := lipgloss.Width(hint)
+	padding := (appWidth - hintWidth) / 2
+	if padding < 0 {
+		padding = 0
+	}
+
+	// One blank line above, hint, then menu adds its own spacing below
+	return "\n\n" + strings.Repeat(" ", padding) + hint
+}
+
 // getContextHint returns the appropriate hint for current view state
 func (m Model) getContextHint() string {
 	keyStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
@@ -913,6 +1051,9 @@ func (m Model) getContextHint() string {
 		return keyStyle.Render("←") + mutedStyle.Render(" up a level  ") + keyStyle.Render("↑↓") + mutedStyle.Render(" navigate  ") + keyStyle.Render("Enter") + mutedStyle.Render(" select")
 	case ViewPersonalize:
 		return keyStyle.Render("Tab") + mutedStyle.Render(" next item  ") + keyStyle.Render("Enter") + mutedStyle.Render(" save/select  ") + keyStyle.Render("y/n") + mutedStyle.Render(" confirm")
+	case ViewHelp:
+		// Help view has its own footer with navigation hints
+		return ""
 	}
 	return ""
 }
