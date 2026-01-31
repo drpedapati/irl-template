@@ -48,10 +48,18 @@ cmd/           # Cobra commands
 pkg/naming/    # YYMMDD-slug generation
 pkg/scaffold/  # Project structure creation
 pkg/templates/ # GitHub template fetching + caching
+internal/tui/  # Bubble Tea TUI (launched with bare `irl` command)
 ```
 
-Build: `go build -o irl .`
-Test: `./irl init "test project" && rm -rf 260129-test-project`
+**Build commands (always use make):**
+```bash
+make build          # Build ./irl binary
+make test           # Build and run quick tests
+make clean          # Remove all build artifacts
+```
+
+**Never use `go build .`** - it creates `irl-template` (from module name) instead of `irl`.
+A pre-commit hook prevents accidentally committing binaries.
 
 ## IRL Workflow Pattern
 

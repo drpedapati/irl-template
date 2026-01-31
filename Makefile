@@ -230,7 +230,7 @@ test: build
 # Clean build artifacts
 .PHONY: clean
 clean:
-	@rm -f irl irl-darwin-* irl-linux-*
+	@rm -f irl irl-template irl-darwin-* irl-linux-*
 	@echo "${GREEN}✓${RESET} Cleaned"
 
 # Build all platform binaries with version
