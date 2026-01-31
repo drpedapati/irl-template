@@ -17,8 +17,9 @@ type Profile struct {
 }
 
 type Config struct {
-	DefaultDirectory string  `json:"default_directory"`
-	Profile          Profile `json:"profile"`
+	DefaultDirectory  string   `json:"default_directory"`
+	Profile           Profile  `json:"profile"`
+	FavoriteEditors   []string `json:"favorite_editors,omitempty"`   // Editor cmd names (e.g., "cursor", "code")
 }
 
 var configPath string
@@ -108,4 +109,57 @@ func ClearDefaultDirectory() error {
 func HasProfile() bool {
 	p := GetProfile()
 	return p.Name != "" || p.Institution != "" || p.Title != ""
+}
+
+// GetFavoriteEditors returns the list of favorite editor command names
+func GetFavoriteEditors() []string {
+	cfg, err := Load()
+	if err != nil {
+		return nil
+	}
+	return cfg.FavoriteEditors
+}
+
+// SetFavoriteEditors saves the list of favorite editor command names
+func SetFavoriteEditors(editors []string) error {
+	cfg, err := Load()
+	if err != nil {
+		cfg = &Config{}
+	}
+	cfg.FavoriteEditors = editors
+	return cfg.Save()
+}
+
+// ToggleFavoriteEditor adds or removes an editor from favorites
+func ToggleFavoriteEditor(cmd string) error {
+	favorites := GetFavoriteEditors()
+
+	// Check if already a favorite
+	for i, f := range favorites {
+		if f == cmd {
+			// Remove it
+			favorites = append(favorites[:i], favorites[i+1:]...)
+			return SetFavoriteEditors(favorites)
+		}
+	}
+
+	// Add it
+	favorites = append(favorites, cmd)
+	return SetFavoriteEditors(favorites)
+}
+
+// IsFavoriteEditor returns true if the editor is a favorite
+func IsFavoriteEditor(cmd string) bool {
+	favorites := GetFavoriteEditors()
+	for _, f := range favorites {
+		if f == cmd {
+			return true
+		}
+	}
+	return false
+}
+
+// ClearFavoriteEditors removes all favorite editors
+func ClearFavoriteEditors() error {
+	return SetFavoriteEditors(nil)
 }

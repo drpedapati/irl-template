@@ -9,6 +9,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/drpedapati/irl-template/pkg/config"
 	"github.com/drpedapati/irl-template/pkg/theme"
 )
 
@@ -43,17 +44,26 @@ type AppInfo struct {
 	Key         string      // Hotkey for quick access (used in project actions)
 	Category    AppCategory
 	Installed   bool
+	Favorite    bool   // User has marked this as a favorite
 	URL         string // Website for installation
 }
 
 // GetInstalledEditors returns installed editors/IDEs for project actions.
+// If favorites are set, only returns favorites. Otherwise returns all installed.
 // This is the single source of truth for editor lists across the app.
 func GetInstalledEditors() []AppInfo {
 	apps := getAllApps()
+	favorites := config.GetFavoriteEditors()
+	hasFavorites := len(favorites) > 0
+
 	var installed []AppInfo
 	for _, app := range apps {
 		// Only include editors and IDEs that are installed and have hotkeys
 		if app.Installed && app.Key != "" && (app.Category == CategoryEditor || app.Category == CategoryIDE) {
+			// If favorites are set, only include favorites
+			if hasFavorites && !app.Favorite {
+				continue
+			}
 			installed = append(installed, app)
 		}
 	}
@@ -61,11 +71,19 @@ func GetInstalledEditors() []AppInfo {
 }
 
 // GetInstalledTools returns installed tools for project actions (Finder, Terminal, etc.)
+// If favorites are set, only returns favorite tools. Otherwise returns all installed.
 func GetInstalledTools() []AppInfo {
 	apps := getAllApps()
+	favorites := config.GetFavoriteEditors()
+	hasFavorites := len(favorites) > 0
+
 	var installed []AppInfo
 	for _, app := range apps {
 		if app.Installed && app.Key != "" && app.Category == CategoryTool {
+			// If favorites are set, only include favorites
+			if hasFavorites && !app.Favorite {
+				continue
+			}
 			installed = append(installed, app)
 		}
 	}
@@ -160,12 +178,23 @@ func getAllApps() []AppInfo {
 		{Name: "Warp", Description: "Modern terminal with AI", Cmd: "warp", AppName: "Warp", Key: "w", Category: CategoryTool, URL: "https://warp.dev"},
 	}
 
-	// Check installation status
+	// Check installation status and favorites
+	favorites := config.GetFavoriteEditors()
 	for i := range apps {
 		apps[i].Installed = isAppInstalled(apps[i])
+		apps[i].Favorite = isFavorite(apps[i].Cmd, favorites)
 	}
 
 	return apps
+}
+
+func isFavorite(cmd string, favorites []string) bool {
+	for _, f := range favorites {
+		if f == cmd {
+			return true
+		}
+	}
+	return false
 }
 
 func isAppInstalled(app AppInfo) bool {
@@ -293,6 +322,25 @@ func (m EditorsModel) Update(msg tea.Msg) (EditorsModel, tea.Cmd) {
 					}
 				} else {
 					m.message = "No website available"
+				}
+			}
+			return m, nil
+		case " ":
+			// Toggle favorite for installed apps
+			if m.cursor < len(filtered) {
+				app := filtered[m.cursor]
+				if app.Installed {
+					if err := config.ToggleFavoriteEditor(app.Cmd); err != nil {
+						m.message = "Failed to save preference"
+					} else {
+						// Refresh app list to update Favorite status
+						m.apps = getAllApps()
+						if app.Favorite {
+							m.message = "Removed " + app.Name + " from favorites"
+						} else {
+							m.message = "Added " + app.Name + " to favorites"
+						}
+					}
 				}
 			}
 			return m, nil
@@ -451,15 +499,23 @@ func (m EditorsModel) View() string {
 	}
 	b.WriteString("\n\n")
 
-	// Count installed
+	// Count installed and favorites
 	filtered := m.filteredApps()
 	installedCount := 0
+	favoriteCount := 0
 	for _, app := range filtered {
 		if app.Installed {
 			installedCount++
 		}
+		if app.Favorite {
+			favoriteCount++
+		}
 	}
-	b.WriteString("  " + headerStyle.Render(itoa(installedCount)+" of "+itoa(len(filtered))+" installed"))
+	stats := itoa(installedCount) + " of " + itoa(len(filtered)) + " installed"
+	if favoriteCount > 0 {
+		stats += ", " + itoa(favoriteCount) + " favorites"
+	}
+	b.WriteString("  " + headerStyle.Render(stats))
 	b.WriteString("\n\n")
 
 	// App list
@@ -473,6 +529,8 @@ func (m EditorsModel) View() string {
 			endIdx = len(filtered)
 		}
 
+		favoriteStyle := lipgloss.NewStyle().Foreground(theme.Warning)
+
 		for i := m.scroll; i < endIdx; i++ {
 			app := filtered[i]
 
@@ -484,10 +542,14 @@ func (m EditorsModel) View() string {
 				style = selectedStyle
 			}
 
-			// Status indicator
+			// Status indicator (installed + favorite)
 			var status string
 			if app.Installed {
-				status = installedStyle.Render("●")
+				if app.Favorite {
+					status = favoriteStyle.Render("★")
+				} else {
+					status = installedStyle.Render("●")
+				}
 			} else {
 				status = notInstalledStyle.Render("○")
 			}
@@ -524,7 +586,12 @@ func (m EditorsModel) View() string {
 	if m.cursor < len(filtered) {
 		app := filtered[m.cursor]
 		if app.Installed {
-			hints = append(hints, keyStyle.Render("Enter")+" test launch")
+			hints = append(hints, keyStyle.Render("Enter")+" test")
+			if app.Favorite {
+				hints = append(hints, keyStyle.Render("Space")+" unfavorite")
+			} else {
+				hints = append(hints, keyStyle.Render("Space")+" favorite")
+			}
 		} else if app.URL != "" {
 			hints = append(hints, keyStyle.Render("Enter")+" get it")
 		}
@@ -534,6 +601,12 @@ func (m EditorsModel) View() string {
 	}
 
 	b.WriteString("  " + descStyle.Render(strings.Join(hints, "  ")))
+
+	// Explanation of favorites
+	if favoriteCount > 0 {
+		b.WriteString("\n")
+		b.WriteString("  " + descStyle.Render("★ = favorite (only favorites shown in project actions)"))
+	}
 
 	return b.String()
 }
