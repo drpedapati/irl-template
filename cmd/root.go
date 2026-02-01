@@ -35,6 +35,15 @@ func Execute() {
 func init() {
 	rootCmd.AddCommand(versionCmd)
 
+	// Add --version flag
+	rootCmd.Flags().BoolP("version", "v", false, "Print version")
+	rootCmd.PreRun = func(cmd *cobra.Command, args []string) {
+		if v, _ := cmd.Flags().GetBool("version"); v {
+			fmt.Printf("irl version %s\n", Version)
+			os.Exit(0)
+		}
+	}
+
 	// Hide plumbing commands
 	rootCmd.CompletionOptions.HiddenDefaultCmd = true
 
