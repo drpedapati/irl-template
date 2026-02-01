@@ -416,10 +416,10 @@ func (m HelpModel) renderSlides() string {
 		content,
 	)
 
-	// Footer with navigation
+	// Footer with navigation (add newline after centeredContent since lipgloss.Place doesn't include trailing newline)
 	footer := m.renderSlideFooterFixed()
 
-	return header + centeredContent + footer
+	return header + centeredContent + "\n" + footer
 }
 
 func (m HelpModel) renderSlideHeader() string {
