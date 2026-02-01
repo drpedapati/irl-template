@@ -2,6 +2,7 @@
 
 ## Setup
 Create on first run:
+- plans/
 - tasks/
 - reports/
 - logs/

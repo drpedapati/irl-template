@@ -2,6 +2,7 @@
 
 ## Setup
 Create on first run:
+- plans/
 - data/raw/           # Original, immutable data files
 - data/processed/     # Cleaned, transformed data
 - data/interim/       # Intermediate transformations
