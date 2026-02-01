@@ -3,6 +3,7 @@
 ## Setup
 Create on first run:
 - plans/
+- plans/_quarto.yml   # Configure: render: ["*.qmd"] to exclude .md files
 - data/raw/           # Original, immutable data files
 - data/processed/     # Cleaned, transformed data
 - data/interim/       # Intermediate transformations

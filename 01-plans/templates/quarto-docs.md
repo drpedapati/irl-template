@@ -3,8 +3,16 @@
 ## Setup
 Create on first run:
 - plans/
-- plans/_quarto.yml (website config)
+- plans/_quarto.yml (website config, see below)
 - plans/index.qmd (landing page)
+
+### _quarto.yml Configuration
+```yaml
+project:
+  type: website
+  render:
+    - "*.qmd"    # Excludes .md files (reasoning docs) from render
+```
 - plans/design/ (RFC-style design docs)
 - plans/archive/ (retired instruction sets)
 - data/raw/

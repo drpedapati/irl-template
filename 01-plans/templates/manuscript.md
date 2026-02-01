@@ -3,6 +3,7 @@
 ## Setup
 Create on first run:
 - plans/
+- plans/_quarto.yml   # Configure: render: ["*.qmd"] to exclude .md files
 - manuscript/
 - figures/
 - tables/
