@@ -56,8 +56,8 @@ var helpMenuItems = []helpMenuItem{
 	},
 	{
 		title:       "What you need",
-		description: "Prerequisites and setup",
-		duration:    "3 slides · 1 min",
+		description: "Getting started (beginner-friendly)",
+		duration:    "7 slides · 3 min",
 		section:     HelpSectionWhatYouNeed,
 	},
 	{
@@ -72,7 +72,7 @@ const whatIsIRLSlides = 5
 const howIRLHelpsSlides = 11
 const whoIsIRLForSlides = 6
 const whatCanYouBuildSlides = 8
-const whatYouNeedSlides = 3
+const whatYouNeedSlides = 7
 const seeItInActionSlides = 6
 
 // HelpLoadedMsg is sent when help content is loaded (kept for compatibility)
@@ -1989,8 +1989,16 @@ func (m HelpModel) renderWhatYouNeedSlide() string {
 	case 0:
 		return m.renderWhatYouNeedTitleSlide()
 	case 1:
-		return m.renderRequirementsSlide()
+		return m.renderWhatIsGitSlide()
 	case 2:
+		return m.renderGettingGitSlide()
+	case 3:
+		return m.renderYourEditorSlide()
+	case 4:
+		return m.renderAIAssistantSlide()
+	case 5:
+		return m.renderCheckSetupSlide()
+	case 6:
 		return m.renderReadyToStartSlide()
 	}
 	return ""
@@ -2008,8 +2016,8 @@ func (m HelpModel) renderWhatYouNeedTitleSlide() string {
 		Foreground(theme.Muted)
 
 	title := titleStyle.Render("What you need")
-	subtitle := subtitleStyle.Render("Simple requirements")
-	hint := mutedStyle.Render("Most things are already on your Mac")
+	subtitle := subtitleStyle.Render("Don't worry—it's simpler than it sounds")
+	hint := mutedStyle.Render("We'll walk through each piece")
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
@@ -2022,16 +2030,57 @@ func (m HelpModel) renderWhatYouNeedTitleSlide() string {
 	)
 }
 
-func (m HelpModel) renderRequirementsSlide() string {
+func (m HelpModel) renderWhatIsGitSlide() string {
 	titleStyle := lipgloss.NewStyle().
 		Foreground(theme.Primary).
 		Bold(true)
 
-	// Thick border for requirements
 	boxStyle := lipgloss.NewStyle().
-		Border(lipgloss.ThickBorder()).
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(theme.Accent).
+		Padding(1, 2)
+
+	accentStyle := lipgloss.NewStyle().
+		Foreground(theme.Accent).
+		Bold(true)
+
+	mutedStyle := lipgloss.NewStyle().
+		Foreground(theme.Muted)
+
+	title := titleStyle.Render("What is Git?")
+
+	content := lipgloss.JoinVertical(
+		lipgloss.Left,
+		accentStyle.Render("Think of it like \"Track Changes\" in Word"),
+		mutedStyle.Render("but for your entire project folder."),
+		"",
+		mutedStyle.Render("Git remembers every version of your work."),
+		mutedStyle.Render("You can always go back to see what changed."),
+		"",
+		accentStyle.Render("Why IRL uses it:"),
+		mutedStyle.Render("It creates your \"audit trail\"—proof of"),
+		mutedStyle.Render("what the AI did and when."),
+	)
+
+	box := boxStyle.Render(content)
+
+	return lipgloss.JoinVertical(
+		lipgloss.Center,
+		title,
+		"",
+		box,
+	)
+}
+
+func (m HelpModel) renderGettingGitSlide() string {
+	titleStyle := lipgloss.NewStyle().
+		Foreground(theme.Primary).
+		Bold(true)
+
+	boxStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
 		BorderForeground(theme.Success).
-		Padding(1, 3)
+		Padding(1, 2)
 
 	successStyle := lipgloss.NewStyle().
 		Foreground(theme.Success).
@@ -2043,23 +2092,154 @@ func (m HelpModel) renderRequirementsSlide() string {
 	mutedStyle := lipgloss.NewStyle().
 		Foreground(theme.Muted)
 
-	title := titleStyle.Render("Requirements")
+	title := titleStyle.Render("Getting Git")
 
-	check := successStyle.Render("[✓]")
-
-	reqs := lipgloss.JoinVertical(
+	content := lipgloss.JoinVertical(
 		lipgloss.Left,
-		check+" "+accentStyle.Render("Git"),
-		mutedStyle.Render("    For version control"),
+		successStyle.Render("Good news: You probably have it already!"),
 		"",
-		check+" "+accentStyle.Render("Text editor"),
-		mutedStyle.Render("    VS Code, Cursor, or any editor"),
+		mutedStyle.Render("On Mac, Git comes with the developer tools."),
+		mutedStyle.Render("If you've ever used Terminal, it's likely there."),
 		"",
-		check+" "+accentStyle.Render("AI assistant"),
-		mutedStyle.Render("    Claude Code, Cursor, or similar"),
+		accentStyle.Render("To check:"),
+		mutedStyle.Render("  Run \"irl doctor\" from the main menu"),
+		mutedStyle.Render("  It will tell you if Git is installed"),
+		"",
+		mutedStyle.Render("If not installed, your Mac will offer to add it."),
 	)
 
-	box := boxStyle.Render(reqs)
+	box := boxStyle.Render(content)
+
+	return lipgloss.JoinVertical(
+		lipgloss.Center,
+		title,
+		"",
+		box,
+	)
+}
+
+func (m HelpModel) renderYourEditorSlide() string {
+	titleStyle := lipgloss.NewStyle().
+		Foreground(theme.Primary).
+		Bold(true)
+
+	boxStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(theme.Accent).
+		Padding(1, 2)
+
+	accentStyle := lipgloss.NewStyle().
+		Foreground(theme.Accent).
+		Bold(true)
+
+	mutedStyle := lipgloss.NewStyle().
+		Foreground(theme.Muted)
+
+	title := titleStyle.Render("Your Editor")
+
+	content := lipgloss.JoinVertical(
+		lipgloss.Left,
+		mutedStyle.Render("This is where you'll write your plan."),
+		mutedStyle.Render("Any text editor works. Popular choices:"),
+		"",
+		accentStyle.Render("VS Code")+" "+mutedStyle.Render("- Free, widely used"),
+		accentStyle.Render("Cursor")+" "+mutedStyle.Render(" - VS Code + built-in AI"),
+		accentStyle.Render("TextEdit")+" "+mutedStyle.Render("- Already on your Mac"),
+		"",
+		mutedStyle.Render("Your plan is just a text file (.md)."),
+		mutedStyle.Render("No special software required."),
+	)
+
+	box := boxStyle.Render(content)
+
+	return lipgloss.JoinVertical(
+		lipgloss.Center,
+		title,
+		"",
+		box,
+	)
+}
+
+func (m HelpModel) renderAIAssistantSlide() string {
+	titleStyle := lipgloss.NewStyle().
+		Foreground(theme.Primary).
+		Bold(true)
+
+	boxStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(theme.Accent).
+		Padding(1, 2)
+
+	successStyle := lipgloss.NewStyle().
+		Foreground(theme.Success).
+		Bold(true)
+
+	accentStyle := lipgloss.NewStyle().
+		Foreground(theme.Accent).
+		Bold(true)
+
+	mutedStyle := lipgloss.NewStyle().
+		Foreground(theme.Muted)
+
+	title := titleStyle.Render("AI Assistant")
+
+	content := lipgloss.JoinVertical(
+		lipgloss.Left,
+		successStyle.Render("You're using one right now!"),
+		mutedStyle.Render("This app (IRL) runs inside Claude Code."),
+		"",
+		mutedStyle.Render("The AI reads your plan and does the work."),
+		mutedStyle.Render("You review what it creates."),
+		"",
+		accentStyle.Render("Options:"),
+		mutedStyle.Render("  Claude Code - What you're using now"),
+		mutedStyle.Render("  Cursor - Editor with AI built in"),
+		mutedStyle.Render("  Other AI coding assistants"),
+	)
+
+	box := boxStyle.Render(content)
+
+	return lipgloss.JoinVertical(
+		lipgloss.Center,
+		title,
+		"",
+		box,
+	)
+}
+
+func (m HelpModel) renderCheckSetupSlide() string {
+	titleStyle := lipgloss.NewStyle().
+		Foreground(theme.Primary).
+		Bold(true)
+
+	boxStyle := lipgloss.NewStyle().
+		Border(lipgloss.DoubleBorder()).
+		BorderForeground(theme.Success).
+		Padding(1, 2)
+
+	accentStyle := lipgloss.NewStyle().
+		Foreground(theme.Accent).
+		Bold(true)
+
+	mutedStyle := lipgloss.NewStyle().
+		Foreground(theme.Muted)
+
+	title := titleStyle.Render("Check Your Setup")
+
+	content := lipgloss.JoinVertical(
+		lipgloss.Left,
+		mutedStyle.Render("Not sure if you have everything?"),
+		"",
+		accentStyle.Render("Press ")+accentStyle.Render("d")+accentStyle.Render(" for Doctor"),
+		mutedStyle.Render("from the main menu"),
+		"",
+		mutedStyle.Render("It checks your computer and shows:"),
+		mutedStyle.Render("  ✓ What's installed"),
+		mutedStyle.Render("  ✗ What's missing"),
+		mutedStyle.Render("  → How to fix any issues"),
+	)
+
+	box := boxStyle.Render(content)
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
