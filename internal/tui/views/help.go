@@ -377,8 +377,8 @@ func (m HelpModel) renderMenuFooter() string {
 // ============================================================================
 
 func (m HelpModel) renderSlides() string {
+	// Get slide content
 	var content string
-
 	switch m.section {
 	case HelpSectionWhatIsIRL:
 		content = m.renderWhatIsIRLSlide()
@@ -394,53 +394,104 @@ func (m HelpModel) renderSlides() string {
 		content = m.renderSeeItInActionSlide()
 	}
 
-	// Header with lesson title and slide counter
-	header := m.renderSlideHeader()
+	// Build output with EXACT line count for fixed positioning
+	// Layout: [header] [content area with vertical centering] [footer]
+	// Footer is always at line (m.height - 1), ensuring fixed position
 
-	// Fixed heights
-	const headerHeight = 2
-	const footerHeight = 2
+	lines := make([]string, m.height)
 
-	// Content area fills everything except header and footer
-	contentHeight := m.height - headerHeight - footerHeight
-	if contentHeight < 8 {
-		contentHeight = 8
+	// Line 0: Header (lesson title + slide counter)
+	lines[0] = m.renderSlideHeaderLine()
+
+	// Last line: Footer (progress dots + nav hints, centered)
+	lines[m.height-1] = m.renderSlideFooterLine()
+
+	// Middle area: Content (vertically centered)
+	contentLines := strings.Split(content, "\n")
+	contentAreaStart := 1
+	contentAreaEnd := m.height - 2 // Leave 1 line for footer
+	contentAreaHeight := contentAreaEnd - contentAreaStart + 1
+
+	// Calculate vertical centering
+	topPadding := (contentAreaHeight - len(contentLines)) / 2
+	if topPadding < 0 {
+		topPadding = 0
 	}
 
-	// Center content in its dedicated area
-	centeredContent := lipgloss.Place(
-		m.width,
-		contentHeight,
-		lipgloss.Center,
-		lipgloss.Center,
-		content,
-	)
+	// Fill content area
+	for i := contentAreaStart; i <= contentAreaEnd; i++ {
+		contentIdx := i - contentAreaStart - topPadding
+		if contentIdx >= 0 && contentIdx < len(contentLines) {
+			// Center this line horizontally
+			line := contentLines[contentIdx]
+			lineWidth := lipgloss.Width(line)
+			leftPad := (m.width - lineWidth) / 2
+			if leftPad < 0 {
+				leftPad = 0
+			}
+			lines[i] = strings.Repeat(" ", leftPad) + line
+		} else {
+			lines[i] = "" // Empty line for padding
+		}
+	}
 
-	// Footer with navigation (add newline after centeredContent since lipgloss.Place doesn't include trailing newline)
-	footer := m.renderSlideFooterFixed()
-
-	return header + centeredContent + "\n" + footer
+	return strings.Join(lines, "\n")
 }
 
-func (m HelpModel) renderSlideHeader() string {
-	titleStyle := lipgloss.NewStyle().
-		Foreground(theme.Muted)
-
-	counterStyle := lipgloss.NewStyle().
-		Foreground(theme.Accent)
+// renderSlideHeaderLine returns the header as a single line (no newline)
+func (m HelpModel) renderSlideHeaderLine() string {
+	titleStyle := lipgloss.NewStyle().Foreground(theme.Muted)
+	counterStyle := lipgloss.NewStyle().Foreground(theme.Accent)
 
 	title := titleStyle.Render(m.SectionTitle())
-	counter := counterStyle.Render("(" + string('0'+byte(m.currentSlide+1)) + "/" + string('0'+byte(m.TotalSlides())) + ")")
+	counter := counterStyle.Render("(" + slideItoa(m.currentSlide+1) + "/" + slideItoa(m.TotalSlides()) + ")")
 
-	// Handle slide counts > 9
-	if m.TotalSlides() > 9 || m.currentSlide+1 > 9 {
-		counter = counterStyle.Render("(" + slideItoa(m.currentSlide+1) + "/" + slideItoa(m.TotalSlides()) + ")")
+	return title + "  " + counter
+}
+
+// renderSlideFooterLine returns the footer as a single line (centered, no newline)
+func (m HelpModel) renderSlideFooterLine() string {
+	totalSlides := m.TotalSlides()
+
+	// Progress dots
+	var dots strings.Builder
+	for i := 0; i < totalSlides; i++ {
+		if i == m.currentSlide {
+			dots.WriteString(lipgloss.NewStyle().Foreground(theme.Primary).Render("●"))
+		} else {
+			dots.WriteString(lipgloss.NewStyle().Foreground(theme.Muted).Render("○"))
+		}
+		if i < totalSlides-1 {
+			dots.WriteString(" ")
+		}
 	}
 
-	header := title + "  " + counter
+	// Navigation hints
+	mutedStyle := lipgloss.NewStyle().Foreground(theme.Muted)
+	accentStyle := lipgloss.NewStyle().Foreground(theme.Accent)
 
-	// No extra padding - outer container (tui.go) provides left margin
-	return header + "\n"
+	var navHint string
+	if m.currentSlide == 0 {
+		navHint = accentStyle.Render("←") + mutedStyle.Render(" menu  ") +
+			accentStyle.Render("→") + mutedStyle.Render(" next")
+	} else if m.currentSlide == totalSlides-1 {
+		navHint = accentStyle.Render("←") + mutedStyle.Render(" back  ") +
+			accentStyle.Render("esc") + mutedStyle.Render(" menu")
+	} else {
+		navHint = accentStyle.Render("← →") + mutedStyle.Render(" navigate  ") +
+			accentStyle.Render("esc") + mutedStyle.Render(" menu")
+	}
+
+	footer := dots.String() + "    " + navHint
+
+	// Center horizontally
+	footerWidth := lipgloss.Width(footer)
+	leftPad := (m.width - footerWidth) / 2
+	if leftPad < 0 {
+		leftPad = 0
+	}
+
+	return strings.Repeat(" ", leftPad) + footer
 }
 
 // slideItoa converts small ints to string for slide counters
@@ -449,87 +500,6 @@ func slideItoa(n int) string {
 		return string('0' + byte(n))
 	}
 	return string('0'+byte(n/10)) + string('0'+byte(n%10))
-}
-
-func (m HelpModel) renderSlideFooter() string {
-	totalSlides := m.TotalSlides()
-
-	// Slide indicator dots
-	var dots string
-	for i := 0; i < totalSlides; i++ {
-		if i == m.currentSlide {
-			dots += lipgloss.NewStyle().Foreground(theme.Primary).Render("●")
-		} else {
-			dots += lipgloss.NewStyle().Foreground(theme.Muted).Render("○")
-		}
-		if i < totalSlides-1 {
-			dots += " "
-		}
-	}
-
-	// Navigation hints
-	mutedStyle := lipgloss.NewStyle().Foreground(theme.Muted)
-	accentStyle := lipgloss.NewStyle().Foreground(theme.Accent)
-
-	var navHint string
-	if m.currentSlide == 0 {
-		navHint = accentStyle.Render("←") + mutedStyle.Render(" menu  ") +
-			accentStyle.Render("→") + mutedStyle.Render(" next")
-	} else if m.currentSlide == totalSlides-1 {
-		navHint = accentStyle.Render("←") + mutedStyle.Render(" back  ") +
-			accentStyle.Render("esc") + mutedStyle.Render(" menu")
-	} else {
-		navHint = accentStyle.Render("← →") + mutedStyle.Render(" navigate  ") +
-			accentStyle.Render("esc") + mutedStyle.Render(" menu")
-	}
-
-	footer := lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		dots,
-		"    ",
-		navHint,
-	)
-
-	return lipgloss.Place(m.width, 2, lipgloss.Center, lipgloss.Bottom, footer)
-}
-
-// renderSlideFooterFixed returns footer with exactly 2 lines height
-func (m HelpModel) renderSlideFooterFixed() string {
-	totalSlides := m.TotalSlides()
-
-	// Slide indicator dots
-	var dots string
-	for i := 0; i < totalSlides; i++ {
-		if i == m.currentSlide {
-			dots += lipgloss.NewStyle().Foreground(theme.Primary).Render("●")
-		} else {
-			dots += lipgloss.NewStyle().Foreground(theme.Muted).Render("○")
-		}
-		if i < totalSlides-1 {
-			dots += " "
-		}
-	}
-
-	// Navigation hints
-	mutedStyle := lipgloss.NewStyle().Foreground(theme.Muted)
-	accentStyle := lipgloss.NewStyle().Foreground(theme.Accent)
-
-	var navHint string
-	if m.currentSlide == 0 {
-		navHint = accentStyle.Render("←") + mutedStyle.Render(" menu  ") +
-			accentStyle.Render("→") + mutedStyle.Render(" next")
-	} else if m.currentSlide == totalSlides-1 {
-		navHint = accentStyle.Render("←") + mutedStyle.Render(" back  ") +
-			accentStyle.Render("esc") + mutedStyle.Render(" menu")
-	} else {
-		navHint = accentStyle.Render("← →") + mutedStyle.Render(" navigate  ") +
-			accentStyle.Render("esc") + mutedStyle.Render(" menu")
-	}
-
-	footer := dots + "    " + navHint
-
-	// No extra padding - outer container (tui.go) provides left margin
-	return footer + "\n"
 }
 
 // ============================================================================
