@@ -5,18 +5,22 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/drpedapati/irl-template/pkg/config"
 	"github.com/drpedapati/irl-template/pkg/doctor"
 	"github.com/drpedapati/irl-template/pkg/theme"
 )
 
 // DoctorModel is the environment check view
 type DoctorModel struct {
-	systemInfo string
-	results    []ToolResult
-	width      int
-	height     int
-	loaded     bool
-	hasDocker  bool
+	systemInfo          string
+	results             []ToolResult
+	planEditorsTerminal []ToolResult
+	planEditorsGUI      []ToolResult
+	currentPlanEditor   string
+	width               int
+	height              int
+	loaded              bool
+	hasDocker           bool
 }
 
 // NewDoctorModel creates a new doctor view
@@ -35,10 +39,14 @@ func (m *DoctorModel) RunChecks() tea.Cmd {
 	return func() tea.Msg {
 		sysInfo := doctor.GetSystemInfo()
 		results := doctor.CheckAllTools()
+		terminal, gui := doctor.CheckPlanEditors()
 		return DoctorResultMsg{
-			SystemInfo: sysInfo.String(),
-			Results:    convertResults(results),
-			HasDocker:  doctor.HasDocker(),
+			SystemInfo:          sysInfo.String(),
+			Results:             convertResults(results),
+			PlanEditorsTerminal: convertResults(terminal),
+			PlanEditorsGUI:      convertResults(gui),
+			CurrentPlanEditor:   config.GetPlanEditor(),
+			HasDocker:           doctor.HasDocker(),
 		}
 	}
 }
@@ -62,6 +70,9 @@ func (m DoctorModel) Update(msg tea.Msg) (DoctorModel, tea.Cmd) {
 		m.loaded = true
 		m.systemInfo = msg.SystemInfo
 		m.results = msg.Results
+		m.planEditorsTerminal = msg.PlanEditorsTerminal
+		m.planEditorsGUI = msg.PlanEditorsGUI
+		m.currentPlanEditor = msg.CurrentPlanEditor
 		m.hasDocker = msg.HasDocker
 	}
 	return m, nil
@@ -98,6 +109,11 @@ func (m DoctorModel) View() string {
 	b.WriteString(m.renderColumnHeaders("IDEs", "Sandbox", colWidth))
 	b.WriteString(m.renderTwoColumns(grouped["IDEs"], grouped["Sandbox"], colWidth))
 
+	// Row 3: Plan Editors (Terminal) | Plan Editors (GUI)
+	b.WriteString("\n")
+	b.WriteString(m.renderColumnHeaders("Plan Editors", "", colWidth))
+	b.WriteString(m.renderPlanEditors())
+
 	// Docker hint
 	if m.hasDocker {
 		b.WriteString("\n")
@@ -108,6 +124,57 @@ func (m DoctorModel) View() string {
 	}
 
 	return b.String()
+}
+
+// renderPlanEditors renders plan editors in a compact inline format
+func (m DoctorModel) renderPlanEditors() string {
+	var b strings.Builder
+
+	// Terminal editors on one line
+	var terminalParts []string
+	for _, r := range m.planEditorsTerminal {
+		terminalParts = append(terminalParts, formatPlanEditor(r, m.currentPlanEditor))
+	}
+	b.WriteString("  " + strings.Join(terminalParts, "  "))
+
+	// GUI editors on same line if space permits
+	var guiParts []string
+	for _, r := range m.planEditorsGUI {
+		guiParts = append(guiParts, formatPlanEditor(r, m.currentPlanEditor))
+	}
+	b.WriteString("   " + strings.Join(guiParts, "  "))
+	b.WriteString("\n")
+
+	return b.String()
+}
+
+func formatPlanEditor(r ToolResult, currentEditor string) string {
+	check := lipgloss.NewStyle().Foreground(theme.Success).Render("✓")
+	cross := lipgloss.NewStyle().Foreground(theme.Muted).Render("✗")
+	starStyle := lipgloss.NewStyle().Foreground(theme.Warning)
+
+	// Show star if this is the current editor
+	isCurrent := false
+	if currentEditor != "" {
+		// Match by command (name is display name, we need to check command)
+		cmdMap := map[string]string{
+			"nano": "nano", "vim": "vim", "vi": "vi",
+			"VS Code": "code", "Cursor": "cursor", "Zed": "zed",
+		}
+		if cmd, ok := cmdMap[r.Name]; ok && cmd == currentEditor {
+			isCurrent = true
+		}
+	}
+
+	suffix := ""
+	if isCurrent {
+		suffix = starStyle.Render("★")
+	}
+
+	if r.Found {
+		return check + " " + r.Name + suffix
+	}
+	return cross + " " + lipgloss.NewStyle().Foreground(theme.Muted).Render(r.Name)
 }
 
 func (m DoctorModel) renderColumnHeaders(left, right string, colWidth int) string {

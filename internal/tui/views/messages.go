@@ -30,9 +30,12 @@ type TemplateItem struct {
 
 // DoctorResultMsg is sent when doctor checks complete
 type DoctorResultMsg struct {
-	SystemInfo string
-	Results    []ToolResult
-	HasDocker  bool
+	SystemInfo          string
+	Results             []ToolResult
+	PlanEditorsTerminal []ToolResult
+	PlanEditorsGUI      []ToolResult
+	CurrentPlanEditor   string
+	HasDocker           bool
 }
 
 // ToolResult represents a tool check result

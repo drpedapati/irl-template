@@ -10,6 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/drpedapati/irl-template/pkg/config"
+	"github.com/drpedapati/irl-template/pkg/editor"
 	"github.com/drpedapati/irl-template/pkg/theme"
 )
 
@@ -46,6 +47,7 @@ type AppInfo struct {
 	Installed   bool
 	Favorite    bool   // User has marked this as a favorite
 	URL         string // Website for installation
+	IsTerminal  bool   // True for terminal-based editors (nvim, helix, fresh)
 }
 
 // GetInstalledEditors returns installed editors/IDEs for project actions.
@@ -102,6 +104,15 @@ func GetAllInstalledWithKeys() []AppInfo {
 	return installed
 }
 
+// PlanEditorMode is the plan editor selection mode
+type PlanEditorMode int
+
+const (
+	PlanEditorModeNone PlanEditorMode = iota
+	PlanEditorModeTerminal
+	PlanEditorModeGUI
+)
+
 // EditorsModel displays and manages editors/utilities
 type EditorsModel struct {
 	width    int
@@ -112,6 +123,12 @@ type EditorsModel struct {
 	loaded   bool
 	message  string
 	category AppCategory // Filter by category (-1 = all)
+
+	// Plan editor configuration
+	planEditorMode   PlanEditorMode
+	planEditorCursor int
+	currentPlanEditor string
+	currentPlanEditorType string
 }
 
 // Calculate visible items based on available height
@@ -153,6 +170,11 @@ func (m *EditorsModel) DetectApps() tea.Cmd {
 	}
 }
 
+// IsSelectingPlanEditor returns true if in plan editor selection mode
+func (m EditorsModel) IsSelectingPlanEditor() bool {
+	return m.planEditorMode != PlanEditorModeNone
+}
+
 // getAllApps returns all known applications with their install status
 func getAllApps() []AppInfo {
 	apps := []AppInfo{
@@ -161,9 +183,9 @@ func getAllApps() []AppInfo {
 		{Name: "VS Code", Description: "Microsoft's popular editor", Cmd: "code", Key: "v", Category: CategoryEditor, URL: "https://code.visualstudio.com"},
 		{Name: "Zed", Description: "Fast, collaborative editor", Cmd: "zed", AppName: "Zed", Key: "z", Category: CategoryEditor, URL: "https://zed.dev"},
 		{Name: "Sublime Text", Description: "Lightweight and fast", Cmd: "subl", AppName: "Sublime Text", Key: "s", Category: CategoryEditor, URL: "https://sublimetext.com"},
-		{Name: "Neovim", Description: "Modern terminal editor", Cmd: "nvim", Key: "n", Category: CategoryEditor, URL: "https://neovim.io"},
-		{Name: "Helix", Description: "Modal terminal editor", Cmd: "hx", Key: "x", Category: CategoryEditor, URL: "https://helix-editor.com"},
-		{Name: "Fresh", Description: "Intuitive terminal editor", Cmd: "fresh", Key: "h", Category: CategoryEditor, URL: "https://getfresh.dev"},
+		{Name: "Neovim", Description: "Modern terminal editor", Cmd: "nvim", Key: "n", Category: CategoryEditor, URL: "https://neovim.io", IsTerminal: true},
+		{Name: "Helix", Description: "Modal terminal editor", Cmd: "hx", Key: "x", Category: CategoryEditor, URL: "https://helix-editor.com", IsTerminal: true},
+		{Name: "Fresh", Description: "Intuitive terminal editor", Cmd: "fresh", Key: "h", Category: CategoryEditor, URL: "https://getfresh.dev", IsTerminal: true},
 
 		// IDEs
 		{Name: "Positron", Description: "Data science IDE from Posit", Cmd: "positron", AppName: "Positron", Key: "p", Category: CategoryIDE, URL: "https://github.com/posit-dev/positron"},
@@ -244,12 +266,20 @@ func (m EditorsModel) Update(msg tea.Msg) (EditorsModel, tea.Cmd) {
 		m.loaded = true
 		m.cursor = 0
 		m.scroll = 0
+		m.currentPlanEditor = config.GetPlanEditor()
+		m.currentPlanEditorType = config.GetPlanEditorType()
 		return m, nil
 
 	case tea.KeyMsg:
+		key := msg.String()
+
+		// Handle plan editor selection mode
+		if m.planEditorMode != PlanEditorModeNone {
+			return m.updatePlanEditorSelection(msg)
+		}
+
 		filtered := m.filteredApps()
 		visibleItems := m.visibleItems()
-		key := msg.String()
 
 		switch key {
 		case "up":
@@ -293,6 +323,28 @@ func (m EditorsModel) Update(msg tea.Msg) (EditorsModel, tea.Cmd) {
 			m.cursor = 0
 			m.scroll = 0
 			m.message = ""
+			return m, nil
+		case "t":
+			// Select terminal editor for plans
+			m.planEditorMode = PlanEditorModeTerminal
+			m.planEditorCursor = 0
+			m.message = ""
+			return m, nil
+		case "g":
+			// Select GUI editor for plans
+			m.planEditorMode = PlanEditorModeGUI
+			m.planEditorCursor = 0
+			m.message = ""
+			return m, nil
+		case "0":
+			// Reset to auto-detect
+			if err := config.SetPlanEditor("auto", ""); err != nil {
+				m.message = "Failed to save preference"
+			} else {
+				m.currentPlanEditor = "auto"
+				m.currentPlanEditorType = ""
+				m.message = "Plan editor set to auto-detect"
+			}
 			return m, nil
 		case "enter":
 			// Test launch for installed apps, open website for uninstalled
@@ -349,6 +401,53 @@ func (m EditorsModel) Update(msg tea.Msg) (EditorsModel, tea.Cmd) {
 	return m, nil
 }
 
+// updatePlanEditorSelection handles keys in plan editor selection mode
+func (m EditorsModel) updatePlanEditorSelection(msg tea.KeyMsg) (EditorsModel, tea.Cmd) {
+	key := msg.String()
+
+	var editors []editor.Editor
+	var editorType string
+	if m.planEditorMode == PlanEditorModeTerminal {
+		editors = editor.GetAvailableTerminal()
+		editorType = "terminal"
+	} else {
+		editors = editor.GetAvailableGUI()
+		editorType = "gui"
+	}
+
+	switch key {
+	case "up":
+		if m.planEditorCursor > 0 {
+			m.planEditorCursor--
+		}
+		return m, nil
+	case "down":
+		if m.planEditorCursor < len(editors)-1 {
+			m.planEditorCursor++
+		}
+		return m, nil
+	case "enter":
+		// Save selection
+		if m.planEditorCursor < len(editors) {
+			selected := editors[m.planEditorCursor]
+			if err := config.SetPlanEditor(selected.Command, editorType); err != nil {
+				m.message = "Failed to save preference"
+			} else {
+				m.currentPlanEditor = selected.Command
+				m.currentPlanEditorType = editorType
+				m.message = "Plan editor set to " + selected.Name
+			}
+		}
+		m.planEditorMode = PlanEditorModeNone
+		return m, nil
+	case "esc":
+		m.planEditorMode = PlanEditorModeNone
+		return m, nil
+	}
+
+	return m, nil
+}
+
 func (m *EditorsModel) launchApp(app AppInfo) {
 	var cmd *exec.Cmd
 
@@ -383,6 +482,24 @@ func (m *EditorsModel) launchApp(app AppInfo) {
 // Returns an error message or empty string on success.
 func OpenProjectWith(app AppInfo, projectPath string) string {
 	var cmd *exec.Cmd
+
+	// Handle terminal-based editors specially - they need a terminal window
+	if app.IsTerminal {
+		if runtime.GOOS == "darwin" {
+			// Open Terminal.app, cd to project, and run the editor
+			script := `tell application "Terminal" to do script "cd '` + projectPath + `' && ` + app.Cmd + `"`
+			cmd = exec.Command("osascript", "-e", script)
+		} else {
+			// Linux: open terminal with editor command
+			cmd = exec.Command("x-terminal-emulator", "-e", "sh", "-c", "cd '"+projectPath+"' && "+app.Cmd)
+		}
+		if cmd != nil {
+			if err := cmd.Start(); err != nil {
+				return "Failed to launch " + app.Name
+			}
+		}
+		return ""
+	}
 
 	switch app.Cmd {
 	case "terminal":
@@ -435,6 +552,11 @@ func openURL(url string) bool {
 
 // View renders the editors view
 func (m EditorsModel) View() string {
+	// Show plan editor selection modal if active
+	if m.planEditorMode != PlanEditorModeNone {
+		return m.renderPlanEditorSelection()
+	}
+
 	var b strings.Builder
 
 	mutedStyle := lipgloss.NewStyle().Foreground(theme.Muted)
@@ -572,7 +694,27 @@ func (m EditorsModel) View() string {
 		b.WriteString("\n")
 	}
 
+	// Plan Editor section
+	b.WriteString("\n")
+	headerStyle := lipgloss.NewStyle().Foreground(theme.Muted).Bold(true)
+	b.WriteString("  " + headerStyle.Render("Plan Editor"))
+	b.WriteString("\n")
+
+	// Show current editor
+	currentName := "auto-detect"
+	if m.currentPlanEditor != "" && m.currentPlanEditor != "auto" {
+		currentName = m.currentPlanEditor
+		if m.currentPlanEditorType != "" {
+			currentName += " (" + m.currentPlanEditorType + ")"
+		}
+	}
+	b.WriteString("  " + mutedStyle.Render("Current: ") + nameStyle.Render(currentName))
+	b.WriteString("\n")
+	b.WriteString("  " + keyStyle.Render("t") + mutedStyle.Render(" terminal  ") + keyStyle.Render("g") + mutedStyle.Render(" gui  ") + keyStyle.Render("0") + mutedStyle.Render(" auto"))
+	b.WriteString("\n")
+
 	// Single footer with all hints
+	b.WriteString("\n")
 	var hints []string
 	hints = append(hints, keyStyle.Render("↑↓")+"nav")
 
@@ -594,6 +736,60 @@ func (m EditorsModel) View() string {
 	}
 
 	b.WriteString("  " + mutedStyle.Render(strings.Join(hints, " ")))
+
+	return b.String()
+}
+
+// renderPlanEditorSelection renders the plan editor selection modal
+func (m EditorsModel) renderPlanEditorSelection() string {
+	var b strings.Builder
+
+	mutedStyle := lipgloss.NewStyle().Foreground(theme.Muted)
+	keyStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
+	headerStyle := lipgloss.NewStyle().Foreground(theme.Primary).Bold(true)
+	selectedStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
+	normalStyle := lipgloss.NewStyle().Foreground(theme.Primary)
+	checkStyle := lipgloss.NewStyle().Foreground(theme.Success)
+
+	var title string
+	var editors []editor.Editor
+	if m.planEditorMode == PlanEditorModeTerminal {
+		title = "Select Terminal Editor"
+		editors = editor.GetAvailableTerminal()
+	} else {
+		title = "Select GUI Editor"
+		editors = editor.GetAvailableGUI()
+	}
+
+	b.WriteString("\n")
+	b.WriteString("  " + headerStyle.Render(title))
+	b.WriteString("\n\n")
+
+	if len(editors) == 0 {
+		b.WriteString("  " + mutedStyle.Render("No editors available"))
+		b.WriteString("\n")
+	} else {
+		for i, ed := range editors {
+			cursor := "  "
+			style := normalStyle
+			if i == m.planEditorCursor {
+				cursor = keyStyle.Render("●") + " "
+				style = selectedStyle
+			}
+
+			// Show check if this is the current editor
+			suffix := ""
+			if ed.Command == m.currentPlanEditor {
+				suffix = " " + checkStyle.Render("✓")
+			}
+
+			b.WriteString("  " + cursor + style.Render(ed.Name) + suffix)
+			b.WriteString("\n")
+		}
+	}
+
+	b.WriteString("\n")
+	b.WriteString("  " + keyStyle.Render("↑↓") + mutedStyle.Render(" navigate  ") + keyStyle.Render("Enter") + mutedStyle.Render(" select  ") + keyStyle.Render("Esc") + mutedStyle.Render(" cancel"))
 
 	return b.String()
 }

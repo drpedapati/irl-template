@@ -9,10 +9,11 @@ import (
 
 // MenuItem represents a menu item
 type MenuItem struct {
-	Title    string
-	Desc     string
-	Key      string // Quick access key (n, t, d, c)
-	ViewType ViewType
+	Title        string
+	Desc         string
+	Key          string // Quick access key (n, t, d, c)
+	ViewType     ViewType
+	SeparatorAfter bool // Show a subtle separator line after this item
 }
 
 // ViewType identifies which view to show
@@ -48,11 +49,10 @@ func NewMenu() Menu {
 			{Title: "New project", Desc: "Create a new IRL project", Key: "n", ViewType: ViewInit},
 			{Title: "Projects", Desc: "Browse existing IRL projects", Key: "p", ViewType: ViewProjects},
 			{Title: "Folder", Desc: "Set default project folder", Key: "f", ViewType: ViewFolder},
-			{Title: "Templates", Desc: "Browse available templates", Key: "t", ViewType: ViewTemplates},
+			{Title: "Templates", Desc: "Browse and manage templates", Key: "t", ViewType: ViewTemplates, SeparatorAfter: true},
+			{Title: "Docs", Desc: "Open documentation in browser", Key: "o", ViewType: ViewDocs},
 			{Title: "Editors", Desc: "See installed editors and tools", Key: "e", ViewType: ViewEditors},
 			{Title: "Doctor", Desc: "Check environment setup", Key: "d", ViewType: ViewDoctor},
-			{Title: "Docs", Desc: "Open documentation in browser", Key: "o", ViewType: ViewDocs},
-			{Title: "Help", Desc: "Tutorials and guides", Key: "?", ViewType: ViewHelp},
 		},
 		cursor:   0,
 		selected: ViewMenu,
@@ -188,6 +188,15 @@ func (m Menu) View() string {
 		// Add spacing between items (except after last)
 		if i < len(m.items)-1 {
 			b.WriteString("\n")
+		}
+
+		// Add subtle separator if flagged
+		if item.SeparatorAfter && i < len(m.items)-1 {
+			separatorStyle := lipgloss.NewStyle().Foreground(theme.Muted)
+			separatorWidth := tableWidth - 4 // Slightly shorter than table
+			separatorPadding := leftMargin + 2
+			b.WriteString(strings.Repeat(" ", separatorPadding) + separatorStyle.Render(strings.Repeat("─", separatorWidth)))
+			b.WriteString("\n\n")
 		}
 	}
 

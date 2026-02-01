@@ -13,6 +13,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/drpedapati/irl-template/pkg/config"
+	"github.com/drpedapati/irl-template/pkg/editor"
 	"github.com/drpedapati/irl-template/pkg/templates"
 	"github.com/drpedapati/irl-template/pkg/theme"
 )
@@ -50,6 +51,12 @@ type TemplatesModel struct {
 	// Feedback message
 	message    string
 	messageErr bool
+
+	// Post-copy edit prompt
+	postCopyEdit       bool
+	postCopyName       string
+	postCopyCursor     int // 0=terminal, 1=gui, 2=no
+	launchingEditor    bool
 }
 
 const templatesVisibleItems = 8
@@ -223,6 +230,11 @@ func (m TemplatesModel) IsDeleting() bool {
 	return m.deleting
 }
 
+// IsPostCopyEdit returns true if showing post-copy edit prompt
+func (m TemplatesModel) IsPostCopyEdit() bool {
+	return m.postCopyEdit
+}
+
 // SelectedIsCustom returns true if the currently selected template is custom
 func (m TemplatesModel) SelectedIsCustom() bool {
 	if m.cursor >= 0 && m.cursor < len(m.filtered) {
@@ -253,11 +265,40 @@ func (m TemplatesModel) Update(msg tea.Msg) (TemplatesModel, tea.Cmd) {
 		m.applySort()
 		return m, textinput.Blink
 
+	case editor.EditorFinishedMsg:
+		// Terminal editor closed - clear screen and reload templates
+		m.launchingEditor = false
+		m.postCopyEdit = false
+		if msg.Err != nil {
+			m.message = "Editor error: " + msg.Err.Error()
+			m.messageErr = true
+		} else {
+			m.message = "Template saved"
+		}
+		m.filterInput.Focus()
+		return m, tea.Batch(tea.ClearScreen, m.LoadTemplates(), textinput.Blink)
+
+	case editor.EditorOpenedMsg:
+		// GUI editor launched - reload templates
+		m.launchingEditor = false
+		m.postCopyEdit = false
+		if msg.Err != nil {
+			m.message = "Failed to open editor"
+			m.messageErr = true
+		} else {
+			m.message = "Opened in editor"
+		}
+		m.filterInput.Focus()
+		return m, tea.Batch(m.LoadTemplates(), textinput.Blink)
+
 	case tea.KeyMsg:
 		// Clear any message on keypress
 		m.message = ""
 		m.messageErr = false
 
+		if m.postCopyEdit {
+			return m.updatePostCopyEdit(msg)
+		}
 		if m.copying {
 			return m.updateCopying(msg)
 		}
@@ -400,25 +441,127 @@ func (m TemplatesModel) updateCopying(msg tea.KeyMsg) (TemplatesModel, tea.Cmd) 
 		if name == "" {
 			return m, nil
 		}
+		// Sanitize name
+		name = strings.ToLower(strings.ReplaceAll(name, " ", "-"))
 		// Create the custom template
 		err := m.createCustomTemplate(name)
 		m.copying = false
-		m.filterInput.Focus()
 		if err != nil {
 			m.message = "Error: " + err.Error()
 			m.messageErr = true
-		} else {
-			m.message = "✓ Created: _templates/" + name
-			m.messageErr = false
-			// Reload templates to include the new one
-			return m, m.LoadTemplates()
+			m.filterInput.Focus()
+			return m, textinput.Blink
 		}
-		return m, textinput.Blink
+		// Show post-copy edit prompt
+		m.postCopyEdit = true
+		m.postCopyName = name
+		m.message = ""
+		return m, nil
 	default:
 		var cmd tea.Cmd
 		m.copyInput, cmd = m.copyInput.Update(msg)
 		return m, cmd
 	}
+}
+
+func (m TemplatesModel) updatePostCopyEdit(msg tea.KeyMsg) (TemplatesModel, tea.Cmd) {
+	// Count available options
+	hasTerminal := len(editor.GetAvailableTerminal()) > 0
+	hasGUI := len(editor.GetAvailableGUI()) > 0
+	optionCount := 1 // "No" is always available
+	if hasTerminal {
+		optionCount++
+	}
+	if hasGUI {
+		optionCount++
+	}
+
+	switch msg.String() {
+	case "up":
+		if m.postCopyCursor > 0 {
+			m.postCopyCursor--
+		}
+		return m, nil
+	case "down":
+		if m.postCopyCursor < optionCount-1 {
+			m.postCopyCursor++
+		}
+		return m, nil
+	case "enter", "right":
+		// Determine what's selected based on cursor and available options
+		idx := m.postCopyCursor
+		if hasTerminal && idx == 0 {
+			return m.editNewTemplateWith(editor.EditorTypeTerminal)
+		}
+		if hasTerminal {
+			idx--
+		}
+		if hasGUI && idx == 0 {
+			return m.editNewTemplateWith(editor.EditorTypeGUI)
+		}
+		// Otherwise it's "No"
+		return m.closePostCopyEdit()
+	case "esc", "left", "n", "N":
+		return m.closePostCopyEdit()
+	}
+	return m, nil
+}
+
+func (m TemplatesModel) closePostCopyEdit() (TemplatesModel, tea.Cmd) {
+	savedName := m.postCopyName
+	m.postCopyEdit = false
+	m.postCopyName = ""
+	m.postCopyCursor = 0
+	m.message = "✓ Created: _templates/" + savedName
+	m.filterInput.Focus()
+	return m, tea.Batch(textinput.Blink, m.LoadTemplates())
+}
+
+func (m TemplatesModel) editNewTemplateWith(edType editor.EditorType) (TemplatesModel, tea.Cmd) {
+	baseDir := config.GetDefaultDirectory()
+	if baseDir == "" {
+		m.postCopyEdit = false
+		m.message = "No default directory set"
+		m.messageErr = true
+		return m, m.LoadTemplates()
+	}
+
+	// Get plan file path
+	planPath := filepath.Join(baseDir, "_templates", m.postCopyName, "main-plan.md")
+
+	// Get first available editor of the requested type
+	var ed editor.Editor
+	var found bool
+	if edType == editor.EditorTypeTerminal {
+		available := editor.GetAvailableTerminal()
+		if len(available) > 0 {
+			ed = available[0]
+			found = true
+		}
+	} else {
+		available := editor.GetAvailableGUI()
+		if len(available) > 0 {
+			ed = available[0]
+			found = true
+		}
+	}
+
+	if !found {
+		m.postCopyEdit = false
+		m.message = "No editor available"
+		m.messageErr = true
+		return m, m.LoadTemplates()
+	}
+
+	m.launchingEditor = true
+	m.postCopyEdit = false
+	savedName := m.postCopyName
+	m.postCopyName = ""
+	m.message = "✓ Created: _templates/" + savedName
+
+	// For terminal editors, don't batch - ExecProcess needs to run alone
+	// LoadTemplates will happen when editor closes via EditorFinishedMsg handler
+	return m, editor.Open(ed, planPath)
 }
 
 func (m *TemplatesModel) createCustomTemplate(name string) error {
@@ -427,8 +570,7 @@ func (m *TemplatesModel) createCustomTemplate(name string) error {
 		return os.ErrNotExist
 	}
 
-	// Sanitize name - replace spaces with dashes, lowercase
-	name = strings.ToLower(strings.ReplaceAll(name, " ", "-"))
+	// Name is already sanitized by caller
 
 	// Create _templates folder if needed
 	templatesDir := filepath.Join(baseDir, "_templates")
@@ -620,6 +762,9 @@ func (m *TemplatesModel) applySort() {
 
 // View renders the templates view
 func (m TemplatesModel) View() string {
+	if m.postCopyEdit {
+		return m.viewPostCopyEdit()
+	}
 	if m.copying {
 		return m.viewCopying()
 	}
@@ -633,6 +778,81 @@ func (m TemplatesModel) View() string {
 		return m.viewPreview()
 	}
 	return m.viewList()
+}
+
+func (m TemplatesModel) viewPostCopyEdit() string {
+	var b strings.Builder
+
+	checkStyle := lipgloss.NewStyle().Foreground(theme.Success)
+	hintStyle := lipgloss.NewStyle().Foreground(theme.Muted)
+	accentStyle := lipgloss.NewStyle().Foreground(theme.Accent)
+	cursorStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
+	selectedStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
+	normalStyle := lipgloss.NewStyle().Foreground(theme.Primary)
+
+	b.WriteString("\n")
+	b.WriteString("  " + checkStyle.Render("✓") + " Template created")
+	b.WriteString("\n\n")
+
+	b.WriteString("  " + hintStyle.Render("Saved to: ") + accentStyle.Render("_templates/"+m.postCopyName+"/"))
+	b.WriteString("\n\n")
+
+	b.WriteString("  " + hintStyle.Render("Edit the template now?"))
+	b.WriteString("\n\n")
+
+	// Build options list
+	optionIdx := 0
+
+	// Terminal option
+	terminalEditors := editor.GetAvailableTerminal()
+	if len(terminalEditors) > 0 {
+		names := make([]string, 0, len(terminalEditors))
+		for _, e := range terminalEditors {
+			names = append(names, e.Name)
+		}
+		cursor := "  "
+		style := normalStyle
+		if m.postCopyCursor == optionIdx {
+			cursor = cursorStyle.Render("● ")
+			style = selectedStyle
+		}
+		b.WriteString("  " + cursor + style.Render("Terminal") + " " + hintStyle.Render("("+strings.Join(names, ", ")+")"))
+		b.WriteString("\n")
+		optionIdx++
+	}
+
+	// GUI option
+	guiEditors := editor.GetAvailableGUI()
+	if len(guiEditors) > 0 {
+		names := make([]string, 0, len(guiEditors))
+		for _, e := range guiEditors {
+			names = append(names, e.Name)
+		}
+		cursor := "  "
+		style := normalStyle
+		if m.postCopyCursor == optionIdx {
+			cursor = cursorStyle.Render("● ")
+			style = selectedStyle
+		}
+		b.WriteString("  " + cursor + style.Render("GUI") + " " + hintStyle.Render("("+strings.Join(names, ", ")+")"))
+		b.WriteString("\n")
+		optionIdx++
+	}
+
+	// No option (always available)
+	cursor := "  "
+	style := normalStyle
+	if m.postCopyCursor == optionIdx {
+		cursor = cursorStyle.Render("● ")
+		style = selectedStyle
+	}
+	b.WriteString("  " + cursor + style.Render("No") + " " + hintStyle.Render("return to templates"))
+	b.WriteString("\n")
+
+	b.WriteString("\n")
+	b.WriteString("  " + hintStyle.Render("↑↓ navigate  Enter select"))
+
+	return b.String()
 }
 
 func (m TemplatesModel) viewCopying() string {

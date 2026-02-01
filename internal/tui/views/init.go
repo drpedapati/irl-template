@@ -12,6 +12,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/drpedapati/irl-template/pkg/config"
+	"github.com/drpedapati/irl-template/pkg/editor"
 	"github.com/drpedapati/irl-template/pkg/naming"
 	"github.com/drpedapati/irl-template/pkg/scaffold"
 	"github.com/drpedapati/irl-template/pkg/templates"
@@ -129,6 +130,14 @@ func (m InitModel) Update(msg tea.Msg) (InitModel, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+	case editor.EditorFinishedMsg, editor.EditorOpenedMsg:
+		// Pass editor messages to action view when in StepDone
+		if m.step == StepDone {
+			var cmd tea.Cmd
+			m.actionView, cmd = m.actionView.Update(msg)
+			return m, cmd
+		}
+
 	case tea.KeyMsg:
 		switch m.step {
 		case StepDirectory:

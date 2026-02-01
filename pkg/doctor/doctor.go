@@ -176,3 +176,46 @@ func checkApp(name string) bool {
 func HasDocker() bool {
 	return checkCmd("docker")
 }
+
+// PlanEditorResult represents the status of a plan editor
+type PlanEditorResult struct {
+	Name      string
+	Command   string
+	Available bool
+	IsDefault bool
+}
+
+// PlanEditorTools returns the list of terminal editors to check
+func PlanEditorTerminalTools() []Tool {
+	return []Tool{
+		{Name: "nano", Cmd: "nano", Category: "Plan Editors (Terminal)"},
+		{Name: "vim", Cmd: "vim", Category: "Plan Editors (Terminal)"},
+		{Name: "vi", Cmd: "vi", Category: "Plan Editors (Terminal)"},
+	}
+}
+
+// PlanEditorGUITools returns the list of GUI editors to check
+func PlanEditorGUITools() []Tool {
+	return []Tool{
+		{Name: "VS Code", Cmd: "code", Category: "Plan Editors (GUI)"},
+		{Name: "Cursor", Cmd: "cursor", Category: "Plan Editors (GUI)"},
+		{Name: "Zed", Cmd: "zed", Category: "Plan Editors (GUI)"},
+	}
+}
+
+// CheckPlanEditors checks all plan editors and returns results
+func CheckPlanEditors() (terminal []ToolResult, gui []ToolResult) {
+	for _, t := range PlanEditorTerminalTools() {
+		terminal = append(terminal, ToolResult{
+			Tool:  t,
+			Found: CheckTool(t),
+		})
+	}
+	for _, t := range PlanEditorGUITools() {
+		gui = append(gui, ToolResult{
+			Tool:  t,
+			Found: CheckTool(t),
+		})
+	}
+	return terminal, gui
+}

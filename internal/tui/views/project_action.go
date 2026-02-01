@@ -5,18 +5,20 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/drpedapati/irl-template/pkg/editor"
 	"github.com/drpedapati/irl-template/pkg/theme"
 )
 
 // ProjectActionModel displays a project with available actions
 type ProjectActionModel struct {
-	projectPath string
-	projectName string
-	editors     []AppInfo // Uses unified AppInfo from editors.go
-	tools       []AppInfo // Finder, Terminal, etc.
-	message     string    // Feedback message after opening
-	done        bool
-	isNew       bool // True if this is a newly created project
+	projectPath     string
+	projectName     string
+	editors         []AppInfo // Uses unified AppInfo from editors.go
+	tools           []AppInfo // Finder, Terminal, etc.
+	message         string    // Feedback message after opening
+	done            bool
+	isNew           bool // True if this is a newly created project
+	launchingEditor bool // True while terminal editor is open
 }
 
 // NewProjectActionModel creates a new project action view
@@ -50,16 +52,41 @@ func (m ProjectActionModel) IsDone() bool {
 // Update handles messages
 func (m ProjectActionModel) Update(msg tea.Msg) (ProjectActionModel, tea.Cmd) {
 	switch msg := msg.(type) {
+	case editor.EditorFinishedMsg:
+		// Terminal editor closed - clear screen to remove artifacts
+		m.launchingEditor = false
+		if msg.Err != nil {
+			m.message = "Editor error: " + msg.Err.Error()
+		} else {
+			m.message = "Plan saved"
+		}
+		return m, tea.ClearScreen
+
+	case editor.EditorOpenedMsg:
+		// GUI editor launched
+		m.launchingEditor = false
+		if msg.Err != nil {
+			m.message = "Failed to open editor"
+		} else {
+			m.message = "Opened in editor"
+		}
+		return m, nil
+
 	case tea.KeyMsg:
 		key := msg.String()
 
-		// Check for editor hotkeys
-		for _, editor := range m.editors {
-			if key == editor.Key {
-				if errMsg := OpenProjectWith(editor, m.projectPath); errMsg != "" {
+		// Edit plan file with preferred editor
+		if key == "e" {
+			return m.editPlanFile()
+		}
+
+		// Check for editor hotkeys (opens project, not plan file)
+		for _, ed := range m.editors {
+			if key == ed.Key {
+				if errMsg := OpenProjectWith(ed, m.projectPath); errMsg != "" {
 					m.message = errMsg
 				} else {
-					m.message = "Opened in " + editor.Name
+					m.message = "Opened in " + ed.Name
 				}
 				return m, nil
 			}
@@ -88,6 +115,32 @@ func (m ProjectActionModel) Update(msg tea.Msg) (ProjectActionModel, tea.Cmd) {
 	return m, nil
 }
 
+// editPlanFile opens the main-plan.md in the preferred editor
+func (m ProjectActionModel) editPlanFile() (ProjectActionModel, tea.Cmd) {
+	// Get preferred editor
+	ed, found := editor.GetPreferred()
+	if !found {
+		m.message = "No editor found. Configure in Editors view."
+		return m, nil
+	}
+
+	// Get plan file path
+	planPath := editor.GetPlanPath(m.projectPath)
+
+	// Launch editor
+	m.launchingEditor = true
+	m.message = ""
+
+	if ed.Type == editor.EditorTypeTerminal {
+		// Terminal editor suspends TUI
+		return m, editor.Open(ed, planPath)
+	}
+
+	// GUI editor runs in background
+	m.message = "Opening in " + ed.Name + "..."
+	return m, editor.Open(ed, planPath)
+}
+
 // View renders the project action view
 func (m ProjectActionModel) View() string {
 	var b strings.Builder
@@ -99,6 +152,7 @@ func (m ProjectActionModel) View() string {
 	hintStyle := lipgloss.NewStyle().Foreground(theme.Muted)
 	headerStyle := lipgloss.NewStyle().Foreground(theme.Muted).Bold(true)
 	messageStyle := lipgloss.NewStyle().Foreground(theme.Success).MarginLeft(2)
+	primaryActionStyle := lipgloss.NewStyle().Foreground(theme.Primary).Bold(true)
 
 	// Header
 	b.WriteString("\n")
@@ -115,7 +169,7 @@ func (m ProjectActionModel) View() string {
 
 	// Feedback message (if any)
 	if m.message != "" {
-		if strings.HasPrefix(m.message, "Failed") {
+		if strings.HasPrefix(m.message, "Failed") || strings.HasPrefix(m.message, "Editor error") || strings.HasPrefix(m.message, "No editor") {
 			errorStyle := lipgloss.NewStyle().Foreground(theme.Error).MarginLeft(2)
 			b.WriteString(errorStyle.Render("✗ " + m.message))
 		} else {
@@ -124,23 +178,32 @@ func (m ProjectActionModel) View() string {
 		b.WriteString("\n\n")
 	}
 
+	// Primary action: Edit plan (prominent for new projects)
+	if m.isNew {
+		b.WriteString("  " + keyStyle.Render("e") + " " + primaryActionStyle.Render("Edit plan") + "  " + hintStyle.Render("← start here"))
+		b.WriteString("\n\n")
+	} else {
+		b.WriteString("  " + keyStyle.Render("e") + " " + nameStyle.Render("Edit plan"))
+		b.WriteString("\n\n")
+	}
+
 	// Editors section
 	if len(m.editors) > 0 {
-		b.WriteString("  " + headerStyle.Render("Editors & IDEs:"))
+		b.WriteString("  " + headerStyle.Render("Open project in:"))
 		b.WriteString("\n\n")
 
 		// Show available editors in a grid (3 columns)
 		colWidth := 16
 		col := 0
-		for _, editor := range m.editors {
+		for _, ed := range m.editors {
 			if col == 0 {
 				b.WriteString("  ")
 			}
 
-			item := keyStyle.Render(editor.Key) + " " + nameStyle.Render(editor.Name)
+			item := keyStyle.Render(ed.Key) + " " + nameStyle.Render(ed.Name)
 
 			// Pad to column width
-			padding := colWidth - len(editor.Key) - 1 - len(editor.Name)
+			padding := colWidth - len(ed.Key) - 1 - len(ed.Name)
 			if padding > 0 {
 				item += strings.Repeat(" ", padding)
 			}

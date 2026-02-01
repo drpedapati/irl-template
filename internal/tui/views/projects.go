@@ -11,6 +11,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/drpedapati/irl-template/pkg/config"
+	"github.com/drpedapati/irl-template/pkg/editor"
 	"github.com/drpedapati/irl-template/pkg/theme"
 )
 
@@ -37,13 +38,17 @@ type ProjectsModel struct {
 	loaded      bool
 	err         error
 	filterInput textinput.Model
-	sortBy      string // "date-desc", "date-asc", "name-asc", "name-desc"
+	sortBy      string    // "date-desc", "date-asc", "name-asc", "name-desc"
 	editors     []AppInfo // Uses unified AppInfo from editors.go
 	openMsg     string    // Message shown after opening
+	warningMsg  string    // Warning message (e.g., editor not found)
 
 	// Project detail view
 	viewing    bool
 	actionView ProjectActionModel
+
+	// Editor launch state
+	launchingEditor bool
 }
 
 const projectsVisibleItems = 10
@@ -160,6 +165,26 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 		m.scroll = 0
 		return m, textinput.Blink
 
+	case editor.EditorFinishedMsg:
+		// Terminal editor closed, TUI resumes - clear screen to remove artifacts
+		m.launchingEditor = false
+		if msg.Err != nil {
+			m.warningMsg = "Editor error: " + msg.Err.Error()
+		} else {
+			m.openMsg = "Plan saved"
+		}
+		return m, tea.ClearScreen
+
+	case editor.EditorOpenedMsg:
+		// GUI editor launched
+		m.launchingEditor = false
+		if msg.Err != nil {
+			m.warningMsg = "Failed to open editor"
+		} else {
+			m.openMsg = "Opened in editor"
+		}
+		return m, nil
+
 	case tea.KeyMsg:
 		// If viewing a project, delegate to actionView
 		if m.viewing {
@@ -189,6 +214,12 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 			if m.SelectedProject() != "" {
 				m.viewing = true
 				m.actionView = NewProjectActionModel(m.SelectedProject(), false)
+			}
+			return m, nil
+		case "e":
+			// Edit plan file
+			if m.SelectedProject() != "" {
+				return m.editPlanFile()
 			}
 			return m, nil
 		case "s":
@@ -244,6 +275,44 @@ func (m *ProjectsModel) openInEditor(e AppInfo) {
 	} else {
 		m.openMsg = "Opened in " + e.Name
 	}
+}
+
+// editPlanFile opens the main-plan.md in the preferred editor
+func (m ProjectsModel) editPlanFile() (ProjectsModel, tea.Cmd) {
+	projectPath := m.SelectedProject()
+	if projectPath == "" {
+		return m, nil
+	}
+
+	// Get preferred editor
+	ed, found := editor.GetPreferred()
+	if !found {
+		m.warningMsg = "No editor found. Configure in Editors view."
+		return m, nil
+	}
+
+	// Get plan file path
+	planPath := editor.GetPlanPath(projectPath)
+
+	// Check if plan file exists
+	if _, err := os.Stat(planPath); os.IsNotExist(err) {
+		m.warningMsg = "main-plan.md not found"
+		return m, nil
+	}
+
+	// Launch editor
+	m.launchingEditor = true
+	m.warningMsg = ""
+	m.openMsg = ""
+
+	if ed.Type == editor.EditorTypeTerminal {
+		// Terminal editor suspends TUI
+		return m, editor.Open(ed, planPath)
+	}
+
+	// GUI editor runs in background
+	m.openMsg = "Opening in " + ed.Name + "..."
+	return m, editor.Open(ed, planPath)
 }
 
 func (m *ProjectsModel) applyFilter() {
@@ -362,10 +431,15 @@ func (m ProjectsModel) View() string {
 	b.WriteString("  " + mutedStyle.Render("s:"+sortLabel))
 	b.WriteString("\n\n")
 
-	// Open message (temporary feedback)
-	if m.openMsg != "" {
+	// Warning message (inline, above list)
+	if m.warningMsg != "" {
+		warningStyle := lipgloss.NewStyle().Foreground(theme.Warning)
+		b.WriteString("  " + warningStyle.Render("⚠ "+m.warningMsg))
+		b.WriteString("\n\n")
+	} else if m.openMsg != "" {
+		// Open message (temporary feedback)
 		successStyle := lipgloss.NewStyle().Foreground(theme.Success)
-		b.WriteString("  " + successStyle.Render(m.openMsg))
+		b.WriteString("  " + successStyle.Render("✓ "+m.openMsg))
 		b.WriteString("\n\n")
 	}
 

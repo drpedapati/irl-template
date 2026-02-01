@@ -13,6 +13,7 @@ import (
 	"github.com/drpedapati/irl-template/internal/tui/views"
 	"github.com/drpedapati/irl-template/pkg/config"
 	"github.com/drpedapati/irl-template/pkg/doctor"
+	"github.com/drpedapati/irl-template/pkg/editor"
 	"github.com/drpedapati/irl-template/pkg/templates"
 	"github.com/drpedapati/irl-template/pkg/theme"
 )
@@ -321,6 +322,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case views.HelpLoadedMsg:
 		m.helpView, _ = m.helpView.Update(msg)
 
+	case editor.EditorFinishedMsg, editor.EditorOpenedMsg:
+		// Pass editor messages to the appropriate view
+		if m.view == ViewProjects {
+			var cmd tea.Cmd
+			m.projectsView, cmd = m.projectsView.Update(msg)
+			return m, cmd
+		}
+		if m.view == ViewInit {
+			var cmd tea.Cmd
+			m.initView, cmd = m.initView.Update(msg)
+			return m, cmd
+		}
+		if m.view == ViewTemplates {
+			var cmd tea.Cmd
+			m.templatesView, cmd = m.templatesView.Update(msg)
+			return m, cmd
+		}
+
 	}
 
 	return m, tea.Batch(cmds...)
@@ -515,8 +534,8 @@ func (m Model) updateProjects(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) updateTemplates(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
-	// If in copy, edit, or delete mode, let the view handle all keys
-	if m.templatesView.IsCopying() || m.templatesView.IsEditing() || m.templatesView.IsDeleting() {
+	// If in copy, edit, delete, or post-copy edit mode, let the view handle all keys
+	if m.templatesView.IsCopying() || m.templatesView.IsEditing() || m.templatesView.IsDeleting() || m.templatesView.IsPostCopyEdit() {
 		var cmd tea.Cmd
 		m.templatesView, cmd = m.templatesView.Update(msg)
 		return m, cmd
@@ -566,6 +585,13 @@ func (m Model) updateTemplates(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) updateEditors(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	// If in plan editor selection mode, let the view handle all keys
+	if m.editorsView.IsSelectingPlanEditor() {
+		var cmd tea.Cmd
+		m.editorsView, cmd = m.editorsView.Update(msg)
+		return m, cmd
+	}
+
 	switch msg.String() {
 	case "q":
 		m.quitting = true
@@ -984,10 +1010,10 @@ func (m Model) renderTwinkleHint() string {
 	keyStyle := lipgloss.NewStyle().Foreground(theme.Accent).Bold(true)
 	textStyle := lipgloss.NewStyle().Foreground(theme.Primary).Bold(true)
 
-	// Build the hint: ✦ [?] What is IRL? ✧
+	// Build the hint: ✦ [?] Learn IRL Fast! ✧
 	hint := leftStyle.Render(leftSparkle) + "  " +
 		keyStyle.Render("[?]") + " " +
-		textStyle.Render("What is IRL?") + "  " +
+		textStyle.Render("Learn IRL Fast!") + "  " +
 		rightStyle.Render(rightSparkle)
 
 	// Center it with even spacing above and below
@@ -1010,12 +1036,13 @@ func (m Model) getContextHint() string {
 	case ViewMenu:
 		return ""
 	case ViewProjects:
-		// Show dynamic editor hints based on what's installed
-		hints := m.projectsView.GetEditorHints()
-		if hints != "" {
-			return hints
+		// Show [e] edit hint plus dynamic editor hints
+		baseHints := keyStyle.Render("e") + mutedStyle.Render(" edit plan  ")
+		editorHints := m.projectsView.GetEditorHints()
+		if editorHints != "" {
+			return baseHints + editorHints
 		}
-		return ""
+		return baseHints
 	case ViewTemplates:
 		if m.templatesView.IsCopying() || m.templatesView.IsEditing() || m.templatesView.IsDeleting() {
 			return "" // Modal has its own hints

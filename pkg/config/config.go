@@ -17,9 +17,11 @@ type Profile struct {
 }
 
 type Config struct {
-	DefaultDirectory  string   `json:"default_directory"`
-	Profile           Profile  `json:"profile"`
-	FavoriteEditors   []string `json:"favorite_editors,omitempty"`   // Editor cmd names (e.g., "cursor", "code")
+	DefaultDirectory string  `json:"default_directory"`
+	Profile          Profile `json:"profile"`
+	FavoriteEditors  []string `json:"favorite_editors,omitempty"` // Editor cmd names (e.g., "cursor", "code")
+	PlanEditor       string   `json:"plan_editor,omitempty"`      // Plan editor: "nano", "vim", "code", "cursor", "auto"
+	PlanEditorType   string   `json:"plan_editor_type,omitempty"` // "terminal" or "gui"
 }
 
 var configPath string
@@ -162,4 +164,38 @@ func IsFavoriteEditor(cmd string) bool {
 // ClearFavoriteEditors removes all favorite editors
 func ClearFavoriteEditors() error {
 	return SetFavoriteEditors(nil)
+}
+
+// GetPlanEditor returns the configured plan editor command
+func GetPlanEditor() string {
+	cfg, err := Load()
+	if err != nil {
+		return ""
+	}
+	return cfg.PlanEditor
+}
+
+// GetPlanEditorType returns the configured plan editor type ("terminal" or "gui")
+func GetPlanEditorType() string {
+	cfg, err := Load()
+	if err != nil {
+		return ""
+	}
+	return cfg.PlanEditorType
+}
+
+// SetPlanEditor saves the plan editor preference
+func SetPlanEditor(editor, editorType string) error {
+	cfg, err := Load()
+	if err != nil {
+		cfg = &Config{}
+	}
+	cfg.PlanEditor = editor
+	cfg.PlanEditorType = editorType
+	return cfg.Save()
+}
+
+// ClearPlanEditor removes the plan editor preference
+func ClearPlanEditor() error {
+	return SetPlanEditor("", "")
 }
