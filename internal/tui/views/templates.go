@@ -1019,6 +1019,9 @@ func (m TemplatesModel) viewList() string {
 	// Calculate column widths for two-column layout
 	nameColWidth := 22 // Fixed width for name column
 	descColWidth := m.width - nameColWidth - 8
+	if descColWidth < 10 {
+		descColWidth = 10 // Minimum description width
+	}
 
 	cursorOn := accentStyle.Render(">")
 	cursorOff := " "
@@ -1052,7 +1055,7 @@ func (m TemplatesModel) viewList() string {
 		// Truncate long names (account for badge)
 		displayName := t.Name
 		maxNameWidth := nameColWidth - 2 // Account for badge
-		if len(displayName) > maxNameWidth {
+		if maxNameWidth > 3 && len(displayName) > maxNameWidth {
 			displayName = displayName[:maxNameWidth-3] + "..."
 		}
 
@@ -1061,7 +1064,7 @@ func (m TemplatesModel) viewList() string {
 
 		// Truncate long descriptions
 		displayDesc := t.Description
-		if len(displayDesc) > descColWidth {
+		if descColWidth > 3 && len(displayDesc) > descColWidth {
 			displayDesc = displayDesc[:descColWidth-3] + "..."
 		}
 
