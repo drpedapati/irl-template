@@ -174,7 +174,7 @@ func getAllApps() []AppInfo {
 	apps := []AppInfo{
 		// Code Editors (ordered by popularity/preference)
 		{Name: "Cursor", Description: "AI-powered code editor", Cmd: "cursor", AppName: "Cursor", Key: "c", Category: CategoryEditor, URL: "https://cursor.sh"},
-		{Name: "VS Code", Description: "Microsoft's popular editor", Cmd: "code", Key: "v", Category: CategoryEditor, URL: "https://code.visualstudio.com"},
+		{Name: "VS Code", Description: "Microsoft's popular editor", Cmd: "code", AppName: "Visual Studio Code", Key: "v", Category: CategoryEditor, URL: "https://code.visualstudio.com"},
 		{Name: "Zed", Description: "Fast, collaborative editor", Cmd: "zed", AppName: "Zed", Key: "z", Category: CategoryEditor, URL: "https://zed.dev"},
 		{Name: "Sublime Text", Description: "Lightweight and fast", Cmd: "subl", AppName: "Sublime Text", Key: "s", Category: CategoryEditor, URL: "https://sublimetext.com"},
 		{Name: "Neovim", Description: "Modern terminal editor", Cmd: "nvim", Key: "n", Category: CategoryEditor, URL: "https://neovim.io", IsTerminal: true},
