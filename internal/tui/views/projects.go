@@ -283,6 +283,42 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 
 		key := msg.String()
 
+		// Navigation keys always work
+		switch key {
+		case "up":
+			if m.cursor > 0 {
+				m.cursor--
+				if m.cursor < m.scroll {
+					m.scroll = m.cursor
+				}
+			}
+			return m, nil
+		case "down":
+			if m.cursor < len(m.filtered)-1 {
+				m.cursor++
+				if m.cursor >= m.scroll+projectsVisibleItems {
+					m.scroll = m.cursor - projectsVisibleItems + 1
+				}
+			}
+			return m, nil
+		case "right", "enter":
+			// Enter project detail view
+			if m.SelectedProject() != "" {
+				m.viewing = true
+				m.actionView = NewProjectActionModel(m.SelectedProject(), false)
+			}
+			return m, nil
+		}
+
+		// If filter has text, pass most keys to filter (not shortcuts)
+		if m.filterInput.Value() != "" {
+			var cmd tea.Cmd
+			m.filterInput, cmd = m.filterInput.Update(msg)
+			m.applyFilter()
+			return m, cmd
+		}
+
+		// Shortcuts only work when filter is empty
 		// Check for editor shortcuts first (only when there's a selection)
 		if m.SelectedProject() != "" {
 			for _, e := range m.editors {
@@ -294,13 +330,6 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 		}
 
 		switch key {
-		case "right", "enter":
-			// Enter project detail view
-			if m.SelectedProject() != "" {
-				m.viewing = true
-				m.actionView = NewProjectActionModel(m.SelectedProject(), false)
-			}
-			return m, nil
 		case "e":
 			// Edit plan file
 			if m.SelectedProject() != "" {
@@ -342,29 +371,13 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 			}
 			m.applySort()
 			return m, nil
-		case "up":
-			if m.cursor > 0 {
-				m.cursor--
-				if m.cursor < m.scroll {
-					m.scroll = m.cursor
-				}
-			}
-			return m, nil
-		case "down":
-			if m.cursor < len(m.filtered)-1 {
-				m.cursor++
-				if m.cursor >= m.scroll+projectsVisibleItems {
-					m.scroll = m.cursor - projectsVisibleItems + 1
-				}
-			}
-			return m, nil
-		default:
-			// Pass other keys to filter input
-			var cmd tea.Cmd
-			m.filterInput, cmd = m.filterInput.Update(msg)
-			m.applyFilter()
-			return m, cmd
 		}
+
+		// Pass other keys to filter input
+		var cmd tea.Cmd
+		m.filterInput, cmd = m.filterInput.Update(msg)
+		m.applyFilter()
+		return m, cmd
 	}
 
 	return m, nil
