@@ -418,7 +418,7 @@ func (m Model) selectView(v ViewType) (tea.Model, tea.Cmd) {
 		return m, nil
 	case ViewProjects:
 		m.view = v
-		m.statusBar.SetKeys(ViewKeys())
+		m.statusBar.SetKeys(ProjectsViewKeys())
 		m.loading = true
 		cmd = tea.Batch(m.spinner.Tick, m.projectsView.ScanProjects())
 	case ViewTemplates:

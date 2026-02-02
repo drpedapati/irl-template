@@ -220,6 +220,11 @@ build:
 	@go build -ldflags "-X github.com/drpedapati/irl-template/cmd.Version=dev" -o irl .
 	@echo "${GREEN}✓${RESET} Built ./irl (dev)"
 
+# Build and run
+.PHONY: run
+run: build
+	@./irl
+
 # Run quick tests
 .PHONY: test
 test: build

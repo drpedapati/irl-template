@@ -184,6 +184,37 @@ func (m *ProjectsModel) trashProject() error {
 	return nil
 }
 
+// backupProject copies the selected project to a _backups directory with timestamp
+func (m *ProjectsModel) backupProject() error {
+	projectPath := m.SelectedProject()
+	if projectPath == "" {
+		return fmt.Errorf("no project selected")
+	}
+
+	// Get base directory and project name
+	baseDir := config.GetDefaultDirectory()
+	projectName := filepath.Base(projectPath)
+
+	// Create _backups directory in base dir
+	backupsDir := filepath.Join(baseDir, "_backups")
+	if err := os.MkdirAll(backupsDir, 0755); err != nil {
+		return fmt.Errorf("failed to create backups directory: %w", err)
+	}
+
+	// Create backup name with timestamp: projectname_20260202_091500
+	timestamp := time.Now().Format("20060102_150405")
+	backupName := fmt.Sprintf("%s_%s", projectName, timestamp)
+	backupPath := filepath.Join(backupsDir, backupName)
+
+	// Copy directory using cp -r
+	cmd := exec.Command("cp", "-r", projectPath, backupPath)
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to copy project: %w", err)
+	}
+
+	return nil
+}
+
 // Update handles messages
 func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 	switch msg := msg.(type) {
@@ -274,6 +305,18 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 			// Edit plan file
 			if m.SelectedProject() != "" {
 				return m.editPlanFile()
+			}
+			return m, nil
+		case "b":
+			// Backup project
+			if m.SelectedProject() != "" {
+				if err := m.backupProject(); err != nil {
+					m.warningMsg = err.Error()
+					m.openMsg = ""
+				} else {
+					m.openMsg = "Backup created"
+					m.warningMsg = ""
+				}
 			}
 			return m, nil
 		case "x":
