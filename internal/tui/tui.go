@@ -507,6 +507,13 @@ func openInEditor(path string) {
 }
 
 func (m Model) updateProjects(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	// If viewing project details, let the view handle all navigation keys first
+	if m.projectsView.IsViewing() {
+		var cmd tea.Cmd
+		m.projectsView, cmd = m.projectsView.Update(msg)
+		return m, cmd
+	}
+
 	switch msg.String() {
 	case "q":
 		m.quitting = true
