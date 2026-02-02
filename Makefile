@@ -217,7 +217,7 @@ LDFLAGS = -ldflags "-X github.com/drpedapati/irl-template/cmd.Version=$(V)"
 # Build local binary (dev version)
 .PHONY: build
 build:
-	@go build -o irl .
+	@go build -ldflags "-X github.com/drpedapati/irl-template/cmd.Version=dev" -o irl .
 	@echo "${GREEN}✓${RESET} Built ./irl (dev)"
 
 # Run quick tests

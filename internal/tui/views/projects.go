@@ -1,7 +1,9 @@
 package views
 
 import (
+	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -49,6 +51,10 @@ type ProjectsModel struct {
 
 	// Editor launch state
 	launchingEditor bool
+
+	// Delete confirmation
+	confirmDelete bool
+	deleteTarget  string // Path of project to delete
 }
 
 const projectsVisibleItems = 10
@@ -153,6 +159,31 @@ func (m ProjectsModel) IsViewing() bool {
 	return m.viewing
 }
 
+// IsConfirmingDelete returns true when confirming a delete
+func (m ProjectsModel) IsConfirmingDelete() bool {
+	return m.confirmDelete
+}
+
+// trashProject moves the delete target to trash using the trash CLI
+func (m *ProjectsModel) trashProject() error {
+	if m.deleteTarget == "" {
+		return fmt.Errorf("no project selected")
+	}
+
+	// Check if trash command is available
+	if _, err := exec.LookPath("trash"); err != nil {
+		return fmt.Errorf("'trash' command not found (brew install trash)")
+	}
+
+	// Move to trash
+	cmd := exec.Command("trash", m.deleteTarget)
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to trash project: %w", err)
+	}
+
+	return nil
+}
+
 // Update handles messages
 func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 	switch msg := msg.(type) {
@@ -197,6 +228,28 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 			return m, cmd
 		}
 
+		// Handle delete confirmation
+		if m.confirmDelete {
+			switch msg.String() {
+			case "y", "Y":
+				// Confirm delete - use trash command
+				if err := m.trashProject(); err != nil {
+					m.warningMsg = err.Error()
+				} else {
+					m.openMsg = "Moved to trash"
+					// Rescan projects
+					return m, m.ScanProjects()
+				}
+				m.confirmDelete = false
+				m.deleteTarget = ""
+			case "n", "N", "esc":
+				// Cancel delete
+				m.confirmDelete = false
+				m.deleteTarget = ""
+			}
+			return m, nil
+		}
+
 		key := msg.String()
 
 		// Check for editor shortcuts first (only when there's a selection)
@@ -221,6 +274,15 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 			// Edit plan file
 			if m.SelectedProject() != "" {
 				return m.editPlanFile()
+			}
+			return m, nil
+		case "x":
+			// Delete project (with confirmation)
+			if m.SelectedProject() != "" {
+				m.confirmDelete = true
+				m.deleteTarget = m.SelectedProject()
+				m.warningMsg = ""
+				m.openMsg = ""
 			}
 			return m, nil
 		case "s":
@@ -432,8 +494,14 @@ func (m ProjectsModel) View() string {
 	b.WriteString("  " + mutedStyle.Render("s:"+sortLabel))
 	b.WriteString("\n\n")
 
-	// Warning message (inline, above list)
-	if m.warningMsg != "" {
+	// Delete confirmation
+	if m.confirmDelete {
+		warningStyle := lipgloss.NewStyle().Foreground(theme.Warning).Bold(true)
+		projectName := filepath.Base(m.deleteTarget)
+		b.WriteString("  " + warningStyle.Render("Delete \""+projectName+"\"? (y/n)"))
+		b.WriteString("\n\n")
+	} else if m.warningMsg != "" {
+		// Warning message (inline, above list)
 		warningStyle := lipgloss.NewStyle().Foreground(theme.Warning)
 		b.WriteString("  " + warningStyle.Render("⚠ "+m.warningMsg))
 		b.WriteString("\n\n")
