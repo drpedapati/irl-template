@@ -42,6 +42,7 @@ type ProjectsModel struct {
 	filterInput textinput.Model
 	sortBy      string    // "date-desc", "date-asc", "name-asc", "name-desc"
 	editors     []AppInfo // Uses unified AppInfo from editors.go
+	tools       []AppInfo // Tools like Finder, Terminal, etc.
 	openMsg     string    // Message shown after opening
 	warningMsg  string    // Warning message (e.g., editor not found)
 
@@ -63,6 +64,7 @@ const projectsVisibleItems = 10
 type ProjectsLoadedMsg struct {
 	Projects []Project
 	Editors  []AppInfo // Uses unified AppInfo from editors.go
+	Tools    []AppInfo // Tools like Finder, Terminal
 	Err      error
 }
 
@@ -95,7 +97,8 @@ func (m *ProjectsModel) ScanProjects() tea.Cmd {
 
 		projects, err := scanForProjects(baseDir)
 		editors := GetInstalledEditors() // Uses unified source
-		return ProjectsLoadedMsg{Projects: projects, Editors: editors, Err: err}
+		tools := GetInstalledTools()     // Tools like Finder, Terminal
+		return ProjectsLoadedMsg{Projects: projects, Editors: editors, Tools: tools, Err: err}
 	}
 }
 
@@ -224,6 +227,7 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 		m.projects = msg.Projects
 		m.filtered = msg.Projects
 		m.editors = msg.Editors
+		m.tools = msg.Tools
 		m.cursor = 0
 		m.scroll = 0
 		return m, textinput.Blink
@@ -319,11 +323,17 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 		}
 
 		// Shortcuts only work when filter is empty
-		// Check for editor shortcuts first (only when there's a selection)
+		// Check for editor and tool shortcuts (only when there's a selection)
 		if m.SelectedProject() != "" {
 			for _, e := range m.editors {
 				if key == e.Key {
 					m.openInEditor(e)
+					return m, nil
+				}
+			}
+			for _, t := range m.tools {
+				if key == t.Key {
+					m.openInEditor(t) // Same function works for tools
 					return m, nil
 				}
 			}
