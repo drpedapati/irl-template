@@ -40,6 +40,7 @@ type ProjectsModel struct {
 	loaded      bool
 	err         error
 	filterInput textinput.Model
+	filterMode  bool      // true = typing in filter, false = selecting projects
 	sortBy      string    // "date-desc", "date-asc", "name-asc", "name-desc"
 	editors     []AppInfo // Uses unified AppInfo from editors.go
 	tools       []AppInfo // Tools like Finder, Terminal, etc.
@@ -77,7 +78,8 @@ func NewProjectsModel() ProjectsModel {
 
 	return ProjectsModel{
 		filterInput: ti,
-		sortBy:      "date-desc", // Default sort by date, newest first
+		filterMode:  true, // Start in filter mode (typing)
+		sortBy:      "date-desc",
 	}
 }
 
@@ -167,6 +169,11 @@ func (m ProjectsModel) IsConfirmingDelete() bool {
 	return m.confirmDelete
 }
 
+// IsFilterMode returns true when in filter/typing mode
+func (m ProjectsModel) IsFilterMode() bool {
+	return m.filterMode
+}
+
 // trashProject moves the delete target to trash using the trash CLI
 func (m *ProjectsModel) trashProject() error {
 	if m.deleteTarget == "" {
@@ -230,6 +237,8 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 		m.tools = msg.Tools
 		m.cursor = 0
 		m.scroll = 0
+		m.filterMode = true // Start in filter mode
+		m.filterInput.Focus()
 		return m, textinput.Blink
 
 	case editor.EditorFinishedMsg:
@@ -270,24 +279,69 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 				// Confirm delete - use trash command
 				if err := m.trashProject(); err != nil {
 					m.warningMsg = err.Error()
-				} else {
-					m.openMsg = "Moved to trash"
-					// Rescan projects
-					return m, m.ScanProjects()
+					m.confirmDelete = false
+					m.deleteTarget = ""
+					return m, nil
 				}
+				// Success - clear state and rescan
+				m.openMsg = "Moved to trash"
 				m.confirmDelete = false
 				m.deleteTarget = ""
+				return m, m.ScanProjects()
 			case "n", "N", "esc":
 				// Cancel delete
 				m.confirmDelete = false
 				m.deleteTarget = ""
+				return m, nil
 			}
 			return m, nil
 		}
 
 		key := msg.String()
 
-		// Navigation keys always work
+		// === FILTER MODE: typing in the filter input ===
+		if m.filterMode {
+			switch key {
+			case "down":
+				// Exit filter mode, enter selection mode
+				if len(m.filtered) > 0 {
+					m.filterMode = false
+					m.filterInput.Blur()
+					m.cursor = 0
+					m.scroll = 0
+				}
+				return m, nil
+			case "enter":
+				// If there's exactly one result, select it
+				if len(m.filtered) == 1 {
+					m.filterMode = false
+					m.filterInput.Blur()
+					m.cursor = 0
+					m.viewing = true
+					m.actionView = NewProjectActionModel(m.filtered[0].Path, false)
+				} else if len(m.filtered) > 0 {
+					// Multiple results - enter selection mode
+					m.filterMode = false
+					m.filterInput.Blur()
+					m.cursor = 0
+					m.scroll = 0
+				}
+				return m, nil
+			case "esc":
+				// Clear filter
+				m.filterInput.SetValue("")
+				m.applyFilter()
+				return m, nil
+			default:
+				// Pass all other keys to filter input
+				var cmd tea.Cmd
+				m.filterInput, cmd = m.filterInput.Update(msg)
+				m.applyFilter()
+				return m, cmd
+			}
+		}
+
+		// === SELECTION MODE: navigating and acting on projects ===
 		switch key {
 		case "up":
 			if m.cursor > 0 {
@@ -295,6 +349,10 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 				if m.cursor < m.scroll {
 					m.scroll = m.cursor
 				}
+			} else {
+				// At top of list, return to filter mode
+				m.filterMode = true
+				m.filterInput.Focus()
 			}
 			return m, nil
 		case "down":
@@ -312,18 +370,15 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 				m.actionView = NewProjectActionModel(m.SelectedProject(), false)
 			}
 			return m, nil
+		case "left", "esc":
+			// Return to filter mode
+			m.filterMode = true
+			m.filterInput.Focus()
+			return m, nil
 		}
 
-		// If filter has text, pass most keys to filter (not shortcuts)
-		if m.filterInput.Value() != "" {
-			var cmd tea.Cmd
-			m.filterInput, cmd = m.filterInput.Update(msg)
-			m.applyFilter()
-			return m, cmd
-		}
-
-		// Shortcuts only work when filter is empty
-		// Check for editor and tool shortcuts (only when there's a selection)
+		// Shortcuts only work in selection mode
+		// Check for editor and tool shortcuts
 		if m.SelectedProject() != "" {
 			for _, e := range m.editors {
 				if key == e.Key {
@@ -333,7 +388,7 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 			}
 			for _, t := range m.tools {
 				if key == t.Key {
-					m.openInEditor(t) // Same function works for tools
+					m.openInEditor(t)
 					return m, nil
 				}
 			}
@@ -368,7 +423,7 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 			}
 			return m, nil
 		case "s":
-			// Cycle through sort options: date newest → date oldest → name A-Z → name Z-A
+			// Cycle through sort options
 			switch m.sortBy {
 			case "date-desc":
 				m.sortBy = "date-asc"
@@ -382,12 +437,6 @@ func (m ProjectsModel) Update(msg tea.Msg) (ProjectsModel, tea.Cmd) {
 			m.applySort()
 			return m, nil
 		}
-
-		// Pass other keys to filter input
-		var cmd tea.Cmd
-		m.filterInput, cmd = m.filterInput.Update(msg)
-		m.applyFilter()
-		return m, cmd
 	}
 
 	return m, nil
@@ -541,11 +590,11 @@ func (m ProjectsModel) View() string {
 		return b.String()
 	}
 
-	// Filter input (always visible, always focused)
+	// Filter input
 	b.WriteString("\n")
 	b.WriteString("  " + m.filterInput.View())
 
-	// Sort indicator
+	// Sort indicator and mode indicator
 	var sortLabel string
 	switch m.sortBy {
 	case "date-desc":
@@ -558,6 +607,15 @@ func (m ProjectsModel) View() string {
 		sortLabel = "Z-A"
 	}
 	b.WriteString("  " + mutedStyle.Render("s:"+sortLabel))
+
+	// Mode indicator
+	modeStyle := lipgloss.NewStyle().Foreground(theme.Accent)
+	hintStyle := lipgloss.NewStyle().Foreground(theme.Muted)
+	if m.filterMode {
+		b.WriteString("  " + hintStyle.Render("↓ to select"))
+	} else {
+		b.WriteString("  " + modeStyle.Render("● selecting"))
+	}
 	b.WriteString("\n\n")
 
 	// Delete confirmation
@@ -614,7 +672,8 @@ func (m ProjectsModel) View() string {
 		nameStyle := normalStyle
 		dateStyleLocal := dateStyle
 
-		if i == m.cursor {
+		// Only show selection highlight in selection mode (not filter mode)
+		if !m.filterMode && i == m.cursor {
 			cursor = cursorOn
 			nameStyle = selectedStyle
 			dateStyleLocal = selectedStyle

@@ -126,13 +126,23 @@ func TemplateViewKeys() []KeyBinding {
 	}
 }
 
-// ProjectsViewKeys returns key bindings for the projects view
+// ProjectsViewKeys returns key bindings for the projects view (selection mode)
 func ProjectsViewKeys() []KeyBinding {
 	return []KeyBinding{
 		{Key: "↑↓", Desc: "Navigate"},
 		{Key: "e", Desc: "Edit"},
 		{Key: "b", Desc: "Backup"},
 		{Key: "x", Desc: "Delete"},
+		{Key: "←", Desc: "Back"},
+	}
+}
+
+// ProjectsFilterKeys returns key bindings for the projects view (filter mode)
+func ProjectsFilterKeys() []KeyBinding {
+	return []KeyBinding{
+		{Key: "↓", Desc: "Select"},
+		{Key: "Enter", Desc: "Open"},
+		{Key: "Esc", Desc: "Clear"},
 		{Key: "←", Desc: "Back"},
 	}
 }

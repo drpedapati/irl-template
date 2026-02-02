@@ -418,7 +418,7 @@ func (m Model) selectView(v ViewType) (tea.Model, tea.Cmd) {
 		return m, nil
 	case ViewProjects:
 		m.view = v
-		m.statusBar.SetKeys(ProjectsViewKeys())
+		m.statusBar.SetKeys(ProjectsFilterKeys()) // Start in filter mode
 		m.loading = true
 		cmd = tea.Batch(m.spinner.Tick, m.projectsView.ScanProjects())
 	case ViewTemplates:
@@ -518,25 +518,28 @@ func (m Model) updateProjects(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "q":
 		m.quitting = true
 		return m, tea.Quit
-	case "esc":
-		// Two-stage escape: clear filter first, then go back
-		if m.projectsView.HasFilterText() {
-			m.projectsView.ClearFilter()
+	case "left":
+		// Go back to menu (only in filter mode, or from selection mode explicitly)
+		if m.projectsView.IsFilterMode() {
+			m.view = ViewMenu
+			m.statusBar.SetKeys(m.getMenuKeys())
 			return m, nil
 		}
-		m.view = ViewMenu
-		m.statusBar.SetKeys(m.getMenuKeys())
-		return m, nil
-	case "left":
-		// Go back to menu
-		m.view = ViewMenu
-		m.statusBar.SetKeys(m.getMenuKeys())
-		return m, nil
+		// In selection mode, left goes back to filter mode first
+		// (handled by projects view)
 	}
 
-	// Pass all other keys to the projects view (filtering, navigation, editor shortcuts)
+	// Pass all other keys to the projects view
 	var cmd tea.Cmd
 	m.projectsView, cmd = m.projectsView.Update(msg)
+
+	// Update status bar based on mode change
+	if m.projectsView.IsFilterMode() {
+		m.statusBar.SetKeys(ProjectsFilterKeys())
+	} else {
+		m.statusBar.SetKeys(ProjectsViewKeys())
+	}
+
 	return m, cmd
 }
 
@@ -1043,8 +1046,11 @@ func (m Model) getContextHint() string {
 	case ViewMenu:
 		return ""
 	case ViewProjects:
-		// Show [e] edit hint plus dynamic editor hints
-		baseHints := keyStyle.Render("e") + mutedStyle.Render(" edit plan  ")
+		if m.projectsView.IsFilterMode() {
+			return keyStyle.Render("↓") + mutedStyle.Render(" to select projects")
+		}
+		// Selection mode: show action hints
+		baseHints := keyStyle.Render("e") + mutedStyle.Render(" edit  ")
 		editorHints := m.projectsView.GetEditorHints()
 		if editorHints != "" {
 			return baseHints + editorHints

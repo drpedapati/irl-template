@@ -73,19 +73,13 @@ func GetInstalledEditors() []AppInfo {
 }
 
 // GetInstalledTools returns installed tools for project actions (Finder, Terminal, etc.)
-// If favorites are set, only returns favorite tools. Otherwise returns all installed.
+// Tools are always shown regardless of favorites setting (favorites only applies to editors/IDEs).
 func GetInstalledTools() []AppInfo {
 	apps := getAllApps()
-	favorites := config.GetFavoriteEditors()
-	hasFavorites := len(favorites) > 0
 
 	var installed []AppInfo
 	for _, app := range apps {
 		if app.Installed && app.Key != "" && app.Category == CategoryTool {
-			// If favorites are set, only include favorites
-			if hasFavorites && !app.Favorite {
-				continue
-			}
 			installed = append(installed, app)
 		}
 	}
