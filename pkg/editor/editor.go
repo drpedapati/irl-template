@@ -252,18 +252,24 @@ func openGUIEditor(command, path string) tea.Cmd {
 
 // GetPlanPath returns the path to main-plan.md in a project
 func GetPlanPath(projectPath string) string {
-	// Check root level first
+	// Check plans/ folder first (new standard location)
+	plansPlan := filepath.Join(projectPath, "plans", "main-plan.md")
+	if _, err := os.Stat(plansPlan); err == nil {
+		return plansPlan
+	}
+
+	// Check root level (legacy)
 	rootPlan := filepath.Join(projectPath, "main-plan.md")
 	if _, err := os.Stat(rootPlan); err == nil {
 		return rootPlan
 	}
 
-	// Check IRL structure
+	// Check 01-plans/ structure (legacy)
 	irlPlan := filepath.Join(projectPath, "01-plans", "main-plan.md")
 	if _, err := os.Stat(irlPlan); err == nil {
 		return irlPlan
 	}
 
-	// Default to root level (for new projects)
-	return rootPlan
+	// Default to plans/ folder (for new projects)
+	return plansPlan
 }

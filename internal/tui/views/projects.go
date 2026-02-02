@@ -116,8 +116,9 @@ func scanForProjects(baseDir string) ([]Project, error) {
 
 		// Check for main-plan.md in multiple locations
 		planPaths := []string{
-			filepath.Join(projectDir, "main-plan.md"),             // root level
-			filepath.Join(projectDir, "01-plans", "main-plan.md"), // IRL structure
+			filepath.Join(projectDir, "plans", "main-plan.md"),    // new standard
+			filepath.Join(projectDir, "main-plan.md"),             // legacy root level
+			filepath.Join(projectDir, "01-plans", "main-plan.md"), // legacy IRL structure
 		}
 
 		var planInfo os.FileInfo

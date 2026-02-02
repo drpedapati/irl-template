@@ -19,9 +19,15 @@ func Create(projectPath string) error {
 	return nil
 }
 
-// WritePlan writes the main-plan.md file at the project root
+// WritePlan writes the main-plan.md file in the plans/ folder
 func WritePlan(projectPath, content string) error {
-	planPath := filepath.Join(projectPath, "main-plan.md")
+	// Create plans/ directory
+	plansDir := filepath.Join(projectPath, "plans")
+	if err := os.MkdirAll(plansDir, 0755); err != nil {
+		return fmt.Errorf("failed to create plans directory: %w", err)
+	}
+
+	planPath := filepath.Join(plansDir, "main-plan.md")
 	return os.WriteFile(planPath, []byte(content), 0644)
 }
 
