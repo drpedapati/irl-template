@@ -459,6 +459,11 @@ func (m Model) selectView(v ViewType) (tea.Model, tea.Cmd) {
 		m.personalizeView = views.NewPersonalizeModel()
 		m.personalizeView.SetSize(appWidth, appHeight-7)
 		cmd = m.personalizeView.Init()
+	case ViewHelp:
+		m.view = v
+		m.statusBar.SetKeys(ViewKeys())
+		m.helpView = views.NewHelpModel()
+		m.helpView.SetSize(appWidth-2, appHeight-7)
 	default:
 		m.view = v
 	}

@@ -53,6 +53,7 @@ func NewMenu() Menu {
 			{Title: "Docs", Desc: "Open documentation in browser", Key: "o", ViewType: ViewDocs},
 			{Title: "Editors", Desc: "See installed editors and tools", Key: "e", ViewType: ViewEditors},
 			{Title: "Doctor", Desc: "Check environment setup", Key: "d", ViewType: ViewDoctor},
+			{Title: "Help", Desc: "Learn how IRL works", Key: "?", ViewType: ViewHelp},
 		},
 		cursor:   0,
 		selected: ViewMenu,
