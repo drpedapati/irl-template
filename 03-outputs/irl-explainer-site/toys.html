@@ -833,7 +833,7 @@
         /* Three plan sections */
         var secBefore = document.createElement("div");
         secBefore.style.cssText = "padding:5px 7px;border-radius:5px;margin-bottom:5px;transition:background 0.4s,border-color 0.4s;border:1px solid transparent;white-space:pre-line";
-        secBefore.innerHTML = '<span style="font-weight:600">\u2705 Before Each Loop</span>\n<span style="color:#6b7280">- Version control: clean tree\n- Script is idempotent</span>';
+        secBefore.innerHTML = '<span style="font-weight:600">\u2705 Before Each Loop</span>\n<span style="color:#6b7280">- git status \u2014 clean working tree\n- Script is idempotent\n- Raw data in 02-data/ unchanged</span>';
 
         var secLoop = document.createElement("div");
         secLoop.style.cssText = "padding:5px 7px;border-radius:5px;margin-bottom:5px;transition:background 0.4s,border-color 0.4s;border:1px solid transparent;white-space:pre-line";
@@ -842,14 +842,14 @@
         loopLabel.textContent = "\ud83d\udd01 Instruction Loop";
         var loopItems = document.createElement("div");
         loopItems.style.cssText = "color:#6b7280;white-space:pre-line";
-        loopItems.textContent = "1. Read 02-data/raw/survey.csv\n2. Produce \u2192 03-outputs/report.html\n3. Log what changed";
+        loopItems.textContent = "1. Load 02-data/raw/survey_responses.csv\n2. Filter to complete responses only\n3. Compute descriptive stats by group\n4. Run t-test (treatment vs control)\n5. Render summary \u2192 03-outputs/report.html";
         secLoop.appendChild(loopLabel);
         secLoop.appendChild(document.createTextNode("\n"));
         secLoop.appendChild(loopItems);
 
         var secAfter = document.createElement("div");
         secAfter.style.cssText = "padding:5px 7px;border-radius:5px;transition:background 0.4s,border-color 0.4s;border:1px solid transparent;white-space:pre-line";
-        secAfter.innerHTML = '<span style="font-weight:600">\ud83d\udcdd After Each Loop</span>\n<span style="color:#6b7280">- Update activity log\n- Commit checkpoint</span>';
+        secAfter.innerHTML = '<span style="font-weight:600">\ud83d\udcdd After Each Loop</span>\n<span style="color:#6b7280">- Update plans/activity.md\n- git add + commit checkpoint</span>';
 
         planBody.appendChild(secBefore);
         planBody.appendChild(secLoop);
@@ -886,7 +886,7 @@
         rightCol.appendChild(o1.wrap);
         await sleep(80);
         o1.wrap.style.opacity = "1";
-        var txt1 = "Survey Report\n\nRespondents: 142\nCompletion:  89%\nKey finding: Score improved\n             2.4 pts (p = 0.018)";
+        var txt1 = "Survey Report\n\nN = 142 (89% complete)\n\nGroup        Mean   SD\nTreatment    74.2   8.1\nControl      71.8   7.9\n\nt(140) = 2.39, p = 0.018";
         await new Promise(function(r) { typeText(o1.body, txt1, 16, r); });
         s1.textContent = "\u2713 Output produced";
         s1.style.color = GREEN;
@@ -909,7 +909,7 @@
         ft.textContent = "Author reviews output, adds a revision\u2026";
         var rev = document.createElement("div");
         rev.style.cssText = "margin-top:3px;padding:3px 6px;border-radius:4px;background:#fef3c7;color:#92400e;font-size:10px;font-weight:500;opacity:0;transition:opacity 0.5s";
-        rev.textContent = "\u270e Revision: add confidence intervals";
+        rev.textContent = "\u270e Revision: add 95% CI and effect size";
         secLoop.appendChild(rev);
         await sleep(150);
         rev.style.opacity = "1";
@@ -938,7 +938,7 @@
         rightCol.appendChild(o2.wrap);
         await sleep(80);
         o2.wrap.style.opacity = "1";
-        var txt2 = "Survey Report v2\n\nRespondents: 142\nCompletion:  89%\nKey finding: Score improved\n  2.4 pts (p=0.018, CI [0.8, 4.0])";
+        var txt2 = "Survey Report v2\n\nN = 142 (89% complete)\n\nGroup        Mean   SD    95% CI\nTreatment    74.2   8.1   [72.1, 76.3]\nControl      71.8   7.9   [69.8, 73.8]\n\nt(140) = 2.39, p = 0.018\nCohen\u2019s d = 0.30 [0.05, 0.55]";
         await new Promise(function(r) { typeText(o2.body, txt2, 14, r); });
         s2.textContent = "\u2713 Output updated";
         s2.style.color = GREEN;
