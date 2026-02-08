@@ -91,6 +91,10 @@ func (m DoctorModel) View() string {
 	b.WriteString(infoStyle.Render(m.systemInfo))
 	b.WriteString("\n")
 
+	// Docs link
+	b.WriteString(infoStyle.Render("Docs: ") + lipgloss.NewStyle().Foreground(theme.Accent).Render("https://www.irloop.org"))
+	b.WriteString("\n")
+
 	// Group results by category
 	grouped := make(map[string][]ToolResult)
 	for _, r := range m.results {

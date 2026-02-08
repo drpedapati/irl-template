@@ -36,6 +36,9 @@ func runDoctor(cmd *cobra.Command, args []string) {
 	// System info - single line
 	printSystemInfoCompact()
 
+	// Docs link
+	fmt.Printf("  %s %s\n", theme.Faint("Docs:"), theme.Cmd("https://www.irloop.org"))
+
 	// Two-column layout for tools
 	coreTools := []tool{
 		{"Git", "git", "brew install git"},
