@@ -31,3 +31,7 @@ date,change_summary,git_hash
 2026-02-08,Made Toy 3 plan content realistic for data scientists; validated both pages serve,a21900e
 2026-02-08,Made loop toy arrows more prominent; validated both pages serve,bea0940
 2026-02-08,Replaced file rectangles with single growing report in loop toy; validated both pages serve,b84ab9b
+2026-02-08,Added accumulating activity hints to loop toy; validated both pages serve,516ecb0
+2026-02-08,Updated Toy 2 captions to reflect report output and instruction trail; validated both pages serve,216ec8c
+2026-02-08,Replaced programmer jargon with non-technical terms in toys; validated both pages serve,1e4babf
+2026-02-08,Added Toy 4 (Anatomy of a Plan) and Toy 5 (Terminal Execution Loop); validated both pages serve,0f34ff2
