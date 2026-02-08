@@ -34,6 +34,8 @@ AI Feedback: Add ZeroTier address to access site
 
 it is hard to believe that you made all of the revisions in just one pass. Look at where you've been and what you've done in terms of responding to feedback. Go back to the feedback docs, read some more, and then continue to apply. Iteration will get better and better
 
+review the typography md feedback in particular and apply
+
 ### One-Time Instructions — Tasks that should only execute once
 
 <!-- 👤 AUTHOR AREA: Add one-time tasks below -->
