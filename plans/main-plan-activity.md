@@ -8,3 +8,4 @@
 - 2026-02-08 (58bf5e0): Reviewed senior feedback in `/Users/ernie/Dropbox/Henry Projects/irl-feedback` and revised `03-outputs/irl-explainer-site/index.html` (monochrome layout, deeper prose, more diagrams, added interactive toy); ran `make smoke`.
 - 2026-02-08 (c5cdb02): Re-read feedback docs and iterated on `03-outputs/irl-explainer-site/index.html` (more prose, underline-only link color, focus-visible a11y); ran `make smoke`.
 - 2026-02-08 (d65bb49): Reviewed `typography-feedback.md` and applied additional typography tweaks (narrower content width, h2 divider, h3 size) to `03-outputs/irl-explainer-site/index.html`; ran `make smoke`.
+- 2026-02-08 (a2e4cf2): Pulled updated `explainer-site-skill` (skill repo HEAD `8a5ccd1`) and revalidated site with `make -C 03-outputs/irl-explainer-site smoke`.
