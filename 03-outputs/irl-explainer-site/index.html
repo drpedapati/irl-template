@@ -43,7 +43,8 @@
 
       body {
         margin: 0;
-        background: var(--bg);
+        /* Subtle page shading (monochrome) to avoid a sterile "pure white slab". */
+        background: linear-gradient(180deg, #ffffff 0%, #fbfbfb 70%, #ffffff 100%);
         color: var(--ink);
         font-family: var(--sans);
         line-height: 1.7;
@@ -57,8 +58,17 @@
       }
 
       header {
-        padding-bottom: 18px;
+        padding: 18px 0 18px;
         border-bottom: 1px solid var(--border);
+      }
+
+      .kicker {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--subtle);
+        margin-bottom: 10px;
       }
 
       h1 {
@@ -295,6 +305,7 @@
   <body>
     <div class="wrap">
       <header>
+        <div class="kicker">A document-centric workflow for AI-assisted work</div>
         <h1>IRL: Idempotent Research Loop</h1>
         <p class="lede">
           I'm obsessed with a specific kind of failure: you do something smart

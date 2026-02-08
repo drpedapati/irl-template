@@ -36,6 +36,9 @@ it is hard to believe that you made all of the revisions in just one pass. Look 
 
 review the typography md feedback in particular and apply
 review sample website in explainer skill and apply similar styling
+there is an elegance in the original that is not here
+for example the title area seems so basic
+where are the subtle shading int he background etc
 
 
 ### One-Time Instructions — Tasks that should only execute once
