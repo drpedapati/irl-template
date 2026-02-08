@@ -235,6 +235,49 @@
         in chat history &mdash; it all lives in files you can inspect.
       </p>
 
+      <h2>Anatomy of a Plan</h2>
+      <p class="intro">
+        Every IRL project starts with one file: <strong>main-plan.md</strong>.
+        Click any section to see what it does.
+      </p>
+
+      <div class="panel" style="max-width:100%" id="anatomy-panel">
+        <div class="panel-head">
+          <span class="panel-label" style="color:var(--subtle)">main-plan.md</span>
+        </div>
+        <div id="anatomy-stage" style="padding:0;font-family:var(--mono);font-size:12px;line-height:1.55;background:#fafafa;border-top:1px solid var(--border)">
+        </div>
+        <div class="panel-foot neutral" id="ft-anatomy">Click a section to learn more.</div>
+      </div>
+
+      <p class="aside">
+        The plan file is the single source of truth. The human writes the
+        instructions; the AI reads and executes them. Every section has a clear
+        role &mdash; and nothing important lives only in chat history.
+      </p>
+
+      <h2>The Execution Loop</h2>
+      <p class="intro">
+        One command, repeated. The AI reads your plan, checks for new
+        instructions, and executes. You review, revise, repeat.
+      </p>
+
+      <div class="panel" style="max-width:100%" id="terminal-panel">
+        <div class="panel-head">
+          <span class="panel-label" style="color:var(--subtle)">Terminal &rarr; AI</span>
+          <button class="run-btn" id="terminal-btn" type="button">Play</button>
+        </div>
+        <div id="terminal-stage" style="padding:16px 18px;min-height:180px;font-family:var(--mono);font-size:13px;line-height:1.6;background:#1e1e2e;color:#cdd6f4;border-top:1px solid var(--border);overflow:hidden;border-radius:0 0 8px 8px">
+        </div>
+        <div class="panel-foot neutral" id="ft-terminal">Watch the workflow loop.</div>
+      </div>
+
+      <p class="aside">
+        This is the entire workflow: open a terminal, give the AI your plan,
+        and tell it to execute. Each pass picks up your latest revisions
+        and builds on previous output. The plan file is the interface.
+      </p>
+
       <footer><a href="index.html">Back to the explainer</a></footer>
     </div>
 
@@ -1029,6 +1072,202 @@
       /* Auto-play on load */
       setTimeout(runProcess, 1200);
       btn.addEventListener("click", function() { if (!running) runProcess(); });
+    })();
+
+    /* ══════════════════════════════════════════════════════════
+       Toy 4 — Anatomy of a Main Plan (interactive clickable)
+       ══════════════════════════════════════════════════════════ */
+    (function () {
+      var stage = document.getElementById("anatomy-stage");
+      var ft = document.getElementById("ft-anatomy");
+      var TEAL = "#0d9488";
+
+      var sections = [
+        { icon: "\ud83d\udd27", title: "First Time Setup",
+          summary: "Run once when starting a new project",
+          detail: "Install any skills or tools the project needs. This only runs once \u2014 after that, every loop starts from the same baseline." },
+        { icon: "\u2705", title: "Before Each Loop",
+          summary: "Checklist to run before every iteration",
+          detail: "Verify the working tree is clean, the script is idempotent, and raw data hasn\u2019t changed. This ensures every loop starts from a known, stable state." },
+        { icon: "\ud83d\udd01", title: "Instruction Loop",
+          summary: "The work for each iteration",
+          detail: "The author writes what to do: load data, run analyses, produce outputs. The AI follows these instructions step by step. New revisions get added here between loops." },
+        { icon: "\ud83d\udcdd", title: "After Each Loop",
+          summary: "Steps to complete after every iteration",
+          detail: "Update the activity log, save a version checkpoint, and give feedback. This creates a traceable record of every change." },
+        { icon: "\u26a1", title: "One-Time Instructions",
+          summary: "Tasks that should only execute once",
+          detail: "Special tasks like re-downloading an updated skill or a one-off migration. Once done, they\u2019re not repeated." },
+        { icon: "\ud83d\udcac", title: "AI Feedback",
+          summary: "Where the AI reports back",
+          detail: "After each loop, the AI writes concise feedback: what was done, decisions needed, and anything that might break idempotency. The author reads this before the next revision." },
+      ];
+
+      var active = -1;
+
+      function render() {
+        stage.innerHTML = "";
+        for (var i = 0; i < sections.length; i++) {
+          (function(idx) {
+            var s = sections[idx];
+            var row = document.createElement("div");
+            row.style.cssText = "padding:10px 16px;border-bottom:1px solid #e5e7eb;cursor:pointer;transition:background 0.2s";
+            if (idx === active) row.style.background = "#f0fdfa";
+
+            var head = document.createElement("div");
+            head.style.cssText = "display:flex;align-items:center;gap:8px";
+            var iconSpan = document.createElement("span");
+            iconSpan.textContent = s.icon;
+            iconSpan.style.fontSize = "14px";
+            var titleSpan = document.createElement("span");
+            titleSpan.style.cssText = "font-weight:600;font-size:12px;color:#111827";
+            titleSpan.textContent = s.title;
+            var sumSpan = document.createElement("span");
+            sumSpan.style.cssText = "margin-left:auto;font-size:10.5px;color:#6b7280";
+            sumSpan.textContent = s.summary;
+            head.appendChild(iconSpan);
+            head.appendChild(titleSpan);
+            head.appendChild(sumSpan);
+            row.appendChild(head);
+
+            if (idx === active) {
+              var det = document.createElement("div");
+              det.style.cssText = "margin-top:8px;padding:8px 10px;background:#fff;border-radius:6px;border:1px solid #d1d5db;font-size:11.5px;line-height:1.55;color:#374151;font-family:var(--sans)";
+              det.textContent = s.detail;
+              row.appendChild(det);
+              ft.textContent = s.icon + " " + s.title;
+              ft.className = "panel-foot teal";
+            }
+
+            row.addEventListener("mouseenter", function() {
+              if (idx !== active) row.style.background = "#f9fafb";
+            });
+            row.addEventListener("mouseleave", function() {
+              row.style.background = idx === active ? "#f0fdfa" : "";
+            });
+            row.addEventListener("click", function() {
+              active = active === idx ? -1 : idx;
+              render();
+            });
+
+            stage.appendChild(row);
+          })(i);
+        }
+        if (active === -1) {
+          ft.textContent = "Click a section to learn more.";
+          ft.className = "panel-foot neutral";
+        }
+      }
+
+      render();
+    })();
+
+    /* ══════════════════════════════════════════════════════════
+       Toy 5 — The Execution Loop (terminal animation)
+       ══════════════════════════════════════════════════════════ */
+    (function () {
+      var stage = document.getElementById("terminal-stage");
+      var btn = document.getElementById("terminal-btn");
+      var ft = document.getElementById("ft-terminal");
+      var running = false;
+      var PROMPT_C = "#89b4fa";
+      var CMD_C = "#cdd6f4";
+      var DIM_C = "#6c7086";
+      var GREEN = "#a6e3a1";
+      var AMBER = "#fab387";
+
+      function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+      function line(text, color, indent) {
+        var el = document.createElement("div");
+        el.style.cssText = "opacity:0;transition:opacity 0.3s;white-space:pre-wrap" + (indent ? ";padding-left:16px" : "");
+        el.style.color = color || CMD_C;
+        el.textContent = text;
+        stage.appendChild(el);
+        requestAnimationFrame(function() { el.style.opacity = "1"; });
+        return el;
+      }
+
+      function prompt(text) {
+        var el = document.createElement("div");
+        el.style.cssText = "opacity:0;transition:opacity 0.3s;white-space:pre-wrap";
+        var p = document.createElement("span");
+        p.style.color = PROMPT_C;
+        p.textContent = "$ ";
+        var c = document.createElement("span");
+        c.style.color = CMD_C;
+        c.textContent = text;
+        el.appendChild(p);
+        el.appendChild(c);
+        stage.appendChild(el);
+        requestAnimationFrame(function() { el.style.opacity = "1"; });
+        return el;
+      }
+
+      var loops = [
+        { rev: null,
+          steps: ["Reading main-plan.md\u2026", "No new revisions found.", "Executing instruction loop\u2026", "Loading survey data\u2026", "Running analysis\u2026", "Rendering report \u2192 03-outputs/report.html"],
+          result: "Loop 1 complete \u2014 report.html produced." },
+        { rev: "\u270e Author adds revision: \"add confidence intervals\"",
+          steps: ["Reading main-plan.md\u2026", "New revision detected!", "Executing instruction loop\u2026", "Reloading data\u2026", "Adding 95% CI to results\u2026", "Rendering report v2 \u2192 03-outputs/report.html"],
+          result: "Loop 2 complete \u2014 report updated with confidence intervals." },
+        { rev: "\u270e Author adds revision: \"include effect size\"",
+          steps: ["Reading main-plan.md\u2026", "New revision detected!", "Executing instruction loop\u2026", "Computing Cohen\u2019s d\u2026", "Rendering report v3 \u2192 03-outputs/report.html"],
+          result: "Loop 3 complete \u2014 report now includes effect size." },
+      ];
+
+      async function runTerminal() {
+        running = true;
+        btn.disabled = true;
+        btn.textContent = "Playing\u2026";
+        stage.innerHTML = "";
+        ft.textContent = "Watch the workflow loop.";
+        ft.className = "panel-foot neutral";
+
+        for (var i = 0; i < loops.length; i++) {
+          var lp = loops[i];
+
+          if (lp.rev) {
+            await sleep(600);
+            line("", DIM_C);
+            line(lp.rev, AMBER);
+            await sleep(800);
+          }
+
+          await sleep(i === 0 ? 400 : 500);
+          line("", DIM_C);
+          prompt("Review main-plan.md, check for revisions, and execute");
+          await sleep(600);
+
+          for (var j = 0; j < lp.steps.length; j++) {
+            await sleep(350);
+            var isRev = lp.steps[j].indexOf("revision") > -1;
+            line("  " + lp.steps[j], isRev ? AMBER : DIM_C);
+          }
+
+          await sleep(400);
+          line("\u2713 " + lp.result, GREEN);
+          ft.textContent = "Loop " + (i + 1) + " of " + loops.length;
+
+          /* auto-scroll stage */
+          stage.scrollTop = stage.scrollHeight;
+        }
+
+        await sleep(600);
+        line("", DIM_C);
+        line("Same command every time. The plan file drives everything.", CMD_C);
+        ft.className = "panel-foot teal";
+        ft.textContent = "Three loops complete \u2014 one command, iterative refinement.";
+        stage.scrollTop = stage.scrollHeight;
+
+        running = false;
+        btn.disabled = false;
+        btn.textContent = "Replay";
+      }
+
+      /* Auto-play on load */
+      setTimeout(runTerminal, 1800);
+      btn.addEventListener("click", function() { if (!running) runTerminal(); });
     })();
     </script>
   </body>
