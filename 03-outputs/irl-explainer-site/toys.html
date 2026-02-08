@@ -502,7 +502,7 @@
 
       /* Activity hint snippets — from actual IRL instructions */
       var PLAN_HINTS = ["load survey data", "filter responses", "run t-test", "compute stats", "render report", "check inputs"];
-      var EXEC_HINTS = ["reading CSV\u2026", "filtering rows\u2026", "computing means\u2026", "running t-test\u2026", "writing HTML\u2026", "saving output\u2026"];
+      var EXEC_HINTS = ["reading data\u2026", "filtering rows\u2026", "computing means\u2026", "running t-test\u2026", "writing report\u2026", "saving output\u2026"];
       var hintLog = []; /* accumulated: {text, side:"h"|"a", born} */
       var hintSchedule = [], hintFired = 0;
 
@@ -895,7 +895,7 @@
         /* Three plan sections */
         var secBefore = document.createElement("div");
         secBefore.style.cssText = "padding:5px 7px;border-radius:5px;margin-bottom:5px;transition:background 0.4s,border-color 0.4s;border:1px solid transparent;white-space:pre-line";
-        secBefore.innerHTML = '<span style="font-weight:600">\u2705 Before Each Loop</span>\n<span style="color:#6b7280">- git status \u2014 clean working tree\n- Script is idempotent\n- Raw data in 02-data/ unchanged</span>';
+        secBefore.innerHTML = '<span style="font-weight:600">\u2705 Before Each Loop</span>\n<span style="color:#6b7280">- Version control \u2014 clean working tree\n- Script is idempotent\n- Raw data in 02-data/ unchanged</span>';
 
         var secLoop = document.createElement("div");
         secLoop.style.cssText = "padding:5px 7px;border-radius:5px;margin-bottom:5px;transition:background 0.4s,border-color 0.4s;border:1px solid transparent;white-space:pre-line";
@@ -911,7 +911,7 @@
 
         var secAfter = document.createElement("div");
         secAfter.style.cssText = "padding:5px 7px;border-radius:5px;transition:background 0.4s,border-color 0.4s;border:1px solid transparent;white-space:pre-line";
-        secAfter.innerHTML = '<span style="font-weight:600">\ud83d\udcdd After Each Loop</span>\n<span style="color:#6b7280">- Update plans/activity.md\n- git add + commit checkpoint</span>';
+        secAfter.innerHTML = '<span style="font-weight:600">\ud83d\udcdd After Each Loop</span>\n<span style="color:#6b7280">- Update activity log\n- Save version checkpoint</span>';
 
         planBody.appendChild(secBefore);
         planBody.appendChild(secLoop);
