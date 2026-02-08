@@ -13,3 +13,21 @@ date,change_summary,git_hash
 2026-02-08,Applied explainer-skill header design pattern (frosted glass) and validated with make smoke,dae294b
 2026-02-08,Improved explainer header whitespace and added author byline; validated with make smoke,65f881b
 2026-02-08,Removed artifact path callout from explainer page and validated with make smoke,e5fdfbb
+2026-02-08,Added early idempotent explanation for non-technical readers; validated with make smoke,924dbf3
+2026-02-08,Added interactive idempotency toy to Section 5; validated with make smoke,b7ec19a
+2026-02-08,Redesigned title area with centered layout and non-technical main title; validated with make smoke,604ed4f
+2026-02-08,Replaced opening paragraphs with author text and removed table of contents; validated with make smoke,742cc97
+2026-02-08,Tightened opening paragraphs to 4 condensed lede paragraphs; validated with make smoke,98fad19
+2026-02-08,Created toys.html with idempotent vs non-idempotent contrast toy; validated both pages serve,cf3f9eb
+2026-02-08,Redesigned toys with animated canvas constellations and seeded RNG; validated both pages serve,66000f0
+2026-02-08,Redesigned toy with scatter/settle animation and constellation lines; validated both pages serve,aca3f66
+2026-02-08,Added Toy 2 The Recipe with animated flow visualization; validated both pages serve,84577f9
+2026-02-08,Redesigned Toy 2 as The Loop with triangular HUMAN/AI layout; validated both pages serve,f91be00
+2026-02-08,Densified loop toy with bigger nodes/labels and auto-play 3 cycles; validated both pages serve,91644f5
+2026-02-08,Iterated loop toy labels and replaced ARTIFACTS with FILES; validated both pages serve,9da3fd4
+2026-02-08,Added Toy 3 The Process with DOM-based animated walkthrough; validated both pages serve,8cec869
+2026-02-08,Revised Toy 3 to use actual IRL Basic Template structure; validated both pages serve,9464b9e
+2026-02-08,Redesigned Toy 3 as side-by-side layout with two loops and revision; validated both pages serve,64f1dbb
+2026-02-08,Made Toy 3 plan content realistic for data scientists; validated both pages serve,a21900e
+2026-02-08,Made loop toy arrows more prominent; validated both pages serve,bea0940
+2026-02-08,Replaced file rectangles with single growing report in loop toy; validated both pages serve,b84ab9b
