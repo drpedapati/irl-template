@@ -20,3 +20,4 @@
 - 2026-02-08 (742cc97): Replaced opening paragraphs with author's new text (cooking/recipe analogy), removed table of contents, cleaned up dead nav CSS; idempotency back-reference updated to recipe metaphor; ran `make smoke`.
 - 2026-02-08 (98fad19): Tightened opening paragraphs to author's revised text — 5 lede paragraphs condensed to 4, sharper recipe analogy, merged idempotent definition into IRL explanation paragraph; ran `make smoke`.
 - 2026-02-08 (cf3f9eb): Created `03-outputs/irl-explainer-site/toys.html` — separate toy playground page with idempotent vs. non-idempotent side-by-side contrast toy; validated both pages serve correctly.
+- 2026-02-08 (66000f0): Redesigned toys page with animated canvas-based visuals — seeded RNG dot constellations (idempotent side always same pattern, non-idempotent side drifts + accumulates), cubic ease-out animation, HiDPI canvas, monochrome palette; validated both pages serve.
