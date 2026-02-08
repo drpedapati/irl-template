@@ -39,6 +39,7 @@ review sample website in explainer skill and apply similar styling
 there is an elegance in the original that is not here
 for example the title area seems so basic
 where are the subtle shading int he background etc
+I want some better white space management on my page, especially the header. Add author Ernest Pedapati, MD
 
 
 ### One-Time Instructions — Tasks that should only execute once

@@ -105,7 +105,7 @@
       }
 
       header {
-        padding: 18px 0 18px;
+        padding: 26px 0 22px;
         border-bottom: 1px solid var(--border);
       }
 
@@ -132,7 +132,17 @@
       .lede {
         color: var(--muted);
         font-size: 17px;
+        margin: 12px 0;
+      }
+      .lede:first-of-type {
         margin-top: 0;
+      }
+
+      .byline {
+        font-family: var(--mono);
+        font-size: 12.5px;
+        color: var(--subtle);
+        margin: -2px 0 14px;
       }
 
       a {
@@ -159,8 +169,8 @@
       }
 
       nav {
-        margin-top: 18px;
-        padding: 12px 14px;
+        margin-top: 22px;
+        padding: 14px 14px;
         border: 1px solid var(--border);
         border-radius: 10px;
       }
@@ -373,6 +383,7 @@
       <header>
         <div class="kicker">A document-centric workflow for AI-assisted work</div>
         <h1>IRL: Idempotent Research Loop</h1>
+        <div class="byline">Ernest Pedapati, MD</div>
         <p class="lede">
           I'm obsessed with a specific kind of failure: you do something smart
           with an AI assistant, it works, you feel productive... and then the
