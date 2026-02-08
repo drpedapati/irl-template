@@ -18,3 +18,4 @@
 - 2026-02-08 (b7ec19a): Added interactive idempotency toy to Section 5 — simulates running a step repeatedly with identical output to demonstrate the concept for non-technical readers; ran `make smoke`.
 - 2026-02-08 (604ed4f): Redesigned title area — centered layout, new main title "AI Work You Can Retrace" (non-technical), "Idempotent Research Loop" as monospace subtitle below, byline inside centered block; updated `<title>` tag and smoke test; ran `make smoke`.
 - 2026-02-08 (742cc97): Replaced opening paragraphs with author's new text (cooking/recipe analogy), removed table of contents, cleaned up dead nav CSS; idempotency back-reference updated to recipe metaphor; ran `make smoke`.
+- 2026-02-08 (98fad19): Tightened opening paragraphs to author's revised text — 5 lede paragraphs condensed to 4, sharper recipe analogy, merged idempotent definition into IRL explanation paragraph; ran `make smoke`.
