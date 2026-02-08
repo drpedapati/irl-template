@@ -191,23 +191,23 @@
 
       <h2>The Loop</h2>
       <p class="intro">
-        Humans reason and plan. AI executes. Each cycle produces artifacts
-        the human reviews before planning the next step.
+        You decide what to build. The AI does the work. Each cycle produces
+        real files you can inspect, then you review and plan the next step.
       </p>
 
       <div class="panel" style="max-width:100%">
         <div class="panel-head">
-          <span class="panel-label" style="color:var(--subtle)">Human &harr; AI &rarr; Artifacts</span>
+          <span class="panel-label" style="color:var(--subtle)">Human &harr; AI &rarr; Files</span>
           <button class="run-btn" id="recipe-btn" type="button">Run Cycle</button>
         </div>
-        <div class="canvas-wrap" style="aspect-ratio:5/3"><canvas id="cv-recipe"></canvas></div>
-        <div class="panel-foot neutral" id="ft-recipe">Watching the loop\u2026</div>
+        <div class="canvas-wrap" style="aspect-ratio:5/2.5"><canvas id="cv-recipe"></canvas></div>
+        <div class="panel-foot neutral" id="ft-recipe">Watching the loop&hellip;</div>
       </div>
 
       <p class="aside">
-        The human decides what to build and evaluates results. The AI follows
-        instructions faithfully. The plan file sits between them &mdash; a stable
-        contract both sides can point to. Each loop iteration adds to the foundation.
+        You write a plan describing what you want. The AI reads it and produces
+        files &mdash; reports, datasets, diagrams. You review the results, refine
+        the plan, and run it again. Each cycle builds on the last.
       </p>
 
       <footer><a href="index.html">Back to the explainer</a></footer>
@@ -474,11 +474,11 @@
       var REVIEW_C = "#92400e";
       var ART_COLORS = ["#0d9488","#14b8a6","#2dd4bf","#0f766e","#5eead4"];
 
-      function nodeR() { return Math.min(W(), H()) * 0.13; }
+      function nodeR() { return Math.min(W(), H()) * 0.15; }
 
       function layout() {
         var w = W(), h = H();
-        return { hx: w*0.22, hy: h*0.35, ax: w*0.78, ay: h*0.35, r: nodeR() };
+        return { hx: w*0.22, hy: h*0.38, ax: w*0.78, ay: h*0.38, r: nodeR() };
       }
 
       /* Three bezier legs forming the loop */
@@ -490,14 +490,14 @@
             c1x: w*0.38, c1y: h*0.08, c2x: w*0.62, c2y: h*0.08,
             ex: L.ax - r*0.85, ey: L.ay - r*0.5,
             color: HUMAN_C, label: "plan" },
-          /* 1: AI → Artifacts (curve down right) */
+          /* 1: AI → Files (curve down right) */
           { sx: L.ax + r*0.15, sy: L.ay + r,
-            c1x: w*0.85, c1y: h*0.60, c2x: w*0.68, c2y: h*0.78,
-            ex: w*0.58, ey: h*0.76,
+            c1x: w*0.85, c1y: h*0.65, c2x: w*0.68, c2y: h*0.82,
+            ex: w*0.58, ey: h*0.80,
             color: AI_C, label: "execute" },
-          /* 2: Artifacts → Human (curve up left) */
-          { sx: w*0.42, sy: h*0.76,
-            c1x: w*0.30, c1y: h*0.78, c2x: w*0.14, c2y: h*0.60,
+          /* 2: Files → Human (curve up left) */
+          { sx: w*0.42, sy: h*0.80,
+            c1x: w*0.30, c1y: h*0.82, c2x: w*0.14, c2y: h*0.65,
             ex: L.hx - r*0.15, ey: L.hy + r,
             color: REVIEW_C, label: "review" },
         ];
@@ -537,12 +537,12 @@
         ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.stroke();
         ctx.setLineDash([]);
         ctx.fillStyle = color;
-        ctx.font = "700 15px " + mono;
+        ctx.font = "700 20px " + mono;
         ctx.textAlign = "center"; ctx.textBaseline = "middle";
-        ctx.fillText(label, x, y - 6);
+        ctx.fillText(label, x, y - 8);
         if (sub) {
-          ctx.font = "400 11px " + mono; ctx.globalAlpha = 0.55;
-          ctx.fillText(sub, x, y + 12); ctx.globalAlpha = 1;
+          ctx.font = "400 14px " + mono; ctx.globalAlpha = 0.55;
+          ctx.fillText(sub, x, y + 14); ctx.globalAlpha = 1;
         }
       }
 
@@ -571,10 +571,10 @@
           drawArrow(ctx, p);
           var mid = bezAt(p, 0.5);
           ctx.fillStyle = p.color; ctx.globalAlpha = 0.5;
-          ctx.font = "600 12px " + mono;
+          ctx.font = "600 15px " + mono;
           ctx.textAlign = "center"; ctx.textBaseline = "middle";
-          var offY = i === 0 ? -12 : 0;
-          var offX = i === 1 ? 16 : (i === 2 ? -16 : 0);
+          var offY = i === 0 ? -14 : 0;
+          var offX = i === 1 ? 18 : (i === 2 ? -18 : 0);
           ctx.fillText(p.label, mid.x + offX, mid.y + offY);
           ctx.globalAlpha = 1;
         }
@@ -586,8 +586,8 @@
         /* Artifact label + rectangles */
         if (artifacts.length > 0) {
           ctx.fillStyle = AI_C; ctx.globalAlpha = 0.45;
-          ctx.font = "600 12px " + mono; ctx.textAlign = "center";
-          ctx.fillText("ARTIFACTS", w*0.50, h*0.62);
+          ctx.font = "600 15px " + mono; ctx.textAlign = "center";
+          ctx.fillText("FILES", w*0.50, h*0.66);
           ctx.globalAlpha = 1;
         }
         for (var j = 0; j < artifacts.length; j++) {
@@ -671,7 +671,7 @@
             requestAnimationFrame(frame);
           } else {
             /* Settle new artifacts */
-            var artW = 16, artH = 20, artGap = 4;
+            var artW = 24, artH = 28, artGap = 5;
             var cols = Math.floor((w * 0.24) / (artW + artGap));
             if (cols < 1) cols = 1;
             for (var j = 0; j < EXEC_N; j++) {
@@ -680,7 +680,7 @@
               var row = Math.floor(idx / cols);
               artifacts.push({
                 x: w*0.38 + col*(artW + artGap),
-                y: h*0.66 + row*(artH + artGap),
+                y: h*0.70 + row*(artH + artGap),
                 w: artW, h: artH,
                 color: ART_COLORS[j % ART_COLORS.length],
               });
@@ -688,7 +688,7 @@
             drawScene(getCtx(), 0, 0);
             ft.className = "panel-foot teal";
             ft.textContent = "Cycle #" + cycles + " \u2014 " + artifacts.length +
-              " artifact" + (artifacts.length === 1 ? "" : "s") + ". Loop complete.";
+              " file" + (artifacts.length === 1 ? "" : "s") + " produced. Loop complete.";
             if (!autoPlaying) btn.disabled = false;
             if (onDone) onDone();
           }
