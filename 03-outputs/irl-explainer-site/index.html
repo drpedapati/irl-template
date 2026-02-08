@@ -133,6 +133,31 @@
         font-size: 12.5px;
       }
 
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 14px 0;
+        font-size: 14px;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 10px 10px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+      th {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--subtle);
+        font-weight: 600;
+      }
+      td code {
+        font-size: 12.5px;
+      }
+
       main {
         margin-top: 22px;
       }
@@ -302,6 +327,7 @@
             <li><a href="#sequence">A Single Run (Sequence)</a></li>
             <li><a href="#idempotency">Idempotency (The Boring Part)</a></li>
             <li><a href="#review">Review, Commit, Repeat</a></li>
+            <li><a href="#commands">Practical Commands</a></li>
             <li><a href="#remote">Remote Testing (ZeroTier)</a></li>
           </ul>
         </nav>
@@ -643,6 +669,58 @@ git diff --stat
 # only then
 git add -A
 git commit -m "..."</code></pre>
+        </section>
+
+        <section id="commands">
+          <h2>Practical Commands</h2>
+          <p class="subhead">
+            The fastest way to make IRL real is to have a small set of commands
+            you run every time. These are the ones I reach for constantly.
+          </p>
+
+          <table aria-label="Practical commands table">
+            <thead>
+              <tr>
+                <th>Command</th>
+                <th>Why it exists</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>git status --porcelain</code></td>
+                <td>
+                  Confirm a clean baseline before running anything. If the tree
+                  is dirty, you won’t know what the assistant changed.
+                </td>
+              </tr>
+              <tr>
+                <td><code>git diff</code></td>
+                <td>
+                  The review surface. You’re not reviewing a chat transcript;
+                  you’re reviewing file changes.
+                </td>
+              </tr>
+              <tr>
+                <td><code>make -C 03-outputs/irl-explainer-site smoke</code></td>
+                <td>
+                  Validate that the site artifact still serves locally and loads
+                  without basic breakage.
+                </td>
+              </tr>
+              <tr>
+                <td><code>irl doctor</code></td>
+                <td>
+                  (If you use the IRL CLI) sanity-check environment and required
+                  tools.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p class="aside">
+            If you want one habit: never commit without reading the diff. The
+            entire system is built around that.
+          </p>
         </section>
 
         <section id="remote">
