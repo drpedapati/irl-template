@@ -14,7 +14,7 @@ Install Explainer Skill: https://github.com/henrybloomingdale/explainer-site-ski
 
 - Script designed to be **idempotent**
 - **Version control**: clean tree (`git status`), commit baseline, `.gitignore` enforced
-- The **only permitted modification** is within the `## One-Time Instructions` section.
+- The **only permitted modification** is within the `## One-Time Instructions` and `AI Feedback` section **ONLY** on request.
 
 ---
 
@@ -28,6 +28,7 @@ Install Explainer Skill: https://github.com/henrybloomingdale/explainer-site-ski
 
 locally serve the website so I can test it.
 add makefile in website dir for easy management
+AI Feedback: Add ZeroTier address to access site
 
 ### One-Time Instructions — Tasks that should only execute once
 
@@ -69,6 +70,9 @@ add makefile in website dir for easy management
   1. What was done, decisions needed, next steps  
   2. Identify anything breaking idempotency, or obsolete/outdated instructions  
   3. Identify critical reasoning errors   
+
+## AI Feedback
+<!-- AI Edits AREA -->
 
 
 ## 📚 Skill Library — Optional community skills to install per project
