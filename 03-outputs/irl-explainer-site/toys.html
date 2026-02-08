@@ -210,6 +210,27 @@
         the plan, and run it again. Each cycle builds on the last.
       </p>
 
+      <h2>The Process</h2>
+      <p class="intro">
+        What a single IRL cycle actually looks like &mdash; from plan to output to commit.
+      </p>
+
+      <div class="panel" style="max-width:100%" id="process-panel">
+        <div class="panel-head">
+          <span class="panel-label" style="color:var(--subtle)">One cycle, start to finish</span>
+          <button class="run-btn" id="process-btn" type="button">Play</button>
+        </div>
+        <div id="process-stage" style="padding:16px 18px;min-height:320px;font-family:var(--mono);font-size:12.5px;line-height:1.6;background:#fafafa;border-top:1px solid var(--border);overflow:hidden;position:relative">
+        </div>
+        <div class="panel-foot neutral" id="ft-process">Watch an IRL cycle unfold.</div>
+      </div>
+
+      <p class="aside">
+        This is everything that happens in one iteration: a plan states what you
+        want, the AI produces real files, you review the diff, and commit. Nothing
+        is hidden in chat history &mdash; it all lives in files you can inspect.
+      </p>
+
       <footer><a href="index.html">Back to the explainer</a></footer>
     </div>
 
@@ -717,6 +738,167 @@
       /* Manual trigger */
       btn.addEventListener("click", function () {
         if (!autoPlaying) runOneCycle(null);
+      });
+    })();
+
+    /* ══════════════════════════════════════════════
+       TOY 3: THE PROCESS — one IRL cycle, real content
+       ══════════════════════════════════════════════ */
+    (function () {
+      var stage = document.getElementById("process-stage");
+      var btn = document.getElementById("process-btn");
+      var ft = document.getElementById("ft-process");
+      var mono = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
+      var running = false;
+
+      var TEAL = "#0d9488";
+      var GRAY = "#6b7280";
+      var AMBER = "#92400e";
+      var GREEN = "#16a34a";
+
+      /* Typing animation helper */
+      function typeText(el, text, charMs, done) {
+        var i = 0;
+        function next() {
+          if (i < text.length) {
+            el.textContent += text[i];
+            i++;
+            setTimeout(next, charMs);
+          } else if (done) { done(); }
+        }
+        next();
+      }
+
+      /* Create a styled document block */
+      function makeDoc(title, titleColor) {
+        var wrap = document.createElement("div");
+        wrap.style.cssText = "border:1px solid #e5e7eb;border-radius:8px;background:#fff;margin-bottom:12px;overflow:hidden;opacity:0;transition:opacity 0.4s";
+        var head = document.createElement("div");
+        head.style.cssText = "padding:8px 12px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:8px";
+        var dot = document.createElement("span");
+        dot.style.cssText = "width:8px;height:8px;border-radius:50%;background:" + titleColor;
+        var lbl = document.createElement("span");
+        lbl.style.cssText = "font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:" + titleColor;
+        lbl.textContent = title;
+        head.appendChild(dot);
+        head.appendChild(lbl);
+        var body = document.createElement("div");
+        body.style.cssText = "padding:10px 12px;white-space:pre-wrap;color:#374151;font-size:12px;line-height:1.6;min-height:24px";
+        wrap.appendChild(head);
+        wrap.appendChild(body);
+        return { wrap: wrap, body: body };
+      }
+
+      /* Status line helper */
+      function makeStatus(text, color) {
+        var s = document.createElement("div");
+        s.style.cssText = "padding:6px 0;font-size:11px;font-weight:600;letter-spacing:0.04em;color:" + color + ";opacity:0;transition:opacity 0.3s";
+        s.textContent = text;
+        return s;
+      }
+
+      function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+      /* The plan content */
+      var planText = "## Task: Summarize ERP data\n\n- Input:  02-data/raw/erp-components.csv\n- Output: 03-outputs/summary.html\n- Done:   Table of means by group";
+
+      /* The output content */
+      var outputText = "<h3>ERP Summary</h3>\n\nGroup    N    P300 mean   Latency\n─────    ──   ─────────   ───────\nALS      24   4.2 \u00B5V      342 ms\nControl  28   6.8 \u00B5V      318 ms\n\np = 0.023 (t-test, two-tailed)";
+
+      /* The diff content */
+      var diffText = " 03-outputs/summary.html | 12 ++++++++++++\n 1 file changed, 12 insertions(+)";
+
+      async function runProcess() {
+        if (running) return;
+        running = true;
+        btn.disabled = true;
+        btn.textContent = "Playing\u2026";
+        stage.innerHTML = "";
+        ft.className = "panel-foot neutral";
+        ft.textContent = "Step 1 of 4 \u2014 Writing the plan\u2026";
+
+        /* Step 1: Plan appears */
+        var plan = makeDoc("main-plan.md", TEAL);
+        stage.appendChild(plan.wrap);
+        await sleep(100);
+        plan.wrap.style.opacity = "1";
+        await sleep(300);
+        await new Promise(function(resolve) {
+          typeText(plan.body, planText, 18, resolve);
+        });
+        await sleep(600);
+
+        /* Step 2: AI executes */
+        ft.textContent = "Step 2 of 4 \u2014 AI reading plan and executing\u2026";
+        var status1 = makeStatus("\u25B6 AI executing\u2026", GRAY);
+        stage.appendChild(status1);
+        await sleep(100);
+        status1.style.opacity = "1";
+        await sleep(400);
+
+        /* Pulsing dots effect */
+        var dots = 0;
+        var dotTimer = setInterval(function() {
+          dots = (dots + 1) % 4;
+          status1.textContent = "\u25B6 AI executing" + ".".repeat(dots);
+        }, 300);
+        await sleep(1800);
+        clearInterval(dotTimer);
+        status1.textContent = "\u2713 AI finished";
+        status1.style.color = GREEN;
+        await sleep(400);
+
+        /* Step 3: Output appears */
+        ft.textContent = "Step 3 of 4 \u2014 Output produced";
+        var output = makeDoc("03-outputs/summary.html", AMBER);
+        stage.appendChild(output.wrap);
+        await sleep(100);
+        output.wrap.style.opacity = "1";
+        await sleep(200);
+        await new Promise(function(resolve) {
+          typeText(output.body, outputText, 14, resolve);
+        });
+        await sleep(600);
+
+        /* Step 4: Review + commit */
+        ft.textContent = "Step 4 of 4 \u2014 Review diff and commit";
+        var status2 = makeStatus("$ git diff --stat", GRAY);
+        stage.appendChild(status2);
+        await sleep(100);
+        status2.style.opacity = "1";
+        await sleep(400);
+
+        var diffDoc = makeDoc("git diff", GRAY);
+        diffDoc.body.style.color = GREEN;
+        diffDoc.body.style.fontSize = "11px";
+        stage.appendChild(diffDoc.wrap);
+        await sleep(100);
+        diffDoc.wrap.style.opacity = "1";
+        await sleep(200);
+        await new Promise(function(resolve) {
+          typeText(diffDoc.body, diffText, 20, resolve);
+        });
+        await sleep(500);
+
+        var status3 = makeStatus("\u2713 Committed \u2014 checkpoint saved", GREEN);
+        stage.appendChild(status3);
+        await sleep(100);
+        status3.style.opacity = "1";
+
+        ft.className = "panel-foot teal";
+        ft.textContent = "Cycle complete \u2014 plan \u2192 execute \u2192 output \u2192 commit. Everything is in files you can inspect.";
+
+        await sleep(800);
+        running = false;
+        btn.disabled = false;
+        btn.textContent = "Replay";
+      }
+
+      /* Auto-play on load after a delay */
+      setTimeout(runProcess, 1200);
+
+      btn.addEventListener("click", function() {
+        if (!running) runProcess();
       });
     })();
     </script>
