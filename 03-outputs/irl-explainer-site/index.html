@@ -366,48 +366,35 @@
           with an AI assistant, it works, you feel productive... and then the
           whole thing evaporates into a chat transcript nobody will ever read
           again. A week later you can't answer basic questions. What inputs did
-          we use? What assumptions did we make? Which files changed? If the
-          result is wrong, where did it go wrong?
+          we use? What assumptions did we make? If the result is wrong, where
+          did it go wrong?
         </p>
         <p class="lede">
           Think about the difference between cooking from memory and cooking
           from a recipe. From memory, you might make something great, but you
           can't teach it to someone else, you can't reliably make it again, and
-          if it goes wrong you're just guessing at what changed. A recipe gives
-          you a shared reference: ingredients, steps, expected results. If the
-          dish comes out wrong, you can trace it back. If you want to make it
-          more complex, add a sauce, try a new technique, you tweak the recipe,
-          not your memory of what worked last time.
+          if it goes wrong you're just guessing at what changed. A recipe
+          externalizes the knowledge. You can trace problems, share it with
+          others, and build on it deliberately.
         </p>
         <p class="lede">
-          IRL works the same way, but for AI-assisted projects. Instead of a
-          recipe, you write a plan file. Instead of ingredients, you list your
-          inputs and assumptions. Instead of a dish, the assistant produces
-          files you can inspect: a report, a dataset, a diagram. You start
-          small and layer complexity one step at a time, with each cycle
-          producing real artifacts you can review, reproduce, and build on.
-          It's a discipline that turns "I chatted with an AI" into a growing
-          body of work you can actually trust.
+          IRL is a recipe for AI-assisted work. You write a plan file with your
+          inputs, assumptions, and what the output should be. The AI follows the
+          plan and produces files you can actually inspect: a report, a dataset,
+          a diagram. You start small and layer complexity one step at a time.
+          "Idempotent" just means: same recipe, same ingredients, same dish. You
+          can rerun any step, add to it, and know the foundation hasn't shifted
+          underneath you.
         </p>
         <p class="lede">
-          The word "idempotent" in the name just means: if you follow the same
-          recipe with the same ingredients, you get the same dish. No mystery
-          changes, no surprises. That's what makes iterative building safe. You
-          can add complexity one layer at a time and know the foundation hasn't
-          shifted underneath you.
-        </p>
-        <p class="lede">
-          IRL works because it respects what humans and AI are each good at.
-          Humans are good at deciding what matters, judging quality, and
-          noticing when something is off. AI is good at processing data,
-          generating drafts, and following detailed instructions without getting
-          tired. But AI has no real memory of why it did something last week,
-          and humans lose track of files and assumptions fast once a project
-          gets complex. The plan file sits in the middle. It gives you a place
-          to think clearly about what you want, and it gives the AI a stable
-          set of instructions that doesn't depend on anyone's memory. The files
-          that come out of each step become the shared record that holds both
-          sides honest.
+          The design plays to what each side is good at. Humans decide what
+          matters, judge quality, notice when something is off. AI processes
+          data, generates drafts, follows instructions without getting tired.
+          But AI has no memory of why it did something last week, and humans
+          lose track of assumptions fast. The plan file sits in the middle. It
+          gives you a place to think clearly about what you want and gives the
+          AI stable instructions that don't depend on anyone's memory. The files
+          that come out become the shared record that holds both sides honest.
         </p>
       </header>
 
