@@ -343,17 +343,14 @@
           </svg>
           IRL Explainer
         </a>
-        <div style="display:flex;align-items:center;gap:14px">
-          <a class="util" href="./toys.html">Toys</a>
-          <a
-            class="util"
-            href="https://github.com/drpedapati/irl-template"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            View Source
-          </a>
-        </div>
+        <a
+          class="util"
+          href="https://github.com/drpedapati/irl-template"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View Source
+        </a>
       </div>
     </header>
     <div class="wrap">
@@ -675,18 +672,11 @@
             </figcaption>
           </figure>
 
-          <div class="toy" aria-label="Interactive toy: idempotent vs non-idempotent contrast">
-            <button id="toy-idem" type="button">Run Twice</button>
-            <span
-              id="idem-count"
-              style="font-family:var(--mono);font-size:12px;color:var(--subtle);margin-left:10px"
-            ></span>
+          <div class="toy" aria-label="Interactive toy: demonstrate idempotency">
+            <button id="toy-idem" type="button">Run Step</button>
+            <span id="idem-count" style="font-family:var(--mono);font-size:12px;color:var(--subtle);margin-left:10px"></span>
             <div id="idem-output" style="margin-top:12px"></div>
-            <p
-              id="idem-verdict"
-              class="aside"
-              style="margin-bottom:0;margin-top:12px;display:none"
-            ></p>
+            <p id="idem-verdict" class="aside" style="margin-bottom:0;margin-top:12px;display:none"></p>
           </div>
 
           <p class="aside">
@@ -962,102 +952,37 @@ make -C 03-outputs/irl-explainer-site zt</code></pre>
           });
         }
 
-        // Idempotency toy: contrast a "mystery-changing" step vs a stable step.
+        // Idempotency toy: run a "step" repeatedly, same output every time.
         var idemBtn = document.getElementById("toy-idem");
         var idemCount = document.getElementById("idem-count");
         var idemOutput = document.getElementById("idem-output");
         var idemVerdict = document.getElementById("idem-verdict");
         var idemRuns = 0;
-
-        function renderToyCard(title, lines, tone) {
-          var bg = "#fafafa";
-          var border = theme.border;
-          if (tone === "ok") {
-            border = "rgba(34, 197, 94, 0.55)";
-            bg = "rgba(34, 197, 94, 0.06)";
-          } else if (tone === "bad") {
-            border = "rgba(239, 68, 68, 0.55)";
-            bg = "rgba(239, 68, 68, 0.06)";
-          }
-          return (
-            '<div style="border:1px solid ' +
-            border +
-            ";border-radius:10px;padding:10px 12px;background:" +
-            bg +
-            ';font-family:var(--mono);font-size:12.5px;line-height:1.6">' +
-            '<div style="color:var(--subtle);font-size:11px;margin-bottom:6px">' +
-            title +
-            "</div>" +
-            lines.join("<br>") +
-            "</div>"
-          );
-        }
-
-        function nonIdempotentOutput(runIdx) {
-          // Deterministic "randomness": changes each run to illustrate the problem.
-          var p = (23 + runIdx * 7) % 100;
-          var mean = (11.3 + runIdx * 0.2).toFixed(1);
-          return [
-            "Subjects: 42",
-            "Mean age: " + mean,
-            "p = 0." + String(p).padStart(2, "0"),
-          ];
-        }
-
-        function idempotentOutput() {
-          return ["Subjects: 42", "Mean age: 11.3", "p = 0.023"];
-        }
+        var idemFile =
+          '<div style="border:1px solid ' +
+          theme.border +
+          ";border-radius:8px;padding:10px 12px;background:#fafafa;" +
+          'font-family:var(--mono);font-size:12.5px;line-height:1.6">' +
+          '<div style="color:var(--subtle);font-size:11px;margin-bottom:6px">' +
+          "03-outputs/report.html</div>" +
+          "Subjects: 42<br>Mean age: 11.3<br>p = 0.023</div>";
 
         if (idemBtn) {
           idemBtn.addEventListener("click", function () {
-            idemRuns = 2;
-            idemCount.textContent = "2 runs simulated";
-
-            var bad1 = renderToyCard(
-              "Non-idempotent step (run #1)",
-              nonIdempotentOutput(1),
-              "bad"
-            );
-            var bad2 = renderToyCard(
-              "Non-idempotent step (run #2)",
-              nonIdempotentOutput(2),
-              "bad"
-            );
-            var ok1 = renderToyCard(
-              "Idempotent step (run #1)",
-              idempotentOutput(),
-              "ok"
-            );
-            var ok2 = renderToyCard(
-              "Idempotent step (run #2)",
-              idempotentOutput(),
-              "ok"
-            );
-
-            idemOutput.innerHTML =
-              '<div style="display:grid;grid-template-columns:1fr;gap:10px">' +
-              '<div style="display:grid;grid-template-columns:1fr;gap:10px">' +
-              bad1 +
-              bad2 +
-              "</div>" +
-              '<div style="display:grid;grid-template-columns:1fr;gap:10px">' +
-              ok1 +
-              ok2 +
-              "</div>" +
-              "</div>";
-            // Two columns on wider screens.
-            idemOutput.firstChild.style.gridTemplateColumns =
-              "minmax(0,1fr)";
-            if (window.matchMedia && window.matchMedia("(min-width: 720px)").matches) {
-              idemOutput.firstChild.style.gridTemplateColumns =
-                "minmax(0,1fr) minmax(0,1fr)";
-            }
-
+            idemRuns++;
+            idemCount.textContent = "Run #" + idemRuns;
+            idemOutput.innerHTML = idemFile;
             idemVerdict.style.display = "block";
-            idemVerdict.textContent =
-              "The left side changed between run #1 and run #2 even though the inputs " +
-              "were 'the same' \u2014 that's a non-idempotent step. The right side stayed " +
-              "identical \u2014 rerunning is safe, and your diff can be empty.";
+            if (idemRuns === 1) {
+              idemVerdict.textContent =
+                "First run: the step produced an output file.";
+            } else {
+              idemVerdict.textContent =
+                "Run #" +
+                idemRuns +
+                ": same inputs, same output. The diff is empty \u2014 " +
+                "nothing changed. That\u2019s idempotency.";
+            }
           });
         }
       })();
