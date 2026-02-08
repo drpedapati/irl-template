@@ -40,3 +40,4 @@
 - 2026-02-08 (65d6041): Added Toy 6 (The Workspace) — interactive VS Code-style IDE layout with four clickable zones (file explorer, plan editor, output preview with stat cards, terminal); overlay descriptions on click; Tour button for guided walkthrough; validated both pages serve.
 - 2026-02-08 (7ea31e8): Fixed workspace toy proportions — taller editor area (280→360px), proper terminal height (56→80px) for realistic IDE look; validated both pages serve.
 - 2026-02-08 (36d249f): Added fifth lede paragraph to index.html emphasizing IRL as a meta-skill — "the thing that builds all the other things"; ran `make smoke`.
+- 2026-02-08 (9478d05): Added Toy 7 (One Pattern, Many Projects) — morphing animation showing same plan structure with three different use cases (website, data analysis, literature review); crossfade between skills and instructions; auto-plays on load; validated both pages serve.
