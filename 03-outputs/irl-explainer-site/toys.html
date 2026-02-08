@@ -498,6 +498,36 @@
       var REVIEW_C = "#92400e";
       /* report line widths pre-defined in RLINE_W above */
 
+      /* Activity hint snippets — from actual IRL instructions */
+      var PLAN_HINTS = ["load survey data", "filter responses", "run t-test", "compute stats", "render report", "check inputs"];
+      var EXEC_HINTS = ["reading CSV\u2026", "filtering rows\u2026", "computing means\u2026", "running t-test\u2026", "writing HTML\u2026", "saving output\u2026"];
+      var hintLog = []; /* accumulated: {text, side:"h"|"a", born} */
+      var hintSchedule = [], hintFired = 0;
+
+      function drawAllHints(ctx) {
+        var w = W(), now = performance.now();
+        var hc = 0, ac = 0;
+        for (var i = 0; i < hintLog.length; i++) {
+          var ht = hintLog[i];
+          var age = now - ht.born;
+          var fadeIn = Math.min(age / 600, 1);
+          var recency = hintLog.length - 1 - i;
+          var baseA = Math.max(0.12, 0.45 - recency * 0.05);
+          var alpha = fadeIn * baseA;
+          if (alpha < 0.01) continue;
+          ctx.font = "italic 10px " + mono;
+          ctx.globalAlpha = alpha;
+          if (ht.side === "h") {
+            ctx.textAlign = "left"; ctx.fillStyle = HUMAN_C;
+            ctx.fillText(ht.text, 8, 14 + hc * 14); hc++;
+          } else {
+            ctx.textAlign = "right"; ctx.fillStyle = AI_C;
+            ctx.fillText(ht.text, w - 8, 14 + ac * 14); ac++;
+          }
+        }
+        ctx.globalAlpha = 1;
+      }
+
       function nodeR() { return Math.min(W(), H()) * 0.15; }
 
       function layout() {
@@ -638,6 +668,9 @@
           }
           ctx.globalAlpha = 1;
         }
+
+        /* Accumulated activity hints in margins */
+        drawAllHints(ctx);
       }
 
       /* Particle drawing helper */
@@ -677,10 +710,23 @@
       var phase3T = FLOW_MS + (REV_N-1)*STAGGER;
       var totalT = phase3S + phase3T;
 
+      function buildHintSchedule(n) {
+        var b = (n - 1) % PLAN_HINTS.length;
+        return [
+          [phase1T * 0.25, PLAN_HINTS[b % PLAN_HINTS.length], "h"],
+          [phase1T * 0.70, PLAN_HINTS[(b+1) % PLAN_HINTS.length], "h"],
+          [phase2S + phase2T * 0.25, EXEC_HINTS[b % EXEC_HINTS.length], "a"],
+          [phase2S + phase2T * 0.70, EXEC_HINTS[(b+1) % EXEC_HINTS.length], "a"],
+          [phase3S + phase3T * 0.35, "check output\u2026", "h"],
+        ];
+      }
+
       /* Run one cycle, call onDone when finished */
       function runOneCycle(onDone) {
         btn.disabled = true;
         cycles++;
+        hintSchedule = buildHintSchedule(cycles);
+        hintFired = 0;
         var w = W(), h = H(), P = loopPaths();
         var t0 = null;
 
@@ -708,6 +754,14 @@
           drawParticles(c, P[2], el, phase3S, REV_N, STAGGER, FLOW_MS, REVIEW_C);
 
           c.globalAlpha = 1;
+
+          /* Fire scheduled hints — accumulate in margins */
+          while (hintFired < hintSchedule.length && el >= hintSchedule[hintFired][0]) {
+            var hs = hintSchedule[hintFired];
+            hintLog.push({ text: hs[1], side: hs[2], born: performance.now() });
+            hintFired++;
+            if (hintLog.length > 20) hintLog.splice(0, hintLog.length - 20);
+          }
 
           if (el < totalT) {
             requestAnimationFrame(frame);
