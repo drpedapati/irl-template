@@ -197,7 +197,7 @@
 
       <div class="panel" style="max-width:100%">
         <div class="panel-head">
-          <span class="panel-label" style="color:var(--subtle)">Human &harr; AI &rarr; Files</span>
+          <span class="panel-label" style="color:var(--subtle)">Human &harr; AI &rarr; Report</span>
           <button class="run-btn" id="recipe-btn" type="button">Run Cycle</button>
         </div>
         <div class="canvas-wrap" style="aspect-ratio:5/2.5"><canvas id="cv-recipe"></canvas></div>
@@ -479,7 +479,8 @@
       var btn = document.getElementById("recipe-btn");
       var ft = document.getElementById("ft-recipe");
       var cycles = 0;
-      var artifacts = [];
+      var reportVer = 0;
+      var RLINE_W = [0.72,0.50,0.88,0.62,0.40,0.78,0.55,0.83,0.68];
       var autoPlaying = false;
       var mono = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
 
@@ -495,7 +496,7 @@
       var HUMAN_C = "#0d9488";
       var AI_C = "#6b7280";
       var REVIEW_C = "#92400e";
-      var ART_COLORS = ["#0d9488","#14b8a6","#2dd4bf","#0f766e","#5eead4"];
+      /* report line widths pre-defined in RLINE_W above */
 
       function nodeR() { return Math.min(W(), H()) * 0.15; }
 
@@ -606,17 +607,35 @@
         drawNode(ctx, L.hx, L.hy, L.r, HUMAN_C, false, "HUMAN", "reason \xb7 plan", gh||0);
         drawNode(ctx, L.ax, L.ay, L.r, AI_C, true, "AI", "execute", ga||0);
 
-        /* Artifact label + rectangles */
-        if (artifacts.length > 0) {
-          ctx.fillStyle = AI_C; ctx.globalAlpha = 0.45;
-          ctx.font = "600 15px " + mono; ctx.textAlign = "center";
-          ctx.fillText("FILES", w*0.50, h*0.66);
+        /* Report document */
+        if (reportVer > 0) {
+          var rw = 82, nLines = reportVer * 3;
+          var rh = 24 + nLines * 8;
+          var rx = w*0.50 - rw/2, ry = h*0.60;
+
+          /* shadow */
+          ctx.fillStyle = "#e5e7eb"; ctx.globalAlpha = 0.4;
+          ctx.beginPath(); roundRect(ctx, rx+2, ry+2, rw, rh, 5); ctx.fill();
+
+          /* card */
+          ctx.fillStyle = "#fff"; ctx.globalAlpha = 1;
+          ctx.beginPath(); roundRect(ctx, rx, ry, rw, rh, 5); ctx.fill();
+          ctx.strokeStyle = "#d1d5db"; ctx.lineWidth = 1;
+          ctx.beginPath(); roundRect(ctx, rx, ry, rw, rh, 5); ctx.stroke();
+
+          /* label */
+          ctx.fillStyle = AI_C; ctx.globalAlpha = 0.55;
+          ctx.font = "600 11px " + mono; ctx.textAlign = "center";
+          ctx.fillText("REPORT v" + reportVer, w*0.50, ry - 7);
           ctx.globalAlpha = 1;
-        }
-        for (var j = 0; j < artifacts.length; j++) {
-          var a = artifacts[j];
-          ctx.fillStyle = a.color; ctx.globalAlpha = 0.85;
-          ctx.beginPath(); roundRect(ctx, a.x, a.y, a.w, a.h, 3); ctx.fill();
+
+          /* content lines */
+          for (var l = 0; l < nLines; l++) {
+            var fresh = l >= (nLines - 3);
+            ctx.fillStyle = fresh ? HUMAN_C : "#9ca3af";
+            ctx.globalAlpha = fresh ? 0.45 : 0.25;
+            ctx.fillRect(rx+8, ry+10+l*8, (rw-16)*RLINE_W[l%RLINE_W.length], 3);
+          }
           ctx.globalAlpha = 1;
         }
       }
@@ -683,9 +702,9 @@
 
           /* Phase 1: Human → AI  (plan) */
           drawParticles(c, P[0], el, 0, PLAN_N, STAGGER, FLOW_MS, HUMAN_C);
-          /* Phase 2: AI → Artifacts (execute) */
+          /* Phase 2: AI → Report (execute) */
           drawParticles(c, P[1], el, phase2S, EXEC_N, STAGGER, FLOW_MS, AI_C);
-          /* Phase 3: Artifacts → Human (review) */
+          /* Phase 3: Report → Human (review) */
           drawParticles(c, P[2], el, phase3S, REV_N, STAGGER, FLOW_MS, REVIEW_C);
 
           c.globalAlpha = 1;
@@ -693,25 +712,12 @@
           if (el < totalT) {
             requestAnimationFrame(frame);
           } else {
-            /* Settle new artifacts */
-            var artW = 24, artH = 28, artGap = 5;
-            var cols = Math.floor((w * 0.24) / (artW + artGap));
-            if (cols < 1) cols = 1;
-            for (var j = 0; j < EXEC_N; j++) {
-              var idx = artifacts.length;
-              var col = idx % cols;
-              var row = Math.floor(idx / cols);
-              artifacts.push({
-                x: w*0.38 + col*(artW + artGap),
-                y: h*0.70 + row*(artH + artGap),
-                w: artW, h: artH,
-                color: ART_COLORS[j % ART_COLORS.length],
-              });
-            }
+            /* Update report version */
+            reportVer = cycles;
             drawScene(getCtx(), 0, 0);
             ft.className = "panel-foot teal";
-            ft.textContent = "Cycle #" + cycles + " \u2014 " + artifacts.length +
-              " file" + (artifacts.length === 1 ? "" : "s") + " produced. Loop complete.";
+            ft.textContent = "Cycle #" + cycles + " \u2014 Report v" + reportVer +
+              " produced. Loop complete.";
             if (!autoPlaying) btn.disabled = false;
             if (onDone) onDone();
           }
