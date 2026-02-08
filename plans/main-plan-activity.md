@@ -14,6 +14,7 @@
 - 2026-02-08 (dae294b): Updated `explainer-site-skill` (skill repo HEAD `2849c0a`) and applied its frosted-glass header pattern to `03-outputs/irl-explainer-site/index.html`; ran `make smoke`.
 - 2026-02-08 (65f881b): Improved header whitespace + added author byline to `03-outputs/irl-explainer-site/index.html`; ran `make smoke`.
 - 2026-02-08 (e5fdfbb): Removed artifact-path callout from `03-outputs/irl-explainer-site/index.html`; ran `make smoke`.
+- 2026-02-08 (16ad2a7): Implemented latest plan revisions (new intro/title, removed TOC), added idempotency contrast toy, and created `03-outputs/irl-explainer-site/toys.html` scratchpad; ran `make smoke` and served `toys.html`.
 - 2026-02-08 (924dbf3): Re-downloaded explainer skill v1.5.0 (header design section); confirmed site already matches pattern — no header changes needed. Added early plain-language explanation of "idempotent" in the lede for non-technical readers; updated Section 5 opener to back-reference it; ran `make smoke`.
 - 2026-02-08 (b7ec19a): Added interactive idempotency toy to Section 5 — simulates running a step repeatedly with identical output to demonstrate the concept for non-technical readers; ran `make smoke`.
 - 2026-02-08 (604ed4f): Redesigned title area — centered layout, new main title "AI Work You Can Retrace" (non-technical), "Idempotent Research Loop" as monospace subtitle below, byline inside centered block; updated `<title>` tag and smoke test; ran `make smoke`.
