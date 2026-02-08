@@ -36,3 +36,4 @@ date,change_summary,git_hash
 2026-02-08,Replaced programmer jargon with non-technical terms in toys; validated both pages serve,1e4babf
 2026-02-08,Added Toy 4 (Anatomy of a Plan) and Toy 5 (Terminal Execution Loop); validated both pages serve,0f34ff2
 2026-02-08,Redesigned Toy 4 as split visual layout with plan on left and clickable labels on right; validated both pages serve,f87d7f9
+2026-02-08,Added Toy 6 (The Workspace) interactive IDE layout with clickable zones and guided tour; validated both pages serve,65d6041
