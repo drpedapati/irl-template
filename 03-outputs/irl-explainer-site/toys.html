@@ -13,9 +13,9 @@
         --subtle: #6b7280;
         --border: #e5e7eb;
         --green: #059669;
+        --green-light: #d1fae5;
         --red: #dc2626;
-        --code-bg: #0b1020;
-        --code-ink: #e5e7eb;
+        --red-light: #fee2e2;
 
         --sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
@@ -24,12 +24,11 @@
       }
 
       * { box-sizing: border-box; }
-
       html, body { height: 100%; }
 
       body {
         margin: 0;
-        background: linear-gradient(180deg, #ffffff 0%, #fbfbfb 70%, #ffffff 100%);
+        background: linear-gradient(180deg, #ffffff 0%, #f9fafb 50%, #ffffff 100%);
         color: var(--ink);
         font-family: var(--sans);
         line-height: 1.7;
@@ -63,20 +62,14 @@
         text-decoration: none;
         letter-spacing: -0.01em;
       }
-      .brand svg {
-        width: 14px;
-        height: 14px;
-        display: block;
-      }
+      .brand svg { width: 14px; height: 14px; display: block; }
       .topbar a.util {
         font-family: var(--mono);
         font-size: 12px;
         color: var(--subtle);
         text-decoration: none;
       }
-      .topbar a.util:hover {
-        color: var(--ink);
-      }
+      .topbar a.util:hover { color: var(--ink); }
 
       .wrap {
         max-width: 860px;
@@ -84,8 +77,8 @@
         padding: 28px 18px 80px;
       }
 
-      header {
-        padding: 26px 0 22px;
+      .page-header {
+        padding: 30px 0 24px;
         border-bottom: 1px solid var(--border);
         text-align: center;
       }
@@ -97,7 +90,7 @@
         margin: 0 0 8px;
       }
 
-      .subtitle {
+      .page-subtitle {
         font-family: var(--mono);
         font-size: 13px;
         color: var(--subtle);
@@ -109,7 +102,7 @@
         font-size: 22px;
         line-height: 1.25;
         letter-spacing: -0.01em;
-        margin: 28px 0 10px;
+        margin: 32px 0 6px;
         padding-bottom: 6px;
         border-bottom: 1px solid var(--border);
       }
@@ -118,111 +111,98 @@
         color: var(--muted);
         font-size: 16px;
         max-width: 600px;
-        margin: 16px auto;
+        margin: 12px auto 24px;
         text-align: center;
       }
 
-      /* Side-by-side contrast layout */
+      /* ── Contrast layout ── */
       .contrast {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 16px;
-        margin-top: 18px;
+        gap: 18px;
       }
       @media (max-width: 600px) {
-        .contrast {
-          grid-template-columns: 1fr;
-        }
+        .contrast { grid-template-columns: 1fr; }
       }
 
       .panel {
         border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 16px;
+        border-radius: 12px;
         background: #ffffff;
-      }
-
-      .panel-title {
-        font-family: var(--mono);
-        font-size: 12px;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        margin: 0 0 12px;
-      }
-      .panel-title.good { color: var(--green); }
-      .panel-title.bad { color: var(--red); }
-
-      .panel button {
-        font-family: var(--mono);
-        font-size: 12px;
-        padding: 8px 12px;
-        border-radius: 8px;
-        border: 1px solid var(--border);
-        background: #ffffff;
-        cursor: pointer;
-      }
-      .panel button:hover { background: #f9fafb; }
-
-      .run-count {
-        font-family: var(--mono);
-        font-size: 12px;
-        color: var(--subtle);
-        margin-left: 10px;
-      }
-
-      .file-display {
-        margin-top: 12px;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        background: #fafafa;
-        font-family: var(--mono);
-        font-size: 12.5px;
-        line-height: 1.6;
         overflow: hidden;
       }
 
-      .file-header {
-        padding: 6px 10px;
-        background: #f3f4f6;
-        border-bottom: 1px solid var(--border);
+      .panel-head {
+        padding: 14px 16px 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .panel-label {
+        font-family: var(--mono);
         font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .panel-label.good { color: var(--green); }
+      .panel-label.bad { color: var(--red); }
+
+      .run-btn {
+        font-family: var(--mono);
+        font-size: 11px;
+        padding: 5px 12px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: #ffffff;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .run-btn:hover { background: #f9fafb; }
+      .run-btn:disabled { cursor: not-allowed; opacity: 0.5; }
+
+      .canvas-wrap {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        background: #fafafa;
+        border-top: 1px solid var(--border);
+      }
+      .canvas-wrap canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .panel-status {
+        padding: 10px 16px;
+        font-family: var(--mono);
+        font-size: 11px;
+        line-height: 1.5;
+        border-top: 1px solid var(--border);
+        min-height: 38px;
+        transition: background 0.3s, color 0.3s;
+      }
+      .panel-status.neutral {
+        background: #f9fafb;
         color: var(--subtle);
       }
-
-      .file-body {
-        padding: 10px 12px;
-        min-height: 60px;
-        white-space: pre-wrap;
-      }
-
-      .diff-status {
-        margin-top: 10px;
-        padding: 8px 10px;
-        border-radius: 8px;
-        font-family: var(--mono);
-        font-size: 12px;
-        line-height: 1.5;
-      }
-      .diff-status.clean {
-        background: #f0fdf4;
-        border: 1px solid #bbf7d0;
+      .panel-status.clean {
+        background: var(--green-light);
         color: var(--green);
       }
-      .diff-status.dirty {
-        background: #fef2f2;
-        border: 1px solid #fecaca;
+      .panel-status.dirty {
+        background: var(--red-light);
         color: var(--red);
-      }
-      .diff-status.empty {
-        background: #f9fafb;
-        border: 1px solid var(--border);
-        color: var(--subtle);
       }
 
       .aside {
         border-left: 3px solid var(--border);
         padding-left: 14px;
-        margin: 18px 0;
+        margin: 24px 0;
         color: var(--muted);
         font-size: 15px;
       }
@@ -263,56 +243,52 @@
     </header>
 
     <div class="wrap">
-      <header>
+      <div class="page-header">
         <h1>Toy Playground</h1>
-        <div class="subtitle">Design experiments for IRL concepts</div>
-      </header>
+        <div class="page-subtitle">Design experiments for IRL concepts</div>
+      </div>
 
       <h2>Idempotent vs. Non-Idempotent</h2>
       <p class="intro">
-        Click "Run Step" on each side and watch what happens. One side produces
-        the same result every time. The other doesn't.
+        Press "Run" on each side. Watch the dots settle into place.
+        One side always produces the same pattern. The other never does.
       </p>
 
       <div class="contrast">
         <!-- Idempotent panel -->
         <div class="panel">
-          <div class="panel-title good">Idempotent</div>
-          <button id="idem-btn" type="button">Run Step</button>
-          <span id="idem-count" class="run-count"></span>
-
-          <div id="idem-file" class="file-display" style="display:none">
-            <div class="file-header">03-outputs/report.html</div>
-            <div class="file-body" id="idem-body"></div>
+          <div class="panel-head">
+            <span class="panel-label good">Idempotent</span>
+            <button class="run-btn" id="idem-btn" type="button">Run</button>
           </div>
-
-          <div id="idem-diff" class="diff-status empty">
-            Press "Run Step" to begin.
+          <div class="canvas-wrap">
+            <canvas id="idem-canvas"></canvas>
+          </div>
+          <div class="panel-status neutral" id="idem-status">
+            Same inputs, same outputs. Press Run.
           </div>
         </div>
 
         <!-- Non-idempotent panel -->
         <div class="panel">
-          <div class="panel-title bad">Non-Idempotent</div>
-          <button id="nonidem-btn" type="button">Run Step</button>
-          <span id="nonidem-count" class="run-count"></span>
-
-          <div id="nonidem-file" class="file-display" style="display:none">
-            <div class="file-header" id="nonidem-header">03-outputs/report.html</div>
-            <div class="file-body" id="nonidem-body"></div>
+          <div class="panel-head">
+            <span class="panel-label bad">Non-Idempotent</span>
+            <button class="run-btn" id="nonidem-btn" type="button">Run</button>
           </div>
-
-          <div id="nonidem-diff" class="diff-status empty">
-            Press "Run Step" to begin.
+          <div class="canvas-wrap">
+            <canvas id="nonidem-canvas"></canvas>
+          </div>
+          <div class="panel-status neutral" id="nonidem-status">
+            Same inputs, different outputs. Press Run.
           </div>
         </div>
       </div>
 
       <p class="aside">
-        The left side is safe to rerun: same inputs, same output, empty diff.
-        The right side accumulates mess: timestamped filenames, drifting data,
-        diffs that grow with every run. Idempotency is what makes the loop
-        trustworthy.
+        The left side is safe to rerun: dots always land in the same places,
+        like following a recipe exactly. The right side drifts: new dots appear,
+        positions shift, and you can't tell which run was "correct." Idempotency
+        is what makes iteration trustworthy.
       </p>
 
       <footer>
@@ -322,83 +298,267 @@
 
     <script>
       (function () {
-        // ── Idempotent side ──
-        var iBtn = document.getElementById("idem-btn");
-        var iCount = document.getElementById("idem-count");
-        var iFile = document.getElementById("idem-file");
-        var iBody = document.getElementById("idem-body");
-        var iDiff = document.getElementById("idem-diff");
-        var iRuns = 0;
+        /* ── Shared constants ── */
+        var DOT_COUNT = 14;
+        var DOT_RADIUS = 6;
+        var ANIM_DURATION = 900; /* ms */
+        var EASE = function (t) {
+          /* cubic ease-out */
+          return 1 - Math.pow(1 - t, 3);
+        };
 
-        var stableOutput = "Subjects: 42\nMean age: 11.3\np = 0.023";
-
-        iBtn.addEventListener("click", function () {
-          iRuns++;
-          iCount.textContent = "Run #" + iRuns;
-          iFile.style.display = "";
-          iBody.textContent = stableOutput;
-
-          if (iRuns === 1) {
-            iDiff.className = "diff-status clean";
-            iDiff.textContent = "Output written to 03-outputs/report.html";
-          } else {
-            iDiff.className = "diff-status clean";
-            iDiff.textContent =
-              "git diff: (empty) — no changes. Run #" + iRuns +
-              " produced the same file.";
+        /* ── Canvas helpers ── */
+        function initCanvas(id) {
+          var canvas = document.getElementById(id);
+          var dpr = window.devicePixelRatio || 1;
+          function resize() {
+            var rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            canvas.style.width = rect.width + "px";
+            canvas.style.height = rect.height + "px";
           }
-        });
-
-        // ── Non-idempotent side ──
-        var nBtn = document.getElementById("nonidem-btn");
-        var nCount = document.getElementById("nonidem-count");
-        var nFile = document.getElementById("nonidem-file");
-        var nHeader = document.getElementById("nonidem-header");
-        var nBody = document.getElementById("nonidem-body");
-        var nDiff = document.getElementById("nonidem-diff");
-        var nRuns = 0;
-        var nFiles = [];
-
-        function fakeTimestamp(run) {
-          // Simulate different timestamps for each run
-          var base = 1422 + run;
-          return "2026-02-08_" + base;
+          resize();
+          window.addEventListener("resize", resize);
+          return { canvas: canvas, dpr: dpr, resize: resize };
         }
 
-        nBtn.addEventListener("click", function () {
-          nRuns++;
-          nCount.textContent = "Run #" + nRuns;
-          nFile.style.display = "";
+        function getCtx(info) {
+          var ctx = info.canvas.getContext("2d");
+          ctx.setTransform(info.dpr, 0, 0, info.dpr, 0, 0);
+          return ctx;
+        }
 
-          var ts = fakeTimestamp(nRuns);
-          var filename = "report_" + ts + ".html";
-          nFiles.push(filename);
+        function canvasSize(info) {
+          return {
+            w: info.canvas.width / info.dpr,
+            h: info.canvas.height / info.dpr,
+          };
+        }
 
-          nHeader.textContent = "03-outputs/" + filename;
+        /* ── Seeded random (mulberry32) for deterministic targets ── */
+        function mulberry32(seed) {
+          return function () {
+            seed |= 0;
+            seed = (seed + 0x6d2b79f5) | 0;
+            var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+            t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+          };
+        }
 
-          // Slightly different data each run (simulating nondeterminism)
-          var ages = [11.3, 11.4, 11.2, 11.5, 11.1];
-          var pvals = [0.023, 0.027, 0.019, 0.031, 0.024];
-          var idx = (nRuns - 1) % ages.length;
-
-          nBody.textContent =
-            "Subjects: 42\n" +
-            "Mean age: " + ages[idx] + "\n" +
-            "p = " + pvals[idx] + "\n" +
-            "Generated: " + ts;
-
-          if (nRuns === 1) {
-            nDiff.className = "diff-status dirty";
-            nDiff.textContent =
-              "New file: 03-outputs/" + filename;
-          } else {
-            nDiff.className = "diff-status dirty";
-            nDiff.textContent =
-              nFiles.length + " files in 03-outputs/. " +
-              "New: " + filename + ". " +
-              "Data changed (age: " + ages[idx] +
-              ", p: " + pvals[idx] + "). Which one is correct?";
+        /* Generate target positions using a seed (deterministic). */
+        function targetPositions(count, w, h, seed) {
+          var rng = mulberry32(seed);
+          var pad = DOT_RADIUS + 12;
+          var pts = [];
+          for (var i = 0; i < count; i++) {
+            pts.push({
+              x: pad + rng() * (w - 2 * pad),
+              y: pad + rng() * (h - 2 * pad),
+            });
           }
+          return pts;
+        }
+
+        /* Random scatter positions (truly random). */
+        function scatterPositions(count, w, h) {
+          var pad = DOT_RADIUS + 12;
+          var pts = [];
+          for (var i = 0; i < count; i++) {
+            pts.push({
+              x: pad + Math.random() * (w - 2 * pad),
+              y: pad + Math.random() * (h - 2 * pad),
+            });
+          }
+          return pts;
+        }
+
+        /* ── Palette: soft monochrome grays with one accent ── */
+        function dotColors(count, seed) {
+          var rng = mulberry32(seed);
+          var palette = [
+            "#111827", "#374151", "#4b5563", "#6b7280",
+            "#9ca3af", "#d1d5db",
+          ];
+          var colors = [];
+          for (var i = 0; i < count; i++) {
+            colors.push(palette[Math.floor(rng() * palette.length)]);
+          }
+          return colors;
+        }
+
+        /* ── Draw dots ── */
+        function drawDots(ctx, dots, w, h) {
+          ctx.clearRect(0, 0, w, h);
+          for (var i = 0; i < dots.length; i++) {
+            var d = dots[i];
+            ctx.beginPath();
+            ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+            ctx.fillStyle = d.color;
+            ctx.globalAlpha = d.alpha !== undefined ? d.alpha : 1;
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+        }
+
+        /* ── Animate from → to ── */
+        function animateDots(info, fromDots, toDots, colors, onDone) {
+          var start = null;
+          function frame(ts) {
+            if (!start) start = ts;
+            var elapsed = ts - start;
+            var t = Math.min(elapsed / ANIM_DURATION, 1);
+            var et = EASE(t);
+
+            var size = canvasSize(info);
+            var ctx = getCtx(info);
+            var current = [];
+            for (var i = 0; i < toDots.length; i++) {
+              var from = fromDots[i] || toDots[i];
+              current.push({
+                x: from.x + (toDots[i].x - from.x) * et,
+                y: from.y + (toDots[i].y - from.y) * et,
+                r: DOT_RADIUS,
+                color: colors[i % colors.length],
+                alpha: fromDots[i] ? 1 : et, /* fade in new dots */
+              });
+            }
+            drawDots(ctx, current, size.w, size.h);
+
+            if (t < 1) {
+              requestAnimationFrame(frame);
+            } else if (onDone) {
+              onDone(current);
+            }
+          }
+          requestAnimationFrame(frame);
+        }
+
+        /* ══════════════════════════════════════════════
+           IDEMPOTENT SIDE
+           ══════════════════════════════════════════════ */
+        var iInfo = initCanvas("idem-canvas");
+        var iBtn = document.getElementById("idem-btn");
+        var iStatus = document.getElementById("idem-status");
+        var iRuns = 0;
+        var iCurrentDots = null;
+        var IDEM_SEED = 42;
+        var iColors = dotColors(DOT_COUNT, IDEM_SEED);
+
+        /* Draw initial scattered dots */
+        (function () {
+          var size = canvasSize(iInfo);
+          iCurrentDots = scatterPositions(DOT_COUNT, size.w, size.h).map(
+            function (p, i) {
+              return {
+                x: p.x,
+                y: p.y,
+                r: DOT_RADIUS,
+                color: iColors[i],
+              };
+            }
+          );
+          drawDots(getCtx(iInfo), iCurrentDots, size.w, size.h);
+        })();
+
+        iBtn.addEventListener("click", function () {
+          iBtn.disabled = true;
+          iRuns++;
+
+          var size = canvasSize(iInfo);
+          /* Always the same target (seeded). */
+          var targets = targetPositions(DOT_COUNT, size.w, size.h, IDEM_SEED);
+          var from = iCurrentDots || scatterPositions(DOT_COUNT, size.w, size.h);
+
+          animateDots(iInfo, from, targets, iColors, function (final) {
+            iCurrentDots = final;
+            iBtn.disabled = false;
+
+            if (iRuns === 1) {
+              iStatus.className = "panel-status clean";
+              iStatus.textContent = "Run #1 — pattern established.";
+            } else {
+              iStatus.className = "panel-status clean";
+              iStatus.textContent =
+                "Run #" + iRuns + " — same pattern. No diff.";
+            }
+          });
+        });
+
+        /* ══════════════════════════════════════════════
+           NON-IDEMPOTENT SIDE
+           ══════════════════════════════════════════════ */
+        var nInfo = initCanvas("nonidem-canvas");
+        var nBtn = document.getElementById("nonidem-btn");
+        var nStatus = document.getElementById("nonidem-status");
+        var nRuns = 0;
+        var nCurrentDots = null;
+        var nDotCount = DOT_COUNT;
+        var nColors = dotColors(DOT_COUNT + 20, 99); /* extra colors for growth */
+
+        /* Draw initial scattered dots */
+        (function () {
+          var size = canvasSize(nInfo);
+          nCurrentDots = scatterPositions(DOT_COUNT, size.w, size.h).map(
+            function (p, i) {
+              return {
+                x: p.x,
+                y: p.y,
+                r: DOT_RADIUS,
+                color: nColors[i],
+              };
+            }
+          );
+          drawDots(getCtx(nInfo), nCurrentDots, size.w, size.h);
+        })();
+
+        nBtn.addEventListener("click", function () {
+          nBtn.disabled = true;
+          nRuns++;
+
+          var size = canvasSize(nInfo);
+          /* Random targets every time + add 1-2 extra dots each run. */
+          var extras = Math.floor(Math.random() * 2) + 1;
+          var newCount = nDotCount + extras;
+          var targets = scatterPositions(newCount, size.w, size.h);
+
+          /* Pad 'from' with offscreen positions for new dots. */
+          var from = (nCurrentDots || []).slice();
+          while (from.length < newCount) {
+            from.push({
+              x: -20,
+              y: size.h * Math.random(),
+              r: DOT_RADIUS,
+              color: nColors[from.length % nColors.length],
+            });
+          }
+
+          animateDots(
+            nInfo,
+            from,
+            targets,
+            nColors,
+            function (final) {
+              nCurrentDots = final;
+              nDotCount = newCount;
+              nBtn.disabled = false;
+
+              if (nRuns === 1) {
+                nStatus.className = "panel-status dirty";
+                nStatus.textContent =
+                  "Run #1 — " + newCount + " dots. Positions random.";
+              } else {
+                nStatus.className = "panel-status dirty";
+                nStatus.textContent =
+                  "Run #" +
+                  nRuns +
+                  " — " +
+                  newCount +
+                  " dots now. Different every time.";
+              }
+            }
+          );
         });
       })();
     </script>
