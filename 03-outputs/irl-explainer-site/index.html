@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>IRL: Idempotent Research Loop</title>
+    <title>AI Work You Can Retrace — Idempotent Research Loop</title>
     <meta
       name="description"
       content="IRL is a document-centric workflow for reproducible AI-assisted research: you edit a plan, the AI executes, and git diffs become the audit trail."
@@ -109,6 +109,11 @@
         border-bottom: 1px solid var(--border);
       }
 
+      .title-block {
+        text-align: center;
+        padding-bottom: 20px;
+      }
+
       .kicker {
         font-family: var(--mono);
         font-size: 12px;
@@ -122,7 +127,15 @@
         font-size: clamp(34px, 4.2vw, 48px);
         line-height: 1.1;
         letter-spacing: -0.02em;
-        margin: 0 0 12px;
+        margin: 0 0 8px;
+      }
+
+      .subtitle {
+        font-family: var(--mono);
+        font-size: 14px;
+        letter-spacing: 0.04em;
+        color: var(--subtle);
+        margin: 0 0 10px;
       }
 
       p {
@@ -381,9 +394,12 @@
     </header>
     <div class="wrap">
       <header>
-        <div class="kicker">A document-centric workflow for AI-assisted work</div>
-        <h1>IRL: Idempotent Research Loop</h1>
-        <div class="byline">Ernest Pedapati, MD</div>
+        <div class="title-block">
+          <div class="kicker">A document-centric workflow for AI-assisted work</div>
+          <h1>AI Work You Can Retrace</h1>
+          <div class="subtitle">Idempotent Research Loop</div>
+          <div class="byline">Ernest Pedapati, MD</div>
+        </div>
         <p class="lede">
           I'm obsessed with a specific kind of failure: you do something smart
           with an AI assistant, it works, you feel productive... and then the

@@ -29,7 +29,7 @@ smoke:
 	pid="$$!"
 	trap 'kill "$$pid" 2>/dev/null || true' EXIT INT TERM
 	sleep 0.6
-	curl -fsS "http://$(HOST):$(PORT)/index.html" | grep -q "<title>IRL: Idempotent Research Loop</title>"
+	curl -fsS "http://$(HOST):$(PORT)/index.html" | grep -q "<title>AI Work You Can Retrace"
 	echo "OK: index.html served and title matched"
 
 ips:
