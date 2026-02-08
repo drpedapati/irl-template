@@ -402,6 +402,12 @@
           trail. It's not a product. It's a discipline that turns "AI did stuff"
           into artifacts you can inspect.
         </p>
+        <p class="lede">
+          The word "idempotent" in the name just means: if you run the same step
+          twice, you get the same result. No mystery changes, no duplicated
+          files, no surprises. It's the property that makes the whole loop
+          trustworthy -- you can always rerun without fear.
+        </p>
         <p class="meta">
           <!-- Intentionally no artifact-path callout on the page itself. -->
         </p>
@@ -658,11 +664,11 @@
           </p>
 
           <p>
-            In practice, “idempotent” means: if you execute the same step twice,
-            the second run should either do nothing or produce identical outputs.
-            That requires a few habits: stable filenames, explicit output paths,
-            and checks before overwriting. It also means avoiding “append forever”
-            logs in places where you want clean diffs.
+            We introduced idempotency above: run the same step twice, get the
+            same result. In practice, that simple idea requires a few habits:
+            stable filenames, explicit output paths, and checks before
+            overwriting. It also means avoiding "append forever" logs in places
+            where you want clean diffs.
           </p>
 
           <p>
