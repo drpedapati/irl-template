@@ -77,6 +77,8 @@ i think both sides need some nice animations. Maybe a subtle touch of color. Rea
 
     New Toy: how to execute them main-plan with a terminal based ai. "Review main-plan.md, check for any revisions, and execute" as the command you run over and over.
 
+    New Toy: i'm thinking a layout of a VS Code screen would be helpful. Showing the file list, the editor, the preview, and the terminal could really lay out exactly how the tools work. Again, visual that somebody could click on the different things, or even animated walking through each of the little areas. I think, in terms of the editor being on the left-hand split, and then the preview of the HTML report in the right-hand split would be nice. Go ahead and try a draft.
+
     For all the toys please update the text and captions to reflect the changes.
     These are not comptuer programers so refer to the real irl template where we aren't using words like git, use words like version control.
 
