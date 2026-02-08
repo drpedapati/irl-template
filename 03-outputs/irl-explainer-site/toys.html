@@ -537,8 +537,8 @@
       function drawArrow(ctx, p) {
         var dx = p.ex - p.c2x, dy = p.ey - p.c2y;
         var len = Math.sqrt(dx*dx + dy*dy); dx /= len; dy /= len;
-        var sz = 9, px = -dy*sz*0.45, py = dx*sz*0.45;
-        ctx.fillStyle = p.color; ctx.globalAlpha = 0.35;
+        var sz = 14, px = -dy*sz*0.5, py = dx*sz*0.5;
+        ctx.fillStyle = p.color; ctx.globalAlpha = 0.7;
         ctx.beginPath();
         ctx.moveTo(p.ex, p.ey);
         ctx.lineTo(p.ex - dx*sz + px, p.ey - dy*sz + py);
@@ -584,8 +584,8 @@
         /* Loop paths + arrowheads + labels */
         for (var i = 0; i < P.length; i++) {
           var p = P[i];
-          ctx.strokeStyle = p.color; ctx.globalAlpha = 0.15;
-          ctx.lineWidth = 1.5; ctx.setLineDash([3,4]);
+          ctx.strokeStyle = p.color; ctx.globalAlpha = 0.35;
+          ctx.lineWidth = 2; ctx.setLineDash([8,4]);
           ctx.beginPath();
           ctx.moveTo(p.sx, p.sy);
           ctx.bezierCurveTo(p.c1x, p.c1y, p.c2x, p.c2y, p.ex, p.ey);
