@@ -41,6 +41,8 @@ for example the title area seems so basic
 where are the subtle shading int he background etc
 I want some better white space management on my page, especially the header. Add author Ernest Pedapati, MD
 
+remove this: Artifact: 03-outputs/irl-explainer-site/index.html
+
 
 ### One-Time Instructions — Tasks that should only execute once
 
