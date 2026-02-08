@@ -201,7 +201,7 @@
           <button class="run-btn" id="recipe-btn" type="button">Run Cycle</button>
         </div>
         <div class="canvas-wrap" style="aspect-ratio:5/3"><canvas id="cv-recipe"></canvas></div>
-        <div class="panel-foot neutral" id="ft-recipe">Press Run Cycle to watch the loop.</div>
+        <div class="panel-foot neutral" id="ft-recipe">Watching the loop\u2026</div>
       </div>
 
       <p class="aside">
@@ -457,6 +457,7 @@
       var ft = document.getElementById("ft-recipe");
       var cycles = 0;
       var artifacts = [];
+      var autoPlaying = false;
       var mono = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
 
       function getCtx() {
@@ -473,11 +474,11 @@
       var REVIEW_C = "#92400e";
       var ART_COLORS = ["#0d9488","#14b8a6","#2dd4bf","#0f766e","#5eead4"];
 
-      function nodeR() { return Math.min(W(), H()) * 0.09; }
+      function nodeR() { return Math.min(W(), H()) * 0.13; }
 
       function layout() {
-        var w = W(), h = H(), r = nodeR();
-        return { hx: w*0.20, hy: h*0.32, ax: w*0.80, ay: h*0.32, r: r };
+        var w = W(), h = H();
+        return { hx: w*0.22, hy: h*0.35, ax: w*0.78, ay: h*0.35, r: nodeR() };
       }
 
       /* Three bezier legs forming the loop */
@@ -486,17 +487,17 @@
         return [
           /* 0: Human → AI (arc over top) */
           { sx: L.hx + r*0.85, sy: L.hy - r*0.5,
-            c1x: w*0.38, c1y: h*0.06, c2x: w*0.62, c2y: h*0.06,
+            c1x: w*0.38, c1y: h*0.08, c2x: w*0.62, c2y: h*0.08,
             ex: L.ax - r*0.85, ey: L.ay - r*0.5,
             color: HUMAN_C, label: "plan" },
           /* 1: AI → Artifacts (curve down right) */
           { sx: L.ax + r*0.15, sy: L.ay + r,
-            c1x: w*0.88, c1y: h*0.58, c2x: w*0.70, c2y: h*0.78,
+            c1x: w*0.85, c1y: h*0.60, c2x: w*0.68, c2y: h*0.78,
             ex: w*0.58, ey: h*0.76,
             color: AI_C, label: "execute" },
           /* 2: Artifacts → Human (curve up left) */
           { sx: w*0.42, sy: h*0.76,
-            c1x: w*0.28, c1y: h*0.78, c2x: w*0.12, c2y: h*0.58,
+            c1x: w*0.30, c1y: h*0.78, c2x: w*0.14, c2y: h*0.60,
             ex: L.hx - r*0.15, ey: L.hy + r,
             color: REVIEW_C, label: "review" },
         ];
@@ -513,7 +514,7 @@
       function drawArrow(ctx, p) {
         var dx = p.ex - p.c2x, dy = p.ey - p.c2y;
         var len = Math.sqrt(dx*dx + dy*dy); dx /= len; dy /= len;
-        var sz = 7, px = -dy*sz*0.45, py = dx*sz*0.45;
+        var sz = 9, px = -dy*sz*0.45, py = dx*sz*0.45;
         ctx.fillStyle = p.color; ctx.globalAlpha = 0.35;
         ctx.beginPath();
         ctx.moveTo(p.ex, p.ey);
@@ -525,7 +526,7 @@
       function drawNode(ctx, x, y, r, color, dashed, label, sub, glow) {
         if (glow > 0) {
           ctx.fillStyle = color; ctx.globalAlpha = 0.07 * glow;
-          ctx.beginPath(); ctx.arc(x, y, r*1.7, 0, Math.PI*2); ctx.fill();
+          ctx.beginPath(); ctx.arc(x, y, r*1.6, 0, Math.PI*2); ctx.fill();
           ctx.globalAlpha = 1;
         }
         ctx.fillStyle = color; ctx.globalAlpha = 0.08 + 0.05*glow;
@@ -536,12 +537,12 @@
         ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.stroke();
         ctx.setLineDash([]);
         ctx.fillStyle = color;
-        ctx.font = "700 11px " + mono;
+        ctx.font = "700 15px " + mono;
         ctx.textAlign = "center"; ctx.textBaseline = "middle";
-        ctx.fillText(label, x, y - 4);
+        ctx.fillText(label, x, y - 6);
         if (sub) {
-          ctx.font = "400 9px " + mono; ctx.globalAlpha = 0.55;
-          ctx.fillText(sub, x, y + 10); ctx.globalAlpha = 1;
+          ctx.font = "400 11px " + mono; ctx.globalAlpha = 0.55;
+          ctx.fillText(sub, x, y + 12); ctx.globalAlpha = 1;
         }
       }
 
@@ -557,11 +558,11 @@
         var w = W(), h = H(), L = layout(), P = loopPaths();
         ctx.clearRect(0, 0, w, h);
 
-        /* Loop paths (faint dashed) + arrowheads + labels */
+        /* Loop paths + arrowheads + labels */
         for (var i = 0; i < P.length; i++) {
           var p = P[i];
           ctx.strokeStyle = p.color; ctx.globalAlpha = 0.15;
-          ctx.lineWidth = 1; ctx.setLineDash([3,4]);
+          ctx.lineWidth = 1.5; ctx.setLineDash([3,4]);
           ctx.beginPath();
           ctx.moveTo(p.sx, p.sy);
           ctx.bezierCurveTo(p.c1x, p.c1y, p.c2x, p.c2y, p.ex, p.ey);
@@ -569,11 +570,11 @@
           ctx.setLineDash([]); ctx.globalAlpha = 1;
           drawArrow(ctx, p);
           var mid = bezAt(p, 0.5);
-          ctx.fillStyle = p.color; ctx.globalAlpha = 0.45;
-          ctx.font = "500 9px " + mono;
+          ctx.fillStyle = p.color; ctx.globalAlpha = 0.5;
+          ctx.font = "600 12px " + mono;
           ctx.textAlign = "center"; ctx.textBaseline = "middle";
-          var offY = i === 0 ? -10 : 0;
-          var offX = i === 1 ? 14 : (i === 2 ? -14 : 0);
+          var offY = i === 0 ? -12 : 0;
+          var offX = i === 1 ? 16 : (i === 2 ? -16 : 0);
           ctx.fillText(p.label, mid.x + offX, mid.y + offY);
           ctx.globalAlpha = 1;
         }
@@ -584,9 +585,9 @@
 
         /* Artifact label + rectangles */
         if (artifacts.length > 0) {
-          ctx.fillStyle = AI_C; ctx.globalAlpha = 0.4;
-          ctx.font = "600 9px " + mono; ctx.textAlign = "center";
-          ctx.fillText("ARTIFACTS", w*0.50, h*0.66);
+          ctx.fillStyle = AI_C; ctx.globalAlpha = 0.45;
+          ctx.font = "600 12px " + mono; ctx.textAlign = "center";
+          ctx.fillText("ARTIFACTS", w*0.50, h*0.62);
           ctx.globalAlpha = 1;
         }
         for (var j = 0; j < artifacts.length; j++) {
@@ -609,13 +610,13 @@
             var tp = bezAt(path, tt);
             ctx.globalAlpha = (1-s/6)*0.25;
             ctx.beginPath();
-            ctx.arc(tp.x, tp.y, 3.5*(1-s/6*0.4), 0, Math.PI*2);
+            ctx.arc(tp.x, tp.y, 4.5*(1-s/6*0.4), 0, Math.PI*2);
             ctx.fillStyle = color; ctx.fill();
           }
           ctx.globalAlpha = 1;
           var pos = bezAt(path, et);
           ctx.beginPath();
-          ctx.arc(pos.x, pos.y, 3.5, 0, Math.PI*2);
+          ctx.arc(pos.x, pos.y, 4.5, 0, Math.PI*2);
           ctx.fillStyle = color; ctx.fill();
         }
       }
@@ -634,7 +635,8 @@
       var phase3T = FLOW_MS + (REV_N-1)*STAGGER;
       var totalT = phase3S + phase3T;
 
-      btn.addEventListener("click", function () {
+      /* Run one cycle, call onDone when finished */
+      function runOneCycle(onDone) {
         btn.disabled = true;
         cycles++;
         var w = W(), h = H(), P = loopPaths();
@@ -669,7 +671,7 @@
             requestAnimationFrame(frame);
           } else {
             /* Settle new artifacts */
-            var artW = 12, artH = 16, artGap = 4;
+            var artW = 16, artH = 20, artGap = 4;
             var cols = Math.floor((w * 0.24) / (artW + artGap));
             if (cols < 1) cols = 1;
             for (var j = 0; j < EXEC_N; j++) {
@@ -678,19 +680,43 @@
               var row = Math.floor(idx / cols);
               artifacts.push({
                 x: w*0.38 + col*(artW + artGap),
-                y: h*0.70 + row*(artH + artGap),
+                y: h*0.66 + row*(artH + artGap),
                 w: artW, h: artH,
                 color: ART_COLORS[j % ART_COLORS.length],
               });
             }
             drawScene(getCtx(), 0, 0);
-            btn.disabled = false;
             ft.className = "panel-foot teal";
             ft.textContent = "Cycle #" + cycles + " \u2014 " + artifacts.length +
               " artifact" + (artifacts.length === 1 ? "" : "s") + ". Loop complete.";
+            if (!autoPlaying) btn.disabled = false;
+            if (onDone) onDone();
           }
         }
         requestAnimationFrame(frame);
+      }
+
+      /* Auto-play 3 cycles on load */
+      var AUTO_CYCLES = 3, AUTO_PAUSE = 900;
+      function autoPlay(n) {
+        autoPlaying = true;
+        btn.textContent = "Playing\u2026";
+        btn.disabled = true;
+        runOneCycle(function () {
+          if (n > 1) {
+            setTimeout(function () { autoPlay(n - 1); }, AUTO_PAUSE);
+          } else {
+            autoPlaying = false;
+            btn.disabled = false;
+            btn.textContent = "Run Cycle";
+          }
+        });
+      }
+      setTimeout(function () { autoPlay(AUTO_CYCLES); }, 600);
+
+      /* Manual trigger */
+      btn.addEventListener("click", function () {
+        if (!autoPlaying) runOneCycle(null);
       });
     })();
     </script>
