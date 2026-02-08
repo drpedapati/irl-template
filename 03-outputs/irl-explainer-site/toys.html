@@ -212,23 +212,25 @@
 
       <h2>The Process</h2>
       <p class="intro">
-        What a single IRL cycle actually looks like &mdash; from plan to output to commit.
+        Watch a plan execute across two loops &mdash; including a revision.
+        The left side is the plan; the right side is what gets produced.
       </p>
 
       <div class="panel" style="max-width:100%" id="process-panel">
         <div class="panel-head">
-          <span class="panel-label" style="color:var(--subtle)">One cycle, start to finish</span>
+          <span class="panel-label" style="color:var(--subtle)">Plan &rarr; Execute &rarr; Revise &rarr; Repeat</span>
           <button class="run-btn" id="process-btn" type="button">Play</button>
         </div>
-        <div id="process-stage" style="padding:16px 18px;min-height:320px;font-family:var(--mono);font-size:12.5px;line-height:1.6;background:#fafafa;border-top:1px solid var(--border);overflow:hidden;position:relative">
+        <div id="process-stage" style="padding:14px 16px;min-height:300px;font-family:var(--mono);font-size:12px;line-height:1.55;background:#fafafa;border-top:1px solid var(--border);overflow:hidden;position:relative">
         </div>
-        <div class="panel-foot neutral" id="ft-process">Watch an IRL cycle unfold.</div>
+        <div class="panel-foot neutral" id="ft-process">Watch the IRL loop in action.</div>
       </div>
 
       <p class="aside">
-        This is everything that happens in one iteration: a plan states what you
-        want, the AI produces real files, you review the diff, and commit. Nothing
-        is hidden in chat history &mdash; it all lives in files you can inspect.
+        Each loop follows the same structure: check prerequisites, execute
+        instructions, save a checkpoint. When the author adds a revision,
+        the next loop picks it up and improves the output. Nothing is hidden
+        in chat history &mdash; it all lives in files you can inspect.
       </p>
 
       <footer><a href="index.html">Back to the explainer</a></footer>
@@ -742,13 +744,12 @@
     })();
 
     /* ══════════════════════════════════════════════
-       TOY 3: THE PROCESS — one IRL cycle, real content
+       TOY 3: THE PROCESS — side-by-side, two loops
        ══════════════════════════════════════════════ */
     (function () {
       var stage = document.getElementById("process-stage");
       var btn = document.getElementById("process-btn");
       var ft = document.getElementById("ft-process");
-      var mono = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
       var running = false;
 
       var TEAL = "#0d9488";
@@ -756,57 +757,51 @@
       var AMBER = "#92400e";
       var GREEN = "#16a34a";
 
-      /* Typing animation helper */
+      function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
       function typeText(el, text, charMs, done) {
         var i = 0;
         function next() {
           if (i < text.length) {
-            el.textContent += text[i];
-            i++;
+            el.textContent += text[i]; i++;
             setTimeout(next, charMs);
           } else if (done) { done(); }
         }
         next();
       }
 
-      /* Create a styled document block */
-      function makeDoc(title, titleColor) {
-        var wrap = document.createElement("div");
-        wrap.style.cssText = "border:1px solid #e5e7eb;border-radius:8px;background:#fff;margin-bottom:12px;overflow:hidden;opacity:0;transition:opacity 0.4s";
-        var head = document.createElement("div");
-        head.style.cssText = "padding:8px 12px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:8px";
-        var dot = document.createElement("span");
-        dot.style.cssText = "width:8px;height:8px;border-radius:50%;background:" + titleColor;
-        var lbl = document.createElement("span");
-        lbl.style.cssText = "font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:" + titleColor;
-        lbl.textContent = title;
-        head.appendChild(dot);
-        head.appendChild(lbl);
-        var body = document.createElement("div");
-        body.style.cssText = "padding:10px 12px;white-space:pre-wrap;color:#374151;font-size:12px;line-height:1.6;min-height:24px";
-        wrap.appendChild(head);
-        wrap.appendChild(body);
-        return { wrap: wrap, body: body };
+      /* Highlight / dim a plan section */
+      function glow(sec) { sec.style.background = "#f0fdfa"; sec.style.borderColor = "#99f6e4"; }
+      function dim(sec) { sec.style.background = ""; sec.style.borderColor = "transparent"; }
+
+      /* Small output card on right side */
+      function card(title, color) {
+        var w = document.createElement("div");
+        w.style.cssText = "border:1px solid #e5e7eb;border-radius:8px;background:#fff;margin-bottom:8px;overflow:hidden;opacity:0;transition:opacity 0.4s";
+        var h = document.createElement("div");
+        h.style.cssText = "padding:6px 10px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:6px";
+        h.innerHTML = '<span style="width:6px;height:6px;border-radius:50%;background:' + color + '"></span><span style="font-size:10px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:' + color + '">' + title + '</span>';
+        var b = document.createElement("div");
+        b.style.cssText = "padding:8px 10px;white-space:pre-wrap;color:#374151;font-size:11px;line-height:1.5;min-height:16px";
+        w.appendChild(h); w.appendChild(b);
+        return { wrap: w, body: b };
       }
 
-      /* Status line helper */
-      function makeStatus(text, color) {
+      /* Status tag */
+      function tag(text, color) {
         var s = document.createElement("div");
-        s.style.cssText = "padding:6px 0;font-size:11px;font-weight:600;letter-spacing:0.04em;color:" + color + ";opacity:0;transition:opacity 0.3s";
+        s.style.cssText = "font-size:10.5px;font-weight:600;letter-spacing:0.04em;color:" + color + ";opacity:0;transition:opacity 0.3s;margin-bottom:6px;padding:2px 0";
         s.textContent = text;
         return s;
       }
 
-      function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
-
-      /* The plan content — based on the actual IRL Basic Template */
-      var planText = "\u2705 Before Each Loop\n- Version control: clean tree\n- Script designed to be idempotent\n\n\ud83d\udd01 Instruction Loop\n1. Read 02-data/raw/survey.csv\n2. Produce summary \u2192 03-outputs/report.html\n3. Log what changed";
-
-      /* The output content — what the AI produces */
-      var outputText = "Survey Report\n\nRespondents:  142\nCompletion:   89%\nKey finding:  Score improved 2.4 pts\n              (p = 0.018, 95% CI [0.8, 4.0])\n\nGenerated from 02-data/raw/survey.csv";
-
-      /* The diff content */
-      var diffText = " 03-outputs/report.html     | 18 ++++++++++++++++++\n 04-logs/activity.md        |  3 +++\n 2 files changed, 21 insertions(+)";
+      /* Loop divider on right side */
+      function loopHeader(text) {
+        var d = document.createElement("div");
+        d.style.cssText = "font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:" + GRAY + ";margin:10px 0 6px;padding-bottom:4px;border-bottom:1px solid #e5e7eb;opacity:0;transition:opacity 0.3s";
+        d.textContent = text;
+        return d;
+      }
 
       async function runProcess() {
         if (running) return;
@@ -815,91 +810,163 @@
         btn.textContent = "Playing\u2026";
         stage.innerHTML = "";
         ft.className = "panel-foot neutral";
-        ft.textContent = "Step 1 of 4 \u2014 Writing the plan\u2026";
+        ft.textContent = "Setting up\u2026";
 
-        /* Step 1: Plan appears */
-        var plan = makeDoc("main-plan.md", TEAL);
-        stage.appendChild(plan.wrap);
-        await sleep(100);
-        plan.wrap.style.opacity = "1";
+        /* ── Side-by-side layout ── */
+        var grid = document.createElement("div");
+        grid.style.cssText = "display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px";
+        var leftCol = document.createElement("div");
+        var rightCol = document.createElement("div");
+        grid.appendChild(leftCol);
+        grid.appendChild(rightCol);
+        stage.appendChild(grid);
+
+        /* ── Build plan card on left ── */
+        var planWrap = document.createElement("div");
+        planWrap.style.cssText = "border:1px solid #e5e7eb;border-radius:8px;background:#fff;overflow:hidden;opacity:0;transition:opacity 0.4s";
+        var planHead = document.createElement("div");
+        planHead.style.cssText = "padding:7px 10px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:6px";
+        planHead.innerHTML = '<span style="width:7px;height:7px;border-radius:50%;background:' + TEAL + '"></span><span style="font-size:10.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:' + TEAL + '">main-plan.md</span>';
+        var planBody = document.createElement("div");
+        planBody.style.cssText = "padding:8px 10px;font-size:11px;line-height:1.5;color:#374151";
+
+        /* Three plan sections */
+        var secBefore = document.createElement("div");
+        secBefore.style.cssText = "padding:5px 7px;border-radius:5px;margin-bottom:5px;transition:background 0.4s,border-color 0.4s;border:1px solid transparent;white-space:pre-line";
+        secBefore.innerHTML = '<span style="font-weight:600">\u2705 Before Each Loop</span>\n<span style="color:#6b7280">- Version control: clean tree\n- Script is idempotent</span>';
+
+        var secLoop = document.createElement("div");
+        secLoop.style.cssText = "padding:5px 7px;border-radius:5px;margin-bottom:5px;transition:background 0.4s,border-color 0.4s;border:1px solid transparent;white-space:pre-line";
+        var loopLabel = document.createElement("span");
+        loopLabel.style.fontWeight = "600";
+        loopLabel.textContent = "\ud83d\udd01 Instruction Loop";
+        var loopItems = document.createElement("div");
+        loopItems.style.cssText = "color:#6b7280;white-space:pre-line";
+        loopItems.textContent = "1. Read 02-data/raw/survey.csv\n2. Produce \u2192 03-outputs/report.html\n3. Log what changed";
+        secLoop.appendChild(loopLabel);
+        secLoop.appendChild(document.createTextNode("\n"));
+        secLoop.appendChild(loopItems);
+
+        var secAfter = document.createElement("div");
+        secAfter.style.cssText = "padding:5px 7px;border-radius:5px;transition:background 0.4s,border-color 0.4s;border:1px solid transparent;white-space:pre-line";
+        secAfter.innerHTML = '<span style="font-weight:600">\ud83d\udcdd After Each Loop</span>\n<span style="color:#6b7280">- Update activity log\n- Commit checkpoint</span>';
+
+        planBody.appendChild(secBefore);
+        planBody.appendChild(secLoop);
+        planBody.appendChild(secAfter);
+        planWrap.appendChild(planHead);
+        planWrap.appendChild(planBody);
+        leftCol.appendChild(planWrap);
         await sleep(300);
-        await new Promise(function(resolve) {
-          typeText(plan.body, planText, 18, resolve);
-        });
-        await sleep(600);
-
-        /* Step 2: AI executes */
-        ft.textContent = "Step 2 of 4 \u2014 AI reading plan and executing\u2026";
-        var status1 = makeStatus("\u25B6 AI executing\u2026", GRAY);
-        stage.appendChild(status1);
-        await sleep(100);
-        status1.style.opacity = "1";
-        await sleep(400);
-
-        /* Pulsing dots effect */
-        var dots = 0;
-        var dotTimer = setInterval(function() {
-          dots = (dots + 1) % 4;
-          status1.textContent = "\u25B6 AI executing" + ".".repeat(dots);
-        }, 300);
-        await sleep(1800);
-        clearInterval(dotTimer);
-        status1.textContent = "\u2713 AI finished";
-        status1.style.color = GREEN;
-        await sleep(400);
-
-        /* Step 3: Output appears */
-        ft.textContent = "Step 3 of 4 \u2014 Output produced";
-        var output = makeDoc("03-outputs/report.html", AMBER);
-        stage.appendChild(output.wrap);
-        await sleep(100);
-        output.wrap.style.opacity = "1";
-        await sleep(200);
-        await new Promise(function(resolve) {
-          typeText(output.body, outputText, 14, resolve);
-        });
-        await sleep(600);
-
-        /* Step 4: Review + commit */
-        ft.textContent = "Step 4 of 4 \u2014 Review diff and commit";
-        var status2 = makeStatus("$ git diff --stat", GRAY);
-        stage.appendChild(status2);
-        await sleep(100);
-        status2.style.opacity = "1";
-        await sleep(400);
-
-        var diffDoc = makeDoc("git diff", GRAY);
-        diffDoc.body.style.color = GREEN;
-        diffDoc.body.style.fontSize = "11px";
-        stage.appendChild(diffDoc.wrap);
-        await sleep(100);
-        diffDoc.wrap.style.opacity = "1";
-        await sleep(200);
-        await new Promise(function(resolve) {
-          typeText(diffDoc.body, diffText, 20, resolve);
-        });
+        planWrap.style.opacity = "1";
         await sleep(500);
 
-        var status3 = makeStatus("\u2713 Committed \u2014 checkpoint saved", GREEN);
-        stage.appendChild(status3);
-        await sleep(100);
-        status3.style.opacity = "1";
+        /* ════════════ LOOP 1 ════════════ */
+        var lh1 = loopHeader("Loop 1");
+        rightCol.appendChild(lh1);
+        await sleep(80);
+        lh1.style.opacity = "1";
 
+        /* Before Each Loop */
+        ft.textContent = "Loop 1 \u2014 Checking prerequisites\u2026";
+        glow(secBefore);
+        await sleep(700);
+        dim(secBefore);
+
+        /* Instruction Loop executes */
+        ft.textContent = "Loop 1 \u2014 AI executing instructions\u2026";
+        glow(secLoop);
+        var s1 = tag("\u25b6 AI executing\u2026", GRAY);
+        rightCol.appendChild(s1);
+        await sleep(80);
+        s1.style.opacity = "1";
+        await sleep(500);
+
+        var o1 = card("report.html", AMBER);
+        rightCol.appendChild(o1.wrap);
+        await sleep(80);
+        o1.wrap.style.opacity = "1";
+        var txt1 = "Survey Report\n\nRespondents: 142\nCompletion:  89%\nKey finding: Score improved\n             2.4 pts (p = 0.018)";
+        await new Promise(function(r) { typeText(o1.body, txt1, 16, r); });
+        s1.textContent = "\u2713 Output produced";
+        s1.style.color = GREEN;
+        await sleep(300);
+        dim(secLoop);
+
+        /* After Each Loop */
+        ft.textContent = "Loop 1 \u2014 Saving checkpoint\u2026";
+        glow(secAfter);
+        await sleep(500);
+        var c1 = tag("\u2713 Checkpoint saved", GREEN);
+        rightCol.appendChild(c1);
+        await sleep(80);
+        c1.style.opacity = "1";
+        await sleep(300);
+        dim(secAfter);
+
+        /* ════════════ REVISION ════════════ */
+        await sleep(700);
+        ft.textContent = "Author reviews output, adds a revision\u2026";
+        var rev = document.createElement("div");
+        rev.style.cssText = "margin-top:3px;padding:3px 6px;border-radius:4px;background:#fef3c7;color:#92400e;font-size:10px;font-weight:500;opacity:0;transition:opacity 0.5s";
+        rev.textContent = "\u270e Revision: add confidence intervals";
+        secLoop.appendChild(rev);
+        await sleep(150);
+        rev.style.opacity = "1";
+        await sleep(1000);
+
+        /* ════════════ LOOP 2 ════════════ */
+        var lh2 = loopHeader("Loop 2 \u2014 with revision");
+        rightCol.appendChild(lh2);
+        await sleep(80);
+        lh2.style.opacity = "1";
+
+        ft.textContent = "Loop 2 \u2014 Checking prerequisites\u2026";
+        glow(secBefore);
+        await sleep(600);
+        dim(secBefore);
+
+        ft.textContent = "Loop 2 \u2014 AI re-executing with revision\u2026";
+        glow(secLoop);
+        var s2 = tag("\u25b6 AI re-executing\u2026", GRAY);
+        rightCol.appendChild(s2);
+        await sleep(80);
+        s2.style.opacity = "1";
+        await sleep(500);
+
+        var o2 = card("report.html (v2)", AMBER);
+        rightCol.appendChild(o2.wrap);
+        await sleep(80);
+        o2.wrap.style.opacity = "1";
+        var txt2 = "Survey Report v2\n\nRespondents: 142\nCompletion:  89%\nKey finding: Score improved\n  2.4 pts (p=0.018, CI [0.8, 4.0])";
+        await new Promise(function(r) { typeText(o2.body, txt2, 14, r); });
+        s2.textContent = "\u2713 Output updated";
+        s2.style.color = GREEN;
+        await sleep(300);
+        dim(secLoop);
+
+        ft.textContent = "Loop 2 \u2014 Saving checkpoint\u2026";
+        glow(secAfter);
+        await sleep(500);
+        var c2 = tag("\u2713 Checkpoint saved", GREEN);
+        rightCol.appendChild(c2);
+        await sleep(80);
+        c2.style.opacity = "1";
+        await sleep(300);
+        dim(secAfter);
+
+        /* ── Done ── */
         ft.className = "panel-foot teal";
-        ft.textContent = "Cycle complete \u2014 plan \u2192 execute \u2192 output \u2192 commit. Everything is in files you can inspect.";
-
-        await sleep(800);
+        ft.textContent = "Two loops complete \u2014 same plan, refined output. Every checkpoint is saved and retraceable.";
+        await sleep(600);
         running = false;
         btn.disabled = false;
         btn.textContent = "Replay";
       }
 
-      /* Auto-play on load after a delay */
+      /* Auto-play on load */
       setTimeout(runProcess, 1200);
-
-      btn.addEventListener("click", function() {
-        if (!running) runProcess();
-      });
+      btn.addEventListener("click", function() { if (!running) runProcess(); });
     })();
     </script>
   </body>
