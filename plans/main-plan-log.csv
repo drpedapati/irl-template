@@ -3,3 +3,4 @@ date,change_summary,git_hash
 2026-02-08,Committed plan + artifacts to keep everything in this monorepo,187b982
 2026-02-08,Added Makefile for explainer site and validated local serve with make smoke,d0b0241
 2026-02-08,Added ZeroTier access notes and helper targets; validated local serve + IP discovery,a1957c2
+2026-02-08,Ran explainer site smoke test to validate local serving,84aab57
