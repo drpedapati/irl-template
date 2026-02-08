@@ -12,3 +12,4 @@
 - 2026-02-08 (61909a3): Reviewed explainer-skill demo guidance (`how-memory-works`) and added a Practical Commands section/table to `03-outputs/irl-explainer-site/index.html`; ran `make smoke`.
 - 2026-02-08 (c5c19a3): Iterated on explainer aesthetics to match sample elegance (subtle monochrome background shading + improved title block); ran `make smoke`.
 - 2026-02-08 (dae294b): Updated `explainer-site-skill` (skill repo HEAD `2849c0a`) and applied its frosted-glass header pattern to `03-outputs/irl-explainer-site/index.html`; ran `make smoke`.
+- 2026-02-08 (65f881b): Improved header whitespace + added author byline to `03-outputs/irl-explainer-site/index.html`; ran `make smoke`.
