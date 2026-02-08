@@ -22,7 +22,7 @@ Install Explainer Skill: https://github.com/henrybloomingdale/explainer-site-ski
 
 <!-- 👤 AUTHOR AREA: Define each loop's work below -->
 
-1. Install skills
+1. Install skills 
 2. learn about IRL
 3. use the explainer skill to draft a site explaining IRL
 
@@ -36,10 +36,11 @@ it is hard to believe that you made all of the revisions in just one pass. Look 
 
 review the typography md feedback in particular and apply
 
+
 ### One-Time Instructions — Tasks that should only execute once
 
 <!-- 👤 AUTHOR AREA: Add one-time tasks below -->
-
+1. explainer skill has been updated and should be redownloaded
 
 
 ### Formatting Guidelines — Rules for output style and structure
