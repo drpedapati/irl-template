@@ -395,6 +395,68 @@
         No context is hidden &mdash; you can inspect every piece.
       </p>
 
+      <h2>One Pattern, Many Projects</h2>
+      <p class="intro">
+        The plan structure never changes. Only the instructions do.
+        Watch the same template power three completely different projects.
+      </p>
+
+      <div class="panel" style="max-width:100%" id="morph-panel">
+        <div class="panel-head">
+          <span class="panel-label" style="color:var(--subtle)">main-plan.md</span>
+          <button class="run-btn" id="morph-btn" type="button">Replay</button>
+        </div>
+        <div id="morph-stage" style="border-top:1px solid var(--border);background:#fafafa;overflow:hidden;position:relative;min-height:340px;font-family:var(--mono);font-size:11px;line-height:1.6">
+
+          <!-- Fixed structure (always visible) -->
+          <div style="padding:14px 18px 0">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+              <div style="width:32px;height:3px;background:#0d9488;border-radius:2px"></div>
+              <span style="font-weight:700;font-size:13px;color:#111827">IRL Basic Template</span>
+            </div>
+
+            <div style="padding:6px 8px;border-left:3px solid #0d9488;background:#f0fdfa22;margin-bottom:6px;border-radius:0 4px 4px 0">
+              <div style="font-weight:700;font-size:11px;color:#0d9488">&check; Before Each Loop</div>
+              <div style="font-size:10px;color:#6b7280">&bull; Version control: clean tree &bull; Data unchanged</div>
+            </div>
+          </div>
+
+          <!-- Morphing instruction area -->
+          <div style="padding:0 18px">
+            <div style="padding:8px 10px;border-left:3px solid #d97706;background:#fffbeb22;border-radius:0 4px 4px 0;margin-bottom:6px;position:relative;min-height:140px">
+              <div style="font-weight:700;font-size:11px;color:#d97706;margin-bottom:4px">&orarr; Instruction Loop</div>
+              <!-- Project badge -->
+              <div id="morph-badge" style="position:absolute;top:8px;right:10px;font-size:9px;padding:2px 8px;border-radius:10px;font-family:var(--sans);font-weight:600;letter-spacing:0.03em;transition:opacity 0.5s,background 0.5s,color 0.5s"></div>
+              <!-- Setup line -->
+              <div id="morph-setup" style="font-size:10.5px;color:#6b7280;margin-bottom:3px;transition:opacity 0.5s"></div>
+              <!-- Instruction lines -->
+              <div id="morph-line1" style="font-size:10.5px;color:#374151;transition:opacity 0.5s"></div>
+              <div id="morph-line2" style="font-size:10.5px;color:#374151;transition:opacity 0.5s"></div>
+              <div id="morph-line3" style="font-size:10.5px;color:#374151;transition:opacity 0.5s"></div>
+              <div id="morph-line4" style="font-size:10.5px;color:#374151;transition:opacity 0.5s"></div>
+              <!-- Output line -->
+              <div id="morph-output" style="font-size:10.5px;color:#059669;margin-top:4px;transition:opacity 0.5s"></div>
+            </div>
+          </div>
+
+          <!-- Fixed after-loop -->
+          <div style="padding:0 18px 14px">
+            <div style="padding:6px 8px;border-left:3px solid #059669;background:#ecfdf522;margin-bottom:0;border-radius:0 4px 4px 0">
+              <div style="font-weight:700;font-size:11px;color:#059669">&check; After Each Loop</div>
+              <div style="font-size:10px;color:#6b7280">&bull; Update activity log &bull; Save version checkpoint &bull; Give feedback</div>
+            </div>
+          </div>
+
+        </div>
+        <div class="panel-foot neutral" id="ft-morph">Same structure. Different project.</div>
+      </div>
+
+      <p class="aside">
+        A report, an analysis pipeline, a literature review &mdash;
+        they&rsquo;re all just different instructions in the same kind of plan.
+        Learn the pattern once, use it everywhere.
+      </p>
+
       <footer><a href="index.html">Back to the explainer</a></footer>
     </div>
 
@@ -1605,6 +1667,141 @@
       }
 
       tourBtn.addEventListener("click", runTour);
+    })();
+
+    /* ══════════════════════════════════════════════════════════
+       Toy 7 — One Pattern, Many Projects (morphing animation)
+       ══════════════════════════════════════════════════════════ */
+    (function () {
+      var btn = document.getElementById("morph-btn");
+      var ft = document.getElementById("ft-morph");
+      var badge = document.getElementById("morph-badge");
+      var setup = document.getElementById("morph-setup");
+      var lines = [
+        document.getElementById("morph-line1"),
+        document.getElementById("morph-line2"),
+        document.getElementById("morph-line3"),
+        document.getElementById("morph-line4")
+      ];
+      var output = document.getElementById("morph-output");
+      var running = false;
+
+      var projects = [
+        {
+          name: "Explainer Website",
+          badgeBg: "#dbeafe", badgeColor: "#1d4ed8",
+          setup: "Install Explainer Skill",
+          lines: [
+            "1. Write page content in plan",
+            "2. AI generates HTML + CSS",
+            "3. Preview in browser, revise",
+            "4. Publish final site"
+          ],
+          output: "\u2192 03-outputs/site/index.html",
+          footNote: "Project 1 of 3 \u2014 building a website"
+        },
+        {
+          name: "Data Analysis",
+          badgeBg: "#fef3c7", badgeColor: "#92400e",
+          setup: "Install Analysis Skills",
+          lines: [
+            "1. Load 02-data/survey.csv",
+            "2. Filter by inclusion criteria",
+            "3. Run t-test, compute effect size",
+            "4. Render report with figures"
+          ],
+          output: "\u2192 03-outputs/report.html",
+          footNote: "Project 2 of 3 \u2014 analyzing data"
+        },
+        {
+          name: "Literature Review",
+          badgeBg: "#ede9fe", badgeColor: "#5b21b6",
+          setup: "Install PubMed Skill, Document Skill",
+          lines: [
+            "1. Search PubMed for recent papers",
+            "2. Summarize top 20 abstracts",
+            "3. Identify themes and gaps",
+            "4. Draft review document"
+          ],
+          output: "\u2192 03-outputs/lit-review.docx",
+          footNote: "Project 3 of 3 \u2014 writing a review"
+        }
+      ];
+
+      function fadeOut(cb) {
+        var els = [badge, setup].concat(lines).concat([output]);
+        for (var i = 0; i < els.length; i++) els[i].style.opacity = "0";
+        setTimeout(cb, 500);
+      }
+
+      function fadeIn(p) {
+        badge.textContent = p.name;
+        badge.style.background = p.badgeBg;
+        badge.style.color = p.badgeColor;
+        setup.textContent = "\u2699 " + p.setup;
+        for (var i = 0; i < lines.length; i++) lines[i].textContent = p.lines[i];
+        output.textContent = p.output;
+        ft.textContent = p.footNote;
+
+        /* Stagger fade-in */
+        badge.style.opacity = "1";
+        setup.style.opacity = "1";
+        for (var i = 0; i < lines.length; i++) {
+          (function(el, delay) {
+            setTimeout(function() { el.style.opacity = "1"; }, delay);
+          })(lines[i], 120 + i * 150);
+        }
+        setTimeout(function() { output.style.opacity = "1"; }, 120 + lines.length * 150);
+      }
+
+      function showProject(idx, cb) {
+        fadeOut(function() {
+          fadeIn(projects[idx]);
+          setTimeout(cb, 2800);
+        });
+      }
+
+      function runMorph() {
+        if (running) return;
+        running = true;
+        btn.textContent = "Playing\u2026";
+        btn.disabled = true;
+        var step = 0;
+        function next() {
+          if (step >= projects.length) {
+            /* Hold on last, then reset */
+            setTimeout(function() {
+              running = false;
+              btn.textContent = "Replay";
+              btn.disabled = false;
+              ft.textContent = "Same structure. Different project.";
+              ft.className = "panel-foot neutral";
+            }, 1200);
+            return;
+          }
+          showProject(step, function() { step++; next(); });
+        }
+        next();
+      }
+
+      /* Show first project immediately */
+      fadeIn(projects[0]);
+      ft.textContent = projects[0].footNote;
+
+      /* Auto-play full cycle after delay */
+      setTimeout(function() {
+        fadeOut(function() {
+          fadeIn(projects[0]);
+          setTimeout(function() { showProject(1, function() { showProject(2, function() {
+            setTimeout(function() {
+              ft.textContent = "Same structure. Different project.";
+              ft.className = "panel-foot neutral";
+            }, 1200);
+          }); }); }, 2800);
+        });
+      }, 2400);
+
+      btn.addEventListener("click", runMorph);
     })();
     </script>
   </body>
