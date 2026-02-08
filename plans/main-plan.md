@@ -43,6 +43,37 @@ I want some better white space management on my page, especially the header. Add
 
 remove this: Artifact: 03-outputs/irl-explainer-site/index.html
 
+revisions:
+-probably explain what idempotent means early, audience is non-technical
+-add intuitive "toy" (see skill) for idempotent for non-technical users
+i want the title area to look like this: http://10.241.64.217:3000/ with centered, subtitle below title and I need a new main title that is better for non-technical users and subtitle can be idempotent research loop (technical name)
+
+new first paragraphs (and remove table of contents)
+I'm obsessed with a specific kind of failure: you do something smart with an AI assistant, it works, you feel productive... and then the whole thing evaporates into a chat transcript nobody will ever read again. A week later you can't answer basic questions. What inputs did we use? What assumptions did we make? If the result is wrong, where did it go wrong?
+Think about the difference between cooking from memory and cooking from a recipe. From memory, you might make something great, but you can't teach it to someone else, you can't reliably make it again, and if it goes wrong you're just guessing at what changed. A recipe externalizes the knowledge. You can trace problems, share it with others, and build on it deliberately.
+IRL is a recipe for AI-assisted work. You write a plan file with your inputs, assumptions, and what the output should be. The AI follows the plan and produces files you can actually inspect: a report, a dataset, a diagram. You start small and layer complexity one step at a time. "Idempotent" just means: same recipe, same ingredients, same dish. You can rerun any step, add to it, and know the foundation hasn't shifted underneath you.
+The design plays to what each side is good at. Humans decide what matters, judge quality, notice when something is off. AI processes data, generates drafts, follows instructions without getting tired. But AI has no memory of why it did something last week, and humans lose track of assumptions fast. The plan file sits in the middle. It gives you a place to think clearly about what you want and gives the AI stable instructions that don't depend on anyone's memory. The files that come out become the shared record that holds both sides honest.
+
+New Task: 
+I want to experiment with design a bit. Make a separate page where I can build and isolate some toys. I want to create a toy that generlaly explains the concept of idempotent. Show contrast with a non-idempotent.
+revision: see example. I love these beautiful visual animations. what you have done is very concrete, and not elegant and taking advantage of the technology.
+i think both sides need some nice animations. Maybe a subtle touch of color. Really think about how to communicate idempotency for non technical users. maybe takeup less vertical space.
+2. next toy: explain paragraph "IRL is a recipe for AI-assisted work" elegant, intutive animation.
+    revision: can we demonstrate the principal of the human as reasoning and planning and the AI being the execution layer. but the thing that is missing is the loop part.
+    revision: Not bad. I think you can make more effective use of space and make the figure more dense. words and labels are too small. I wonder if it can play on a loop a few times so the user doesn't have to keep clicking. for this they can just see how it works. 
+    revision: better. Still words plan etc. are too small. I worry about the proportions. I don't think non-technical users understand what artifacts are. needs better caption. I gave you access to the chrome skill so you can now directly observe and iteriate! use it.
+    Revision, can you make the arrows more prominent? They're kind of dotted and hard to see.
+    The more I think about it, instead of files, maybe it's better to show that it's a report that's being generated or some kind of single output that's carefully being crafted. I don't know the right way of doing it. 
+    I really like this next revision. What I'm thinking is very subtly, if the human and AI had whatever they're doing, like instructions pop in, fade out, pop in, fade out. It would kind of show the activity over time of how that report is being created directly from the actual instructions.
+    It's too fast. I also want the instructions in the ample space around the objects. Maybe accumulating overtime. nice fade in etc. 
+
+    Let's make a new toy. In this case, I'd like to have a simplified version of the main plan, just the critical details to communicate the main idea in an animation to the reader. It would be nice to have real output. To kind of show the process. Of course, simplify.
+    Revision, base it on the actual IRL Basic Template. 
+    Revision: we're almost there. There's a couple things I want to change. One is that for the actual template, there should be the before each loop, the instruction loop, and then after each loop. That's important to explain the process. I also think it would be better if you showed it side by side instead of vertically so we can see the main plan being executed and then the outputs in real time. I think also doing two or three loops to show what can happen over time, including a revision part, would be good. Kind of like you're seeing me do right now. I think the git diff is not essential. It'd be hard for non-technical users to understand that. I do like the checkpoint save part though.
+    Revision really close, but when I'm looking at the actual plan itself, it has to pass muster if data scientists were to read this. So maybe make sure that it's actually realistic. It just says produce O3 outputs report. HTML, it doesn't make a lot of sense. I think you can add a little bit more detail there. Given that the loop column is longer than the main plan column, you probably have a little bit of room in the main plan.
+
+    For all the toys please update the text and captions to reflect the changes.
+    These are not comptuer programers so refer to the real irl template where we aren't using words like git, use words like version control.
 
 ### One-Time Instructions — Tasks that should only execute once
 
@@ -78,7 +109,7 @@ remove this: Artifact: 03-outputs/irl-explainer-site/index.html
 
 - **Update plan log**: Update `plans/main-plan-log.csv`  
 
-- **Version control**: Commit intended changes only; verify no ignored or unintended files staged.
+- **Version control**: Commit intended changes only + main-plan.md; verify no ignored or unintended files staged.
 
 - **Give feedback to the AUTHOR** — concise and actionable:
   1. What was done, decisions needed, next steps  
