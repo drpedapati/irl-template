@@ -3,419 +3,339 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Toy Playground — IRL</title>
-
+    <title>IRL Toys</title>
+    <meta
+      name="description"
+      content="Scratchpad page for experimenting with interactive toys for the IRL explainer."
+    />
     <style>
       :root {
+        --bg: #ffffff;
         --ink: #111827;
         --muted: #4b5563;
         --subtle: #6b7280;
         --border: #e5e7eb;
-        --teal: #0d9488;
-        --teal-light: #ccfbf1;
-        --amber: #d97706;
-        --amber-light: #fef3c7;
-
+        --link: #2563eb;
         --sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
         --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
           "Liberation Mono", "Courier New", monospace;
       }
 
-      * { box-sizing: border-box; }
-      html, body { height: 100%; }
+      * {
+        box-sizing: border-box;
+      }
 
       body {
         margin: 0;
-        background: linear-gradient(180deg, #fff 0%, #f9fafb 50%, #fff 100%);
+        background: linear-gradient(180deg, #ffffff 0%, #fbfbfb 70%, #ffffff 100%);
         color: var(--ink);
         font-family: var(--sans);
-        line-height: 1.7;
-        text-rendering: optimizeLegibility;
+        line-height: 1.65;
+      }
+
+      a {
+        color: var(--link);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      a:hover {
+        text-decoration: none;
+      }
+      a:focus-visible,
+      button:focus-visible {
+        outline: 2px solid #111827;
+        outline-offset: 2px;
       }
 
       .topbar {
-        position: sticky; top: 0; z-index: 50;
-        background: rgba(255,255,255,0.82);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(255, 255, 255, 0.82);
         -webkit-backdrop-filter: blur(10px);
         backdrop-filter: blur(10px);
         border-bottom: 1px solid var(--border);
       }
       .topbar-inner {
-        max-width: 860px; margin: 0 auto; padding: 12px 18px;
-        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 12px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
       }
       .brand {
-        display: inline-flex; align-items: center; gap: 10px;
-        font-weight: 650; color: var(--ink); text-decoration: none; letter-spacing: -0.01em;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 650;
+        color: var(--ink);
+        text-decoration: none;
+        letter-spacing: -0.01em;
       }
-      .brand svg { width: 14px; height: 14px; display: block; }
-      .topbar a.util {
-        font-family: var(--mono); font-size: 12px; color: var(--subtle); text-decoration: none;
+      .brand:hover {
+        text-decoration: none;
       }
-      .topbar a.util:hover { color: var(--ink); }
+      .brand svg {
+        width: 14px;
+        height: 14px;
+        display: block;
+      }
+      .util {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--subtle);
+        text-decoration: none;
+      }
+      .util:hover {
+        color: var(--ink);
+        text-decoration: none;
+      }
 
-      .wrap { max-width: 860px; margin: 0 auto; padding: 28px 18px 80px; }
-
-      .page-header {
-        padding: 30px 0 24px; border-bottom: 1px solid var(--border); text-align: center;
+      .wrap {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 22px 18px 70px;
       }
+
       h1 {
-        font-size: clamp(28px, 3.5vw, 40px); line-height: 1.1;
-        letter-spacing: -0.02em; margin: 0 0 8px;
-      }
-      .page-subtitle { font-family: var(--mono); font-size: 13px; color: var(--subtle); }
-
-      p { margin: 12px 0; }
-
-      h2 {
-        font-size: 22px; line-height: 1.25; letter-spacing: -0.01em;
-        margin: 32px 0 6px; padding-bottom: 6px; border-bottom: 1px solid var(--border);
-      }
-      .intro {
-        color: var(--muted); font-size: 16px;
-        max-width: 580px; margin: 10px auto 20px; text-align: center;
+        font-size: 28px;
+        margin: 0 0 6px;
+        letter-spacing: -0.02em;
       }
 
-      .contrast { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-      @media (max-width: 600px) { .contrast { grid-template-columns: 1fr; } }
+      .subhead {
+        margin: 0 0 18px;
+        color: var(--muted);
+      }
+
+      .toy {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: #ffffff;
+        padding: 14px 14px;
+        margin-top: 14px;
+      }
+
+      .toy h2 {
+        margin: 0 0 6px;
+        font-size: 18px;
+        letter-spacing: -0.01em;
+      }
+
+      .toy p {
+        margin: 10px 0;
+        color: var(--muted);
+      }
+
+      button {
+        font-family: var(--mono);
+        font-size: 12px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: #ffffff;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #f9fafb;
+      }
+
+      .grid2 {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      @media (min-width: 860px) {
+        .grid2 {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
 
       .panel {
-        border: 1px solid var(--border); border-radius: 12px;
-        background: #fff; overflow: hidden;
-      }
-      .panel-head {
-        padding: 12px 14px 8px;
-        display: flex; align-items: center; justify-content: space-between;
-      }
-      .panel-label {
-        font-family: var(--mono); font-size: 11px; font-weight: 600;
-        letter-spacing: 0.08em; text-transform: uppercase;
-      }
-      .panel-label.teal { color: var(--teal); }
-      .panel-label.amber { color: var(--amber); }
-
-      .run-btn {
-        font-family: var(--mono); font-size: 11px; padding: 4px 10px;
-        border-radius: 6px; border: 1px solid var(--border);
-        background: #fff; cursor: pointer; transition: background 0.15s;
-      }
-      .run-btn:hover { background: #f9fafb; }
-      .run-btn:disabled { cursor: not-allowed; opacity: 0.4; }
-
-      .canvas-wrap {
-        position: relative; width: 100%; aspect-ratio: 5 / 3;
-        background: #fafafa; border-top: 1px solid var(--border);
-      }
-      .canvas-wrap canvas {
-        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 12px;
+        background: #fbfbfb;
       }
 
-      .panel-foot {
-        padding: 8px 14px; font-family: var(--mono); font-size: 11px;
-        line-height: 1.4; border-top: 1px solid var(--border);
-        min-height: 34px; transition: background 0.4s, color 0.4s;
-      }
-      .panel-foot.neutral { background: #f9fafb; color: var(--subtle); }
-      .panel-foot.teal { background: var(--teal-light); color: var(--teal); }
-      .panel-foot.amber { background: var(--amber-light); color: var(--amber); }
-
-      .aside {
-        border-left: 3px solid var(--border); padding-left: 14px;
-        margin: 22px 0; color: var(--muted); font-size: 15px;
+      .tag {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--subtle);
       }
 
-      footer {
-        margin-top: 28px; padding-top: 18px;
-        border-top: 1px solid var(--border); color: var(--subtle); font-size: 13px;
+      .dish {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 8px;
       }
-      a {
-        color: var(--ink); text-decoration: underline;
-        text-underline-offset: 2px; text-decoration-thickness: 1px;
+
+      .pill {
+        font-family: var(--mono);
+        font-size: 12px;
+        padding: 6px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: #ffffff;
       }
-      a:hover { text-decoration: none; }
-      a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+      .pill.ok {
+        border-color: rgba(34, 197, 94, 0.55);
+        background: rgba(34, 197, 94, 0.08);
+      }
+      .pill.bad {
+        border-color: rgba(239, 68, 68, 0.55);
+        background: rgba(239, 68, 68, 0.08);
+      }
+
+      .recipe {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 12px;
+        background: #ffffff;
+      }
+
+      .recipe pre {
+        margin: 0;
+        font-family: var(--mono);
+        font-size: 12px;
+        line-height: 1.6;
+        color: #0f172a;
+        white-space: pre-wrap;
+      }
     </style>
   </head>
   <body>
     <header class="topbar">
       <div class="topbar-inner">
-        <a class="brand" href="index.html" aria-label="Back to explainer">
+        <a class="brand" href="./index.html" aria-label="Back to explainer">
           <svg viewBox="0 0 16 16" aria-hidden="true">
             <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
             <circle cx="8" cy="8" r="2" fill="currentColor"></circle>
           </svg>
           IRL Toys
         </a>
-        <a class="util" href="index.html">Back to Explainer</a>
+        <a class="util" href="./index.html">Back</a>
       </div>
     </header>
 
     <div class="wrap">
-      <div class="page-header">
-        <h1>Toy Playground</h1>
-        <div class="page-subtitle">Design experiments for IRL concepts</div>
-      </div>
-
-      <h2>Idempotent vs. Non-Idempotent</h2>
-      <p class="intro">
-        Press Run on each side. One constellation always forms the same shape.
-        The other never does.
+      <h1>Toys Scratchpad</h1>
+      <p class="subhead">
+        This page exists so we can build and isolate animations without
+        disturbing the main explainer page. If a toy works here, we can embed it
+        into <code>index.html</code>.
       </p>
 
-      <div class="contrast">
-        <div class="panel">
-          <div class="panel-head">
-            <span class="panel-label teal">Idempotent</span>
-            <button class="run-btn" id="idem-btn" type="button">Run</button>
+      <section class="toy" id="toy-idempotent">
+        <h2>Idempotent vs Non-Idempotent</h2>
+        <p>
+          The goal is to teach one idea to a non-technical reader: rerunning an
+          idempotent step is safe because it produces the same result again.
+        </p>
+        <button id="btn-idem" type="button">Run Twice</button>
+        <div class="grid2" style="margin-top: 12px">
+          <div class="panel">
+            <div class="tag">Non-idempotent (changes)</div>
+            <div class="dish">
+              <span class="pill bad" id="bad1">dish: v1</span>
+              <span class="pill bad" id="bad2">dish: v2</span>
+            </div>
           </div>
-          <div class="canvas-wrap"><canvas id="cv-idem"></canvas></div>
-          <div class="panel-foot neutral" id="ft-idem">Same recipe, same dish. Press Run.</div>
-        </div>
-        <div class="panel">
-          <div class="panel-head">
-            <span class="panel-label amber">Non-Idempotent</span>
-            <button class="run-btn" id="nonidem-btn" type="button">Run</button>
+          <div class="panel">
+            <div class="tag">Idempotent (stable)</div>
+            <div class="dish">
+              <span class="pill ok" id="ok1">dish: v1</span>
+              <span class="pill ok" id="ok2">dish: v1</span>
+            </div>
           </div>
-          <div class="canvas-wrap"><canvas id="cv-nonidem"></canvas></div>
-          <div class="panel-foot neutral" id="ft-nonidem">Same recipe, different dish. Press Run.</div>
         </div>
-      </div>
+      </section>
 
-      <p class="aside">
-        The teal side is safe to rerun: the constellation always settles into
-        the same shape. The amber side drifts: positions shift, new dots appear,
-        and you can't tell which run was "right." Idempotency is what makes
-        iteration trustworthy.
-      </p>
-
-      <footer><a href="index.html">Back to the explainer</a></footer>
+      <section class="toy" id="toy-recipe">
+        <h2>"IRL Is A Recipe" Toy (Draft)</h2>
+        <p>
+          This is a placeholder direction: show ingredients + recipe card + a
+          consistent dish. It should feel like a small animation, not a diagram.
+        </p>
+        <button id="btn-recipe" type="button">Cook</button>
+        <div class="grid2">
+          <div class="panel">
+            <div class="tag">Ingredients (inputs)</div>
+            <div class="dish">
+              <span class="pill">data.csv</span>
+              <span class="pill">assumptions</span>
+              <span class="pill">goal</span>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="tag">Dish (outputs)</div>
+            <div class="dish">
+              <span class="pill ok" id="dish">report.html</span>
+            </div>
+          </div>
+        </div>
+        <div class="recipe" style="margin-top: 12px">
+          <pre id="recipe-card">Plan file:
+- Inputs: data.csv
+- Output: report.html
+- Done when: review diff is clean</pre>
+        </div>
+      </section>
     </div>
 
     <script>
-    (function () {
-      var N = 12;
-      var R = 5;
-      var LINE_DIST = 80;
-      var SCATTER_MS = 300;
-      var SETTLE_MS = 800;
+      (function () {
+        const bad1 = document.getElementById("bad1");
+        const bad2 = document.getElementById("bad2");
+        const ok1 = document.getElementById("ok1");
+        const ok2 = document.getElementById("ok2");
+        const btnIdem = document.getElementById("btn-idem");
 
-      function ease(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
-
-      /* ── Canvas boilerplate ── */
-      function init(id) {
-        var c = document.getElementById(id);
-        var dpr = window.devicePixelRatio || 1;
-        function fit() {
-          var r = c.parentElement.getBoundingClientRect();
-          c.width = r.width * dpr; c.height = r.height * dpr;
-        }
-        fit(); window.addEventListener("resize", fit);
-        return { c: c, dpr: dpr, fit: fit };
-      }
-      function ctx(cv) {
-        var g = cv.c.getContext("2d");
-        g.setTransform(cv.dpr, 0, 0, cv.dpr, 0, 0);
-        return g;
-      }
-      function dim(cv) { return { w: cv.c.width / cv.dpr, h: cv.c.height / cv.dpr }; }
-
-      /* ── Seeded RNG (mulberry32) ── */
-      function rng(s) {
-        return function () {
-          s |= 0; s = s + 0x6d2b79f5 | 0;
-          var t = Math.imul(s ^ s >>> 15, 1 | s);
-          t = (t + Math.imul(t ^ t >>> 7, 61 | t)) ^ t;
-          return ((t ^ t >>> 14) >>> 0) / 4294967296;
-        };
-      }
-
-      function seededPts(n, w, h, seed) {
-        var r = rng(seed), pad = R + 14, pts = [];
-        for (var i = 0; i < n; i++)
-          pts.push({ x: pad + r() * (w - 2*pad), y: pad + r() * (h - 2*pad) });
-        return pts;
-      }
-      function randPts(n, w, h) {
-        var pad = R + 14, pts = [];
-        for (var i = 0; i < n; i++)
-          pts.push({ x: pad + Math.random()*(w-2*pad), y: pad + Math.random()*(h-2*pad) });
-        return pts;
-      }
-
-      /* ── Drawing ── */
-      function draw(g, pts, colors, w, h, lineColor) {
-        g.clearRect(0, 0, w, h);
-
-        /* constellation lines */
-        g.strokeStyle = lineColor;
-        g.lineWidth = 1;
-        for (var i = 0; i < pts.length; i++) {
-          for (var j = i + 1; j < pts.length; j++) {
-            var dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
-            var d = Math.sqrt(dx*dx + dy*dy);
-            if (d < LINE_DIST) {
-              var a = 0.25 * (1 - d / LINE_DIST);
-              g.globalAlpha = a;
-              g.beginPath();
-              g.moveTo(pts[i].x, pts[i].y);
-              g.lineTo(pts[j].x, pts[j].y);
-              g.stroke();
-            }
-          }
-        }
-
-        /* dots */
-        for (var k = 0; k < pts.length; k++) {
-          g.globalAlpha = pts[k].a !== undefined ? pts[k].a : 1;
-          g.beginPath();
-          g.arc(pts[k].x, pts[k].y, R, 0, Math.PI * 2);
-          g.fillStyle = colors[k % colors.length];
-          g.fill();
-        }
-        g.globalAlpha = 1;
-      }
-
-      /* ── Two-phase animation: scatter out, then settle ── */
-      function animate(cv, from, to, colors, lineColor, done) {
-        var d = dim(cv);
-        /* Phase 1: scatter from current positions outward */
-        var scattered = [];
-        var cx = d.w / 2, cy = d.h / 2;
-        for (var i = 0; i < to.length; i++) {
-          var src = from[i] || { x: cx, y: cy };
-          var angle = Math.atan2(src.y - cy, src.x - cx) + (Math.random()-0.5)*1.2;
-          var dist = 30 + Math.random() * 40;
-          scattered.push({
-            x: src.x + Math.cos(angle) * dist,
-            y: src.y + Math.sin(angle) * dist,
+        if (btnIdem) {
+          btnIdem.addEventListener("click", function () {
+            // Simulate "mystery changes": second run differs.
+            bad1.textContent = "dish: v1";
+            bad2.textContent = "dish: v" + (2 + Math.floor(Math.random() * 7));
+            // Stable output: both runs same.
+            ok1.textContent = "dish: v1";
+            ok2.textContent = "dish: v1";
           });
         }
 
-        var start = null;
-        var totalMs = SCATTER_MS + SETTLE_MS;
+        const btnRecipe = document.getElementById("btn-recipe");
+        const dish = document.getElementById("dish");
+        const recipeCard = document.getElementById("recipe-card");
 
-        function frame(ts) {
-          if (!start) start = ts;
-          var el = ts - start;
-          var g = ctx(cv);
-          var pts = [];
-
-          if (el < SCATTER_MS) {
-            /* Phase 1: current → scattered */
-            var t1 = ease(el / SCATTER_MS);
-            for (var i = 0; i < to.length; i++) {
-              var src = from[i] || { x: cx, y: cy };
-              pts.push({
-                x: src.x + (scattered[i].x - src.x) * t1,
-                y: src.y + (scattered[i].y - src.y) * t1,
-                a: from[i] ? 1 : t1,
-              });
-            }
-          } else {
-            /* Phase 2: scattered → target */
-            var t2 = ease(Math.min((el - SCATTER_MS) / SETTLE_MS, 1));
-            for (var j = 0; j < to.length; j++) {
-              pts.push({
-                x: scattered[j].x + (to[j].x - scattered[j].x) * t2,
-                y: scattered[j].y + (to[j].y - scattered[j].y) * t2,
-                a: from[j] ? 1 : Math.min(1, (el / SCATTER_MS)),
-              });
-            }
-          }
-
-          draw(g, pts, colors, d.w, d.h, lineColor);
-
-          if (el < totalMs) {
-            requestAnimationFrame(frame);
-          } else {
-            /* final clean draw at exact targets */
-            draw(g, to.map(function(p) { return { x:p.x, y:p.y, a:1 }; }), colors, d.w, d.h, lineColor);
-            if (done) done(to);
-          }
+        if (btnRecipe) {
+          btnRecipe.addEventListener("click", async function () {
+            btnRecipe.disabled = true;
+            recipeCard.textContent =
+              "Plan file:\\n" +
+              "- Inputs: data.csv\\n" +
+              "- Output: report.html\\n" +
+              "- Done when: review diff is clean\\n\\n" +
+              "Cooking...";
+            dish.textContent = "working...";
+            await new Promise((r) => setTimeout(r, 550));
+            dish.textContent = "report.html";
+            recipeCard.textContent =
+              "Plan file:\\n" +
+              "- Inputs: data.csv\\n" +
+              "- Output: report.html\\n" +
+              "- Done when: review diff is clean\\n\\n" +
+              "Result: report.html (same recipe, same dish)";
+            btnRecipe.disabled = false;
+          });
         }
-        requestAnimationFrame(frame);
-      }
-
-      /* ── Color palettes ── */
-      var tealPalette = ["#0d9488","#14b8a6","#2dd4bf","#5eead4","#99f6e4","#0f766e"];
-      var amberPalette = ["#d97706","#f59e0b","#fbbf24","#fcd34d","#b45309","#92400e"];
-
-      function pickColors(n, palette, seed) {
-        var r = rng(seed), out = [];
-        for (var i = 0; i < n; i++) out.push(palette[Math.floor(r() * palette.length)]);
-        return out;
-      }
-
-      /* ══════════════════════════════════════
-         IDEMPOTENT
-         ══════════════════════════════════════ */
-      var iCv = init("cv-idem");
-      var iBtn = document.getElementById("idem-btn");
-      var iFt = document.getElementById("ft-idem");
-      var iRuns = 0, iCur = null;
-      var SEED = 42;
-      var iCol = pickColors(N, tealPalette, SEED);
-
-      (function () {
-        var d = dim(iCv);
-        iCur = randPts(N, d.w, d.h);
-        draw(ctx(iCv), iCur, iCol, d.w, d.h, "rgba(13,148,136,0.35)");
       })();
-
-      iBtn.addEventListener("click", function () {
-        iBtn.disabled = true;
-        iRuns++;
-        var d = dim(iCv);
-        var targets = seededPts(N, d.w, d.h, SEED);
-        animate(iCv, iCur, targets, iCol, "rgba(13,148,136,0.35)", function (final) {
-          iCur = final;
-          iBtn.disabled = false;
-          iFt.className = "panel-foot teal";
-          iFt.textContent = iRuns === 1
-            ? "Run #1 \u2014 constellation formed."
-            : "Run #" + iRuns + " \u2014 identical shape. Nothing changed.";
-        });
-      });
-
-      /* ══════════════════════════════════════
-         NON-IDEMPOTENT
-         ══════════════════════════════════════ */
-      var nCv = init("cv-nonidem");
-      var nBtn = document.getElementById("nonidem-btn");
-      var nFt = document.getElementById("ft-nonidem");
-      var nRuns = 0, nCur = null, nCount = N;
-      var nCol = pickColors(N + 30, amberPalette, 99);
-
-      (function () {
-        var d = dim(nCv);
-        nCur = randPts(N, d.w, d.h);
-        draw(ctx(nCv), nCur, nCol, d.w, d.h, "rgba(217,119,6,0.3)");
-      })();
-
-      nBtn.addEventListener("click", function () {
-        nBtn.disabled = true;
-        nRuns++;
-        var d = dim(nCv);
-        var extra = Math.floor(Math.random() * 2) + 1;
-        var newN = nCount + extra;
-        var targets = randPts(newN, d.w, d.h);
-
-        /* Pad from with center-spawns for new dots */
-        var from = (nCur || []).slice();
-        while (from.length < newN) from.push({ x: d.w/2, y: d.h/2 });
-
-        animate(nCv, from, targets, nCol, "rgba(217,119,6,0.3)", function (final) {
-          nCur = final;
-          nCount = newN;
-          nBtn.disabled = false;
-          nFt.className = "panel-foot amber";
-          nFt.textContent = nRuns === 1
-            ? "Run #1 \u2014 " + newN + " dots, random positions."
-            : "Run #" + nRuns + " \u2014 " + newN + " dots. Shape changed again.";
-        });
-      });
-    })();
     </script>
   </body>
 </html>
+
