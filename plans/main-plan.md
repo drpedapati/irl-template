@@ -72,6 +72,10 @@ i think both sides need some nice animations. Maybe a subtle touch of color. Rea
     Revision: we're almost there. There's a couple things I want to change. One is that for the actual template, there should be the before each loop, the instruction loop, and then after each loop. That's important to explain the process. I also think it would be better if you showed it side by side instead of vertically so we can see the main plan being executed and then the outputs in real time. I think also doing two or three loops to show what can happen over time, including a revision part, would be good. Kind of like you're seeing me do right now. I think the git diff is not essential. It'd be hard for non-technical users to understand that. I do like the checkpoint save part though.
     Revision really close, but when I'm looking at the actual plan itself, it has to pass muster if data scientists were to read this. So maybe make sure that it's actually realistic. It just says produce O3 outputs report. HTML, it doesn't make a lot of sense. I think you can add a little bit more detail there. Given that the loop column is longer than the main plan column, you probably have a little bit of room in the main plan.
 
+    New Toy: Anatomy of a main plan. Make it interactive like clicking on things and can give more details after a nice layout.
+    
+    New Toy: how to execute them main-plan with a terminal based ai. "Review main-plan.md, check for any revisions, and execute" as the command you run over and over.
+
     For all the toys please update the text and captions to reflect the changes.
     These are not comptuer programers so refer to the real irl template where we aren't using words like git, use words like version control.
 
