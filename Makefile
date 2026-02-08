@@ -5,7 +5,7 @@
 #   make irl project-name -t template-name - Use specific template
 
 TEMPLATE_DIR := 01-plans/templates
-DEFAULT_TEMPLATE := irl-basic-template
+DEFAULT_TEMPLATE := irl-basic
 
 # Colors for beautiful output
 BLUE := \033[0;34m
@@ -34,14 +34,12 @@ default:
 	@echo ""
 	@echo "  ${GREEN}make irl${RESET}                        ${CYAN}→ Interactive setup (recommended)${RESET}"
 	@echo "  ${GREEN}make irl my-project${RESET}              ${CYAN}→ Create project with default template${RESET}"
-	@echo "  ${GREEN}make irl my-project -t meeting-abstract${RESET}"
+	@echo "  ${GREEN}make irl my-project -t irl-basic${RESET}"
 	@echo "                                      ${CYAN}→ Use specific template${RESET}"
 	@echo ""
 	@echo "${BOLD}${YELLOW}Available Templates:${RESET}"
 	@echo ""
-	@echo "  ${MAGENTA}•${RESET} ${BOLD}irl-basic-template${RESET}      ${CYAN}General purpose research workflow${RESET}"
-	@echo "  ${MAGENTA}•${RESET} ${BOLD}scientific-abstract${RESET}    ${CYAN}For journal article abstracts${RESET}"
-	@echo "  ${MAGENTA}•${RESET} ${BOLD}meeting-abstract${RESET}        ${CYAN}For conference/meeting abstracts${RESET}"
+	@echo "  ${MAGENTA}•${RESET} ${BOLD}irl-basic${RESET}               ${CYAN}IRL basic template${RESET}"
 	@echo ""
 	@echo "${BOLD}${YELLOW}More Information:${RESET}"
 	@echo ""
@@ -54,8 +52,8 @@ default:
 	@echo ""
 
 # Prevent make from treating arguments as targets (must come before irl target)
-.PHONY: -t --t meeting-abstract scientific-abstract irl-basic-template
--t --t meeting-abstract scientific-abstract irl-basic-template:
+.PHONY: -t --t irl-basic
+-t --t irl-basic:
 	@true
 .PHONY: %
 %:
@@ -96,9 +94,7 @@ irl:
 		for template in $$(ls -1 $(TEMPLATE_DIR)/*.md 2>/dev/null | sed 's|.*/||' | sed 's|\.md$$||' | sort); do \
 			TEMPLATE_DESC=""; \
 			case "$$template" in \
-				irl-basic-template) TEMPLATE_DESC="General purpose IRL template" ;; \
-				scientific-abstract) TEMPLATE_DESC="For journal article abstracts" ;; \
-				meeting-abstract) TEMPLATE_DESC="For conference/meeting abstracts" ;; \
+				irl-basic) TEMPLATE_DESC="IRL basic template" ;; \
 				*) TEMPLATE_DESC="Template" ;; \
 			esac; \
 			echo "  ${MAGENTA}$$TEMPLATE_NUM${RESET} ${BOLD}$$template${RESET}      ${CYAN}$$TEMPLATE_DESC${RESET}"; \
@@ -177,20 +173,18 @@ help:
 	@echo "  ${GREEN}make${RESET}                        ${CYAN}Show welcome message${RESET}"
 	@echo "  ${GREEN}make irl${RESET}                    ${CYAN}Interactive setup (recommended)${RESET}"
 	@echo "  ${GREEN}make irl project-name${RESET}       ${CYAN}Create project with default template${RESET}"
-	@echo "  ${GREEN}make irl project-name -t scientific-abstract${RESET}"
+	@echo "  ${GREEN}make irl project-name -t irl-basic${RESET}"
 	@echo "                                      ${CYAN}Create project with specific template${RESET}"
 	@echo ""
 	@echo "${BOLD}${YELLOW}Available Templates:${RESET}"
 	@echo ""
-	@echo "  ${MAGENTA}•${RESET} ${BOLD}irl-basic-template${RESET}      ${CYAN}General purpose IRL template${RESET}"
-	@echo "  ${MAGENTA}•${RESET} ${BOLD}scientific-abstract${RESET}    ${CYAN}For writing scientific journal abstracts${RESET}"
-	@echo "  ${MAGENTA}•${RESET} ${BOLD}meeting-abstract${RESET}        ${CYAN}For writing conference/meeting abstracts${RESET}"
+	@echo "  ${MAGENTA}•${RESET} ${BOLD}irl-basic${RESET}               ${CYAN}IRL basic template${RESET}"
 	@echo ""
 	@echo "${BOLD}${YELLOW}Examples:${RESET}"
 	@echo ""
 	@echo "  ${GREEN}make irl my-research${RESET}"
 	@echo "  ${GREEN}make irl conference-abstracts${RESET}"
-	@echo "  ${GREEN}make irl apa-2025 -t meeting-abstract${RESET}"
+	@echo "  ${GREEN}make irl apa-2025 -t irl-basic${RESET}"
 	@echo ""
 
 # List available templates

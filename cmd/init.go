@@ -30,7 +30,7 @@ Examples:
   irl init                              # Interactive mode
   irl init "ERP analysis study"         # Auto-generates: 260129-erp-analysis-study
   irl init -n my-project                # Use exact name: my-project
-  irl init -t meeting-abstract          # With specific template
+  irl init -t irl-basic                 # With specific template
   irl init -d ~/Research "APA poster"   # Create in specific directory`,
 	RunE: runInit,
 }
@@ -175,7 +175,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 		tmpl, err := templates.GetTemplate(selectedTemplate)
 		if err != nil {
 			fmt.Println(theme.Note(fmt.Sprintf("%v, using basic template", err)))
-			tmpl = templates.EmbeddedTemplates["basic"]
+			tmpl = templates.EmbeddedTemplates["irl-basic"]
 		}
 		if err := scaffold.WritePlan(projectPath, tmpl.Content); err != nil {
 			return err

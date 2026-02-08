@@ -12,13 +12,13 @@ import (
 type HelpSection int
 
 const (
-	HelpSectionMenu          HelpSection = iota // The help menu
-	HelpSectionWhatIsIRL                        // "What is IRL?" slide deck
-	HelpSectionHowIRLHelps                      // "How IRL helps" slide deck
-	HelpSectionWhoIsIRLFor                      // "Who is IRL for?" slide deck
-	HelpSectionWhatCanYouBuild                  // "What can you build?" slide deck
-	HelpSectionWhatYouNeed                      // "What you need" slide deck
-	HelpSectionSeeItInAction                    // "See it in action" slide deck
+	HelpSectionMenu            HelpSection = iota // The help menu
+	HelpSectionWhatIsIRL                          // "What is IRL?" slide deck
+	HelpSectionHowIRLHelps                        // "How IRL helps" slide deck
+	HelpSectionWhoIsIRLFor                        // "Who is IRL for?" slide deck
+	HelpSectionWhatCanYouBuild                    // "What can you build?" slide deck
+	HelpSectionWhatYouNeed                        // "What you need" slide deck
+	HelpSectionSeeItInAction                      // "See it in action" slide deck
 )
 
 // Menu items for the help menu
@@ -1968,7 +1968,7 @@ func (m HelpModel) renderWritingProjectSlide() string {
 
 	box := boxStyle.Render(diagram)
 
-	hint := successStyle.Render("Template: meeting-abstract")
+	hint := successStyle.Render("Template: irl-basic")
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,

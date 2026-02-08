@@ -15,7 +15,7 @@ brew install drpedapati/tap/irl
 
 # Create project - auto-names as YYMMDD-slug
 irl init "ERP correlation analysis"    # → 260129-erp-correlation-analysis/
-irl init "APA poster" -t meeting-abstract
+irl init "APA poster" -t irl-basic
 irl init                               # Interactive mode
 ```
 
