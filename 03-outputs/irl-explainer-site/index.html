@@ -51,6 +51,53 @@
         text-rendering: optimizeLegibility;
       }
 
+      /* Frosted glass top bar (howkeyboardswork-style restraint). */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(255, 255, 255, 0.82);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border);
+      }
+      .topbar-inner {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 12px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 650;
+        color: var(--ink);
+        text-decoration: none;
+        letter-spacing: -0.01em;
+      }
+      .brand:hover {
+        text-decoration: none;
+      }
+      .brand svg {
+        width: 14px;
+        height: 14px;
+        display: block;
+      }
+      .topbar a.util {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--subtle);
+        text-decoration: none;
+      }
+      .topbar a.util:hover {
+        color: var(--ink);
+        text-decoration: none;
+      }
+
       .wrap {
         max-width: 700px;
         margin: 0 auto;
@@ -303,6 +350,25 @@
     </style>
   </head>
   <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="#what" aria-label="Jump to start">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
+            <circle cx="8" cy="8" r="2" fill="currentColor"></circle>
+          </svg>
+          IRL Explainer
+        </a>
+        <a
+          class="util"
+          href="https://github.com/drpedapati/irl-template"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View Source
+        </a>
+      </div>
+    </header>
     <div class="wrap">
       <header>
         <div class="kicker">A document-centric workflow for AI-assisted work</div>
