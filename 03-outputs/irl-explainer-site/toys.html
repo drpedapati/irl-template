@@ -245,9 +245,20 @@
         <div class="panel-head">
           <span class="panel-label" style="color:var(--subtle)">main-plan.md</span>
         </div>
-        <div id="anatomy-stage" style="padding:0;font-family:var(--mono);font-size:12px;line-height:1.55;background:#fafafa;border-top:1px solid var(--border)">
+        <div id="anatomy-stage" style="display:flex;gap:0;border-top:1px solid var(--border);min-height:340px;background:#fafafa">
+          <!-- Left: visual plan document -->
+          <div id="anatomy-plan" style="flex:1;padding:16px 18px;font-family:var(--mono);font-size:11px;line-height:1.65;border-right:1px solid var(--border);overflow:hidden;position:relative">
+          </div>
+          <!-- Right: clickable section labels + description -->
+          <div id="anatomy-labels" style="width:260px;min-width:220px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;font-family:var(--sans);font-size:12px">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#9ca3af;margin-bottom:2px">Sections</div>
+            <div id="anatomy-label-list"></div>
+            <div id="anatomy-detail" style="margin-top:auto;padding:10px 12px;background:#fff;border:1px solid #e5e7eb;border-radius:6px;font-size:11.5px;line-height:1.55;color:#374151;min-height:50px;opacity:0;transition:opacity 0.3s">
+              Click a section to learn more.
+            </div>
+          </div>
         </div>
-        <div class="panel-foot neutral" id="ft-anatomy">Click a section to learn more.</div>
+        <div class="panel-foot neutral" id="ft-anatomy">Click a section to see its role in the loop.</div>
       </div>
 
       <p class="aside">
@@ -1075,91 +1086,188 @@
     })();
 
     /* ══════════════════════════════════════════════════════════
-       Toy 4 — Anatomy of a Main Plan (interactive clickable)
+       Toy 4 — Anatomy of a Main Plan (split visual layout)
        ══════════════════════════════════════════════════════════ */
     (function () {
-      var stage = document.getElementById("anatomy-stage");
+      var planEl = document.getElementById("anatomy-plan");
+      var labelList = document.getElementById("anatomy-label-list");
+      var detailEl = document.getElementById("anatomy-detail");
       var ft = document.getElementById("ft-anatomy");
       var TEAL = "#0d9488";
 
       var sections = [
-        { icon: "\ud83d\udd27", title: "First Time Setup",
-          summary: "Run once when starting a new project",
-          detail: "Install any skills or tools the project needs. This only runs once \u2014 after that, every loop starts from the same baseline." },
-        { icon: "\u2705", title: "Before Each Loop",
-          summary: "Checklist to run before every iteration",
-          detail: "Verify the working tree is clean, the script is idempotent, and raw data hasn\u2019t changed. This ensures every loop starts from a known, stable state." },
-        { icon: "\ud83d\udd01", title: "Instruction Loop",
-          summary: "The work for each iteration",
-          detail: "The author writes what to do: load data, run analyses, produce outputs. The AI follows these instructions step by step. New revisions get added here between loops." },
-        { icon: "\ud83d\udcdd", title: "After Each Loop",
-          summary: "Steps to complete after every iteration",
-          detail: "Update the activity log, save a version checkpoint, and give feedback. This creates a traceable record of every change." },
-        { icon: "\u26a1", title: "One-Time Instructions",
-          summary: "Tasks that should only execute once",
-          detail: "Special tasks like re-downloading an updated skill or a one-off migration. Once done, they\u2019re not repeated." },
-        { icon: "\ud83d\udcac", title: "AI Feedback",
-          summary: "Where the AI reports back",
-          detail: "After each loop, the AI writes concise feedback: what was done, decisions needed, and anything that might break idempotency. The author reads this before the next revision." },
+        { icon: "\ud83d\udd27", title: "First Time Setup", color: "#6366f1",
+          planLines: ["# IRL Basic Template", "", "\ud83d\udd27 First Time Setup", "Install Explainer Skill", "Install Quarto Skill"],
+          detail: "Run once when starting a new project. Install any skills or tools needed \u2014 after that, every loop starts from the same baseline." },
+        { icon: "\u2705", title: "Before Each Loop", color: "#0d9488",
+          planLines: ["\u2705 Before Each Loop", "\u2022 Script is idempotent", "\u2022 Version control: clean tree", "\u2022 Data hasn\u2019t changed"],
+          detail: "The safety checklist. Verify the working tree is clean, the script is idempotent, and nothing has shifted. Every loop starts from a known, stable state." },
+        { icon: "\ud83d\udd01", title: "Instruction Loop", color: "#d97706",
+          planLines: ["\ud83d\udd01 Instruction Loop", "1. Load survey data from 02-data/", "2. Filter by inclusion criteria", "3. Compute group statistics", "4. Run t-test, render report", "", "\u270e Revision: add confidence intervals"],
+          detail: "The core work. The author writes what to do \u2014 load data, run analyses, produce outputs. The AI follows step by step. New revisions appear here between loops." },
+        { icon: "\ud83d\udcdd", title: "After Each Loop", color: "#059669",
+          planLines: ["\ud83d\udcdd After Each Loop", "\u2022 Update activity log", "\u2022 Save version checkpoint", "\u2022 Give feedback to author"],
+          detail: "Close the loop. Update the activity log, save a version checkpoint, and write feedback. This creates a traceable record of every iteration." },
+        { icon: "\u26a1", title: "One-Time Instructions", color: "#7c3aed",
+          planLines: ["\u26a1 One-Time Instructions", "1. Re-download updated skill"],
+          detail: "Special tasks that only execute once \u2014 like re-downloading an updated tool or a one-off data migration. Not repeated in future loops." },
+        { icon: "\ud83d\udcac", title: "AI Feedback", color: "#64748b",
+          planLines: ["\ud83d\udcac AI Feedback", "What was done, decisions needed,", "next steps, idempotency check"],
+          detail: "Where the AI reports back. After each loop: what was done, decisions needed, and anything that might break idempotency. The author reads this before revising." },
       ];
 
       var active = -1;
+      var planBlocks = []; /* references to left-side section divs */
 
-      function render() {
-        stage.innerHTML = "";
+      /* ---- build left side: visual plan document ---- */
+      function buildPlan() {
+        planEl.innerHTML = "";
+        /* document title accent line */
+        var accent = document.createElement("div");
+        accent.style.cssText = "width:36px;height:3px;background:" + TEAL + ";border-radius:2px;margin-bottom:10px";
+        planEl.appendChild(accent);
+
         for (var i = 0; i < sections.length; i++) {
-          (function(idx) {
-            var s = sections[idx];
-            var row = document.createElement("div");
-            row.style.cssText = "padding:10px 16px;border-bottom:1px solid #e5e7eb;cursor:pointer;transition:background 0.2s";
-            if (idx === active) row.style.background = "#f0fdfa";
+          var s = sections[i];
+          var block = document.createElement("div");
+          block.style.cssText = "margin-bottom:8px;padding:6px 8px;border-radius:4px;border-left:3px solid transparent;transition:background 0.3s, border-color 0.3s;cursor:pointer";
+          block.setAttribute("data-idx", i);
 
-            var head = document.createElement("div");
-            head.style.cssText = "display:flex;align-items:center;gap:8px";
-            var iconSpan = document.createElement("span");
-            iconSpan.textContent = s.icon;
-            iconSpan.style.fontSize = "14px";
-            var titleSpan = document.createElement("span");
-            titleSpan.style.cssText = "font-weight:600;font-size:12px;color:#111827";
-            titleSpan.textContent = s.title;
-            var sumSpan = document.createElement("span");
-            sumSpan.style.cssText = "margin-left:auto;font-size:10.5px;color:#6b7280";
-            sumSpan.textContent = s.summary;
-            head.appendChild(iconSpan);
-            head.appendChild(titleSpan);
-            head.appendChild(sumSpan);
-            row.appendChild(head);
-
-            if (idx === active) {
-              var det = document.createElement("div");
-              det.style.cssText = "margin-top:8px;padding:8px 10px;background:#fff;border-radius:6px;border:1px solid #d1d5db;font-size:11.5px;line-height:1.55;color:#374151;font-family:var(--sans)";
-              det.textContent = s.detail;
-              row.appendChild(det);
-              ft.textContent = s.icon + " " + s.title;
-              ft.className = "panel-foot teal";
+          for (var j = 0; j < s.planLines.length; j++) {
+            var line = document.createElement("div");
+            var txt = s.planLines[j];
+            if (txt === "") { line.style.height = "6px"; }
+            else if (j === 0 && txt.indexOf("#") !== 0) {
+              /* section header line */
+              line.style.cssText = "font-weight:700;font-size:11.5px;color:#111827;margin-bottom:1px";
+              line.textContent = txt;
+            } else if (txt.indexOf("#") === 0) {
+              line.style.cssText = "font-weight:700;font-size:13px;color:#111827;margin-bottom:2px";
+              line.textContent = txt.replace(/^#\s*/, "");
+            } else if (txt.indexOf("\u270e") === 0) {
+              line.style.cssText = "font-size:10.5px;color:#d97706;font-style:italic;margin-top:2px";
+              line.textContent = txt;
+            } else {
+              line.style.cssText = "font-size:10.5px;color:#6b7280";
+              line.textContent = txt;
             }
+            block.appendChild(line);
+          }
 
-            row.addEventListener("mouseenter", function() {
-              if (idx !== active) row.style.background = "#f9fafb";
+          (function(idx, el) {
+            el.addEventListener("click", function() { selectSection(idx); });
+            el.addEventListener("mouseenter", function() {
+              if (idx !== active) el.style.background = "#f9fafb";
             });
-            row.addEventListener("mouseleave", function() {
-              row.style.background = idx === active ? "#f0fdfa" : "";
+            el.addEventListener("mouseleave", function() {
+              if (idx !== active) el.style.background = "";
             });
-            row.addEventListener("click", function() {
-              active = active === idx ? -1 : idx;
-              render();
-            });
+          })(i, block);
 
-            stage.appendChild(row);
-          })(i);
-        }
-        if (active === -1) {
-          ft.textContent = "Click a section to learn more.";
-          ft.className = "panel-foot neutral";
+          planEl.appendChild(block);
+          planBlocks.push(block);
         }
       }
 
-      render();
+      /* ---- build right side: clickable labels ---- */
+      function buildLabels() {
+        labelList.innerHTML = "";
+        for (var i = 0; i < sections.length; i++) {
+          var s = sections[i];
+          var lbl = document.createElement("div");
+          lbl.style.cssText = "display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:5px;cursor:pointer;transition:background 0.2s, box-shadow 0.2s;border:1px solid transparent";
+          lbl.setAttribute("data-idx", i);
+
+          var dot = document.createElement("span");
+          dot.style.cssText = "width:8px;height:8px;border-radius:50%;background:" + s.color + ";flex-shrink:0";
+
+          var name = document.createElement("span");
+          name.style.cssText = "font-size:12px;font-weight:500;color:#374151";
+          name.textContent = s.icon + " " + s.title;
+
+          lbl.appendChild(dot);
+          lbl.appendChild(name);
+
+          (function(idx, el) {
+            el.addEventListener("click", function() { selectSection(idx); });
+            el.addEventListener("mouseenter", function() {
+              if (idx !== active) el.style.background = "#f9fafb";
+            });
+            el.addEventListener("mouseleave", function() {
+              if (idx !== active) el.style.background = "";
+            });
+          })(i, lbl);
+
+          labelList.appendChild(lbl);
+        }
+      }
+
+      /* ---- selection logic ---- */
+      function selectSection(idx) {
+        if (active === idx) { active = -1; clearHighlight(); return; }
+        active = idx;
+        var s = sections[idx];
+
+        /* highlight plan block */
+        for (var i = 0; i < planBlocks.length; i++) {
+          if (i === idx) {
+            planBlocks[i].style.background = s.color + "0d"; /* very light tint */
+            planBlocks[i].style.borderLeftColor = s.color;
+          } else {
+            planBlocks[i].style.background = "";
+            planBlocks[i].style.borderLeftColor = "transparent";
+          }
+        }
+
+        /* highlight label */
+        var labels = labelList.children;
+        for (var i = 0; i < labels.length; i++) {
+          if (i === idx) {
+            labels[i].style.background = s.color + "0d";
+            labels[i].style.borderColor = s.color + "40";
+            labels[i].style.boxShadow = "0 1px 3px " + s.color + "18";
+          } else {
+            labels[i].style.background = "";
+            labels[i].style.borderColor = "transparent";
+            labels[i].style.boxShadow = "";
+          }
+        }
+
+        /* show detail */
+        detailEl.style.opacity = "0";
+        setTimeout(function() {
+          detailEl.textContent = s.detail;
+          detailEl.style.borderColor = s.color + "40";
+          detailEl.style.opacity = "1";
+        }, 80);
+
+        ft.textContent = s.icon + " " + s.title;
+        ft.className = "panel-foot teal";
+      }
+
+      function clearHighlight() {
+        for (var i = 0; i < planBlocks.length; i++) {
+          planBlocks[i].style.background = "";
+          planBlocks[i].style.borderLeftColor = "transparent";
+        }
+        var labels = labelList.children;
+        for (var i = 0; i < labels.length; i++) {
+          labels[i].style.background = "";
+          labels[i].style.borderColor = "transparent";
+          labels[i].style.boxShadow = "";
+        }
+        detailEl.style.opacity = "0";
+        setTimeout(function() {
+          detailEl.textContent = "Click a section to learn more.";
+          detailEl.style.borderColor = "#e5e7eb";
+          detailEl.style.opacity = "1";
+        }, 80);
+        ft.textContent = "Click a section to see its role in the loop.";
+        ft.className = "panel-foot neutral";
+      }
+
+      buildPlan();
+      buildLabels();
     })();
 
     /* ══════════════════════════════════════════════════════════

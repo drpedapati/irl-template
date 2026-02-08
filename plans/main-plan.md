@@ -73,7 +73,8 @@ i think both sides need some nice animations. Maybe a subtle touch of color. Rea
     Revision really close, but when I'm looking at the actual plan itself, it has to pass muster if data scientists were to read this. So maybe make sure that it's actually realistic. It just says produce O3 outputs report. HTML, it doesn't make a lot of sense. I think you can add a little bit more detail there. Given that the loop column is longer than the main plan column, you probably have a little bit of room in the main plan.
 
     New Toy: Anatomy of a main plan. Make it interactive like clicking on things and can give more details after a nice layout.
-    
+    Revision: I want to see a more visual look of the plan as opposed to this accordion thing. I don't think it works very well for this. I think we want to see the plan on one side and then on the right side we have the captions and the little labels people could click on and see the description.
+
     New Toy: how to execute them main-plan with a terminal based ai. "Review main-plan.md, check for any revisions, and execute" as the command you run over and over.
 
     For all the toys please update the text and captions to reflect the changes.
