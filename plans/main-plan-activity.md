@@ -39,3 +39,4 @@
 - 2026-02-08 (f87d7f9): Redesigned Toy 4 as split visual layout — plan document on left with realistic content, clickable section labels with colored dots on right; clicking highlights both sides and shows description; validated both pages serve.
 - 2026-02-08 (65d6041): Added Toy 6 (The Workspace) — interactive VS Code-style IDE layout with four clickable zones (file explorer, plan editor, output preview with stat cards, terminal); overlay descriptions on click; Tour button for guided walkthrough; validated both pages serve.
 - 2026-02-08 (7ea31e8): Fixed workspace toy proportions — taller editor area (280→360px), proper terminal height (56→80px) for realistic IDE look; validated both pages serve.
+- 2026-02-08 (36d249f): Added fifth lede paragraph to index.html emphasizing IRL as a meta-skill — "the thing that builds all the other things"; ran `make smoke`.

@@ -38,3 +38,4 @@ date,change_summary,git_hash
 2026-02-08,Redesigned Toy 4 as split visual layout with plan on left and clickable labels on right; validated both pages serve,f87d7f9
 2026-02-08,Added Toy 6 (The Workspace) interactive IDE layout with clickable zones and guided tour; validated both pages serve,65d6041
 2026-02-08,Fixed workspace toy proportions for realistic IDE look; validated both pages serve,7ea31e8
+2026-02-08,Added meta-skill lede paragraph to index.html; validated with make smoke,36d249f
