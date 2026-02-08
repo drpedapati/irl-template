@@ -12,3 +12,4 @@ date,change_summary,git_hash
 2026-02-08,Refined explainer aesthetics toward sample elegance and validated with make smoke,c5c19a3
 2026-02-08,Applied explainer-skill header design pattern (frosted glass) and validated with make smoke,dae294b
 2026-02-08,Improved explainer header whitespace and added author byline; validated with make smoke,65f881b
+2026-02-08,Removed artifact path callout from explainer page and validated with make smoke,e5fdfbb
