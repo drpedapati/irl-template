@@ -13,4 +13,3 @@ date,change_summary,git_hash
 2026-02-08,Applied explainer-skill header design pattern (frosted glass) and validated with make smoke,dae294b
 2026-02-08,Improved explainer header whitespace and added author byline; validated with make smoke,65f881b
 2026-02-08,Removed artifact path callout from explainer page and validated with make smoke,e5fdfbb
-2026-02-08,Applied new revisions and added toys scratchpad page; validated with make smoke,16ad2a7
