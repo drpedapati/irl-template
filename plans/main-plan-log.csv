@@ -4,3 +4,4 @@ date,change_summary,git_hash
 2026-02-08,Added Makefile for explainer site and validated local serve with make smoke,d0b0241
 2026-02-08,Added ZeroTier access notes and helper targets; validated local serve + IP discovery,a1957c2
 2026-02-08,Ran explainer site smoke test to validate local serving,84aab57
+2026-02-08,Revised explainer site per senior feedback and validated with make smoke,58bf5e0
