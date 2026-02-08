@@ -701,8 +701,15 @@
             </figcaption>
           </figure>
 
+          <div class="toy" aria-label="Interactive toy: demonstrate idempotency">
+            <button id="toy-idem" type="button">Run Step</button>
+            <span id="idem-count" style="font-family:var(--mono);font-size:12px;color:var(--subtle);margin-left:10px"></span>
+            <div id="idem-output" style="margin-top:12px"></div>
+            <p id="idem-verdict" class="aside" style="margin-bottom:0;margin-top:12px;display:none"></p>
+          </div>
+
           <p class="aside">
-            If you can’t make a step perfectly idempotent, the fallback is
+            If you can't make a step perfectly idempotent, the fallback is
             explicit versioning: write to a timestamped path and record the link
             in the plan, so reruns are still legible.
           </p>
@@ -971,6 +978,40 @@ make -C 03-outputs/irl-explainer-site zt</code></pre>
             await new Promise((r) => setTimeout(r, 350));
             steps.forEach((x) => x.classList.remove("active"));
             btn.disabled = false;
+          });
+        }
+
+        // Idempotency toy: run a "step" repeatedly, same output every time.
+        var idemBtn = document.getElementById("toy-idem");
+        var idemCount = document.getElementById("idem-count");
+        var idemOutput = document.getElementById("idem-output");
+        var idemVerdict = document.getElementById("idem-verdict");
+        var idemRuns = 0;
+        var idemFile =
+          '<div style="border:1px solid ' +
+          theme.border +
+          ";border-radius:8px;padding:10px 12px;background:#fafafa;" +
+          'font-family:var(--mono);font-size:12.5px;line-height:1.6">' +
+          '<div style="color:var(--subtle);font-size:11px;margin-bottom:6px">' +
+          "03-outputs/report.html</div>" +
+          "Subjects: 42<br>Mean age: 11.3<br>p = 0.023</div>";
+
+        if (idemBtn) {
+          idemBtn.addEventListener("click", function () {
+            idemRuns++;
+            idemCount.textContent = "Run #" + idemRuns;
+            idemOutput.innerHTML = idemFile;
+            idemVerdict.style.display = "block";
+            if (idemRuns === 1) {
+              idemVerdict.textContent =
+                "First run: the step produced an output file.";
+            } else {
+              idemVerdict.textContent =
+                "Run #" +
+                idemRuns +
+                ": same inputs, same output. The diff is empty \u2014 " +
+                "nothing changed. That\u2019s idempotency.";
+            }
           });
         }
       })();
