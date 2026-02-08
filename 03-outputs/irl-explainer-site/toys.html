@@ -189,25 +189,25 @@
         iteration trustworthy.
       </p>
 
-      <h2>The Recipe</h2>
+      <h2>The Loop</h2>
       <p class="intro">
-        You write a plan. The AI follows it and produces files you can inspect.
-        Each cycle layers more work onto a stable foundation.
+        Humans reason and plan. AI executes. Each cycle produces artifacts
+        the human reviews before planning the next step.
       </p>
 
       <div class="panel" style="max-width:100%">
         <div class="panel-head">
-          <span class="panel-label" style="color:var(--subtle)">Plan &rarr; Process &rarr; Artifacts</span>
+          <span class="panel-label" style="color:var(--subtle)">Human &harr; AI &rarr; Artifacts</span>
           <button class="run-btn" id="recipe-btn" type="button">Run Cycle</button>
         </div>
-        <div class="canvas-wrap" style="aspect-ratio:3/1"><canvas id="cv-recipe"></canvas></div>
-        <div class="panel-foot neutral" id="ft-recipe">Press Run Cycle to watch the flow.</div>
+        <div class="canvas-wrap" style="aspect-ratio:5/3"><canvas id="cv-recipe"></canvas></div>
+        <div class="panel-foot neutral" id="ft-recipe">Press Run Cycle to watch the loop.</div>
       </div>
 
       <p class="aside">
-        The plan stays put. Each cycle sends instructions through the AI, which
-        produces artifacts that accumulate on the right. You start small, layer
-        complexity, and every output is something you can inspect and build on.
+        The human decides what to build and evaluates results. The AI follows
+        instructions faithfully. The plan file sits between them &mdash; a stable
+        contract both sides can point to. Each loop iteration adds to the foundation.
       </p>
 
       <footer><a href="index.html">Back to the explainer</a></footer>
@@ -439,7 +439,7 @@
     })();
 
     /* ══════════════════════════════════════════════
-       TOY 2: THE RECIPE — plan → process → artifacts
+       TOY 2: THE LOOP — human ↔ AI → artifacts
        ══════════════════════════════════════════════ */
     (function () {
       var cv = (function (id) {
@@ -456,133 +456,53 @@
       var btn = document.getElementById("recipe-btn");
       var ft = document.getElementById("ft-recipe");
       var cycles = 0;
-      var artifacts = []; /* settled file rectangles on the right */
+      var artifacts = [];
+      var mono = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
 
-      function g() {
-        var ctx = cv.c.getContext("2d");
-        ctx.setTransform(cv.dpr, 0, 0, cv.dpr, 0, 0);
-        return ctx;
+      function getCtx() {
+        var c = cv.c.getContext("2d");
+        c.setTransform(cv.dpr, 0, 0, cv.dpr, 0, 0);
+        return c;
       }
       function W() { return cv.c.width / cv.dpr; }
       function H() { return cv.c.height / cv.dpr; }
-
-      var PLAN_COLOR = "#0d9488";
-      var PROCESS_COLOR = "#6b7280";
-      var ARTIFACT_COLORS = ["#0d9488","#14b8a6","#2dd4bf","#0f766e","#5eead4"];
-      var PARTICLE_COUNT = 5;
-      var FLOW_MS = 1600;
-
       function ease(t) { return t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2; }
 
-      /* Draw the static scene: plan box, process zone, settled artifacts */
-      function drawScene(ctx) {
-        var w = W(), h = H();
-        ctx.clearRect(0, 0, w, h);
+      var HUMAN_C = "#0d9488";
+      var AI_C = "#6b7280";
+      var REVIEW_C = "#92400e";
+      var ART_COLORS = ["#0d9488","#14b8a6","#2dd4bf","#0f766e","#5eead4"];
 
-        var planX = w * 0.08, planY = h * 0.25, planW = w * 0.12, planH = h * 0.5;
-        var procX = w * 0.38, procY = h * 0.3, procR = h * 0.2;
+      function nodeR() { return Math.min(W(), H()) * 0.09; }
 
-        /* Plan box */
-        ctx.fillStyle = PLAN_COLOR;
-        ctx.globalAlpha = 0.12;
-        ctx.beginPath();
-        roundRect(ctx, planX, planY, planW, planH, 6);
-        ctx.fill();
-        ctx.globalAlpha = 1;
-        ctx.strokeStyle = PLAN_COLOR;
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        roundRect(ctx, planX, planY, planW, planH, 6);
-        ctx.stroke();
-
-        /* Plan label */
-        ctx.fillStyle = PLAN_COLOR;
-        ctx.font = "600 10px " + getComputedStyle(document.body).getPropertyValue("--mono");
-        ctx.textAlign = "center";
-        ctx.fillText("PLAN", planX + planW/2, planY + planH/2 + 4);
-
-        /* Plan lines (representing text) */
-        ctx.strokeStyle = PLAN_COLOR;
-        ctx.globalAlpha = 0.3;
-        ctx.lineWidth = 1;
-        for (var i = 0; i < 3; i++) {
-          var ly = planY + 10 + i * 7;
-          var lw = planW * (0.7 - i * 0.1);
-          ctx.beginPath();
-          ctx.moveTo(planX + (planW - lw)/2, ly);
-          ctx.lineTo(planX + (planW + lw)/2, ly);
-          ctx.stroke();
-        }
-        ctx.globalAlpha = 1;
-
-        /* Process circle */
-        ctx.fillStyle = PROCESS_COLOR;
-        ctx.globalAlpha = 0.06;
-        ctx.beginPath();
-        ctx.arc(procX, h/2, procR, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
-        ctx.strokeStyle = PROCESS_COLOR;
-        ctx.lineWidth = 1;
-        ctx.setLineDash([4, 3]);
-        ctx.beginPath();
-        ctx.arc(procX, h/2, procR, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        /* Process label */
-        ctx.fillStyle = PROCESS_COLOR;
-        ctx.font = "600 10px " + getComputedStyle(document.body).getPropertyValue("--mono");
-        ctx.fillText("AI", procX, h/2 + 4);
-
-        /* Settled artifacts */
-        for (var j = 0; j < artifacts.length; j++) {
-          var a = artifacts[j];
-          ctx.fillStyle = a.color;
-          ctx.globalAlpha = 0.85;
-          ctx.beginPath();
-          roundRect(ctx, a.x, a.y, a.w, a.h, 3);
-          ctx.fill();
-          ctx.globalAlpha = 1;
-        }
+      function layout() {
+        var w = W(), h = H(), r = nodeR();
+        return { hx: w*0.20, hy: h*0.32, ax: w*0.80, ay: h*0.32, r: r };
       }
 
-      function roundRect(ctx, x, y, w, h, r) {
-        ctx.moveTo(x + r, y);
-        ctx.lineTo(x + w - r, y);
-        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-        ctx.lineTo(x + w, y + h - r);
-        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-        ctx.lineTo(x + r, y + h);
-        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-        ctx.lineTo(x, y + r);
-        ctx.quadraticCurveTo(x, y, x + r, y);
-        ctx.closePath();
+      /* Three bezier legs forming the loop */
+      function loopPaths() {
+        var w = W(), h = H(), L = layout(), r = L.r;
+        return [
+          /* 0: Human → AI (arc over top) */
+          { sx: L.hx + r*0.85, sy: L.hy - r*0.5,
+            c1x: w*0.38, c1y: h*0.06, c2x: w*0.62, c2y: h*0.06,
+            ex: L.ax - r*0.85, ey: L.ay - r*0.5,
+            color: HUMAN_C, label: "plan" },
+          /* 1: AI → Artifacts (curve down right) */
+          { sx: L.ax + r*0.15, sy: L.ay + r,
+            c1x: w*0.88, c1y: h*0.58, c2x: w*0.70, c2y: h*0.78,
+            ex: w*0.58, ey: h*0.76,
+            color: AI_C, label: "execute" },
+          /* 2: Artifacts → Human (curve up left) */
+          { sx: w*0.42, sy: h*0.76,
+            c1x: w*0.28, c1y: h*0.78, c2x: w*0.12, c2y: h*0.58,
+            ex: L.hx - r*0.15, ey: L.hy + r,
+            color: REVIEW_C, label: "review" },
+        ];
       }
 
-      /* Bezier path from plan → process → artifact zone */
-      function flowPath(w, h, idx, total) {
-        var planCx = w * 0.08 + w * 0.12;
-        var planCy = h * 0.25 + h * 0.25;
-        var procX = w * 0.38;
-        var procY = h / 2;
-        var artifactX = w * 0.62 + (idx / total) * w * 0.28;
-        var spread = (idx / (total - 1 || 1) - 0.5) * h * 0.5;
-        var artifactY = h / 2 + spread;
-
-        return {
-          /* start at plan edge */
-          sx: planCx, sy: planCy,
-          /* control point 1: toward process */
-          c1x: planCx + (procX - planCx) * 0.5, c1y: planCy - 20 + spread * 0.3,
-          /* control point 2: past process toward artifacts */
-          c2x: procX + (artifactX - procX) * 0.4, c2y: procY + spread * 0.6,
-          /* end at artifact position */
-          ex: artifactX, ey: artifactY,
-        };
-      }
-
-      function bezierPoint(p, t) {
+      function bezAt(p, t) {
         var u = 1 - t;
         return {
           x: u*u*u*p.sx + 3*u*u*t*p.c1x + 3*u*t*t*p.c2x + t*t*t*p.ex,
@@ -590,86 +510,184 @@
         };
       }
 
+      function drawArrow(ctx, p) {
+        var dx = p.ex - p.c2x, dy = p.ey - p.c2y;
+        var len = Math.sqrt(dx*dx + dy*dy); dx /= len; dy /= len;
+        var sz = 7, px = -dy*sz*0.45, py = dx*sz*0.45;
+        ctx.fillStyle = p.color; ctx.globalAlpha = 0.35;
+        ctx.beginPath();
+        ctx.moveTo(p.ex, p.ey);
+        ctx.lineTo(p.ex - dx*sz + px, p.ey - dy*sz + py);
+        ctx.lineTo(p.ex - dx*sz - px, p.ey - dy*sz - py);
+        ctx.closePath(); ctx.fill(); ctx.globalAlpha = 1;
+      }
+
+      function drawNode(ctx, x, y, r, color, dashed, label, sub, glow) {
+        if (glow > 0) {
+          ctx.fillStyle = color; ctx.globalAlpha = 0.07 * glow;
+          ctx.beginPath(); ctx.arc(x, y, r*1.7, 0, Math.PI*2); ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+        ctx.fillStyle = color; ctx.globalAlpha = 0.08 + 0.05*glow;
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = color; ctx.lineWidth = 1.5;
+        if (dashed) ctx.setLineDash([4,3]);
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = color;
+        ctx.font = "700 11px " + mono;
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(label, x, y - 4);
+        if (sub) {
+          ctx.font = "400 9px " + mono; ctx.globalAlpha = 0.55;
+          ctx.fillText(sub, x, y + 10); ctx.globalAlpha = 1;
+        }
+      }
+
+      function roundRect(ctx, x, y, w, h, r) {
+        ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y);
+        ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r);
+        ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h);
+        ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r);
+        ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+      }
+
+      function drawScene(ctx, gh, ga) {
+        var w = W(), h = H(), L = layout(), P = loopPaths();
+        ctx.clearRect(0, 0, w, h);
+
+        /* Loop paths (faint dashed) + arrowheads + labels */
+        for (var i = 0; i < P.length; i++) {
+          var p = P[i];
+          ctx.strokeStyle = p.color; ctx.globalAlpha = 0.15;
+          ctx.lineWidth = 1; ctx.setLineDash([3,4]);
+          ctx.beginPath();
+          ctx.moveTo(p.sx, p.sy);
+          ctx.bezierCurveTo(p.c1x, p.c1y, p.c2x, p.c2y, p.ex, p.ey);
+          ctx.stroke();
+          ctx.setLineDash([]); ctx.globalAlpha = 1;
+          drawArrow(ctx, p);
+          var mid = bezAt(p, 0.5);
+          ctx.fillStyle = p.color; ctx.globalAlpha = 0.45;
+          ctx.font = "500 9px " + mono;
+          ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          var offY = i === 0 ? -10 : 0;
+          var offX = i === 1 ? 14 : (i === 2 ? -14 : 0);
+          ctx.fillText(p.label, mid.x + offX, mid.y + offY);
+          ctx.globalAlpha = 1;
+        }
+
+        /* Nodes */
+        drawNode(ctx, L.hx, L.hy, L.r, HUMAN_C, false, "HUMAN", "reason \xb7 plan", gh||0);
+        drawNode(ctx, L.ax, L.ay, L.r, AI_C, true, "AI", "execute", ga||0);
+
+        /* Artifact label + rectangles */
+        if (artifacts.length > 0) {
+          ctx.fillStyle = AI_C; ctx.globalAlpha = 0.4;
+          ctx.font = "600 9px " + mono; ctx.textAlign = "center";
+          ctx.fillText("ARTIFACTS", w*0.50, h*0.66);
+          ctx.globalAlpha = 1;
+        }
+        for (var j = 0; j < artifacts.length; j++) {
+          var a = artifacts[j];
+          ctx.fillStyle = a.color; ctx.globalAlpha = 0.85;
+          ctx.beginPath(); roundRect(ctx, a.x, a.y, a.w, a.h, 3); ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      /* Particle drawing helper */
+      function drawParticles(ctx, path, el, phaseStart, count, stagger, flowMs, color) {
+        for (var i = 0; i < count; i++) {
+          var lt = (el - phaseStart - i*stagger) / flowMs;
+          if (lt < 0 || lt > 1) continue;
+          var et = ease(lt);
+          for (var s = 0; s < 6; s++) {
+            var tt = et - (s/6)*0.12;
+            if (tt < 0) continue;
+            var tp = bezAt(path, tt);
+            ctx.globalAlpha = (1-s/6)*0.25;
+            ctx.beginPath();
+            ctx.arc(tp.x, tp.y, 3.5*(1-s/6*0.4), 0, Math.PI*2);
+            ctx.fillStyle = color; ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+          var pos = bezAt(path, et);
+          ctx.beginPath();
+          ctx.arc(pos.x, pos.y, 3.5, 0, Math.PI*2);
+          ctx.fillStyle = color; ctx.fill();
+        }
+      }
+
       /* Initial draw */
-      drawScene(g());
+      drawScene(getCtx(), 0, 0);
+
+      /* Animation timing */
+      var PLAN_N = 3, EXEC_N = 3, REV_N = 2;
+      var FLOW_MS = 700, STAGGER = 70;
+      var phase1T = FLOW_MS + (PLAN_N-1)*STAGGER;
+      var GAP = 80;
+      var phase2S = phase1T + GAP;
+      var phase2T = FLOW_MS + (EXEC_N-1)*STAGGER;
+      var phase3S = phase2S + phase2T + GAP;
+      var phase3T = FLOW_MS + (REV_N-1)*STAGGER;
+      var totalT = phase3S + phase3T;
 
       btn.addEventListener("click", function () {
         btn.disabled = true;
         cycles++;
+        var w = W(), h = H(), P = loopPaths();
+        var t0 = null;
 
-        var w = W(), h = H();
-        var particles = [];
-        for (var i = 0; i < PARTICLE_COUNT; i++) {
-          particles.push({
-            path: flowPath(w, h, i, PARTICLE_COUNT),
-            delay: i * 80,
-            color: ARTIFACT_COLORS[i % ARTIFACT_COLORS.length],
-            r: 4,
-          });
-        }
-
-        var start = null;
         function frame(ts) {
-          if (!start) start = ts;
-          var el = ts - start;
-          var ctx = g();
-          drawScene(ctx);
+          if (!t0) t0 = ts;
+          var el = ts - t0;
+          var c = getCtx();
 
-          var allDone = true;
-          for (var i = 0; i < particles.length; i++) {
-            var p = particles[i];
-            var localT = (el - p.delay) / FLOW_MS;
-            if (localT < 0) { allDone = false; continue; }
-            if (localT > 1) localT = 1; else allDone = false;
+          /* Node glow per phase */
+          var gh = 0, ga = 0;
+          if (el < phase1T)
+            gh = Math.sin(el/phase1T * Math.PI) * 0.8;
+          else if (el >= phase2S && el < phase2S + phase2T)
+            ga = Math.sin((el - phase2S)/phase2T * Math.PI) * 0.8;
+          else if (el >= phase3S)
+            gh = Math.sin((el - phase3S)/phase3T * Math.PI) * 0.4;
 
-            var et = ease(localT);
-            var pos = bezierPoint(p.path, et);
+          drawScene(c, gh, ga);
 
-            /* trail */
-            var steps = 8;
-            for (var s = 0; s < steps; s++) {
-              var tt = et - (s / steps) * 0.15;
-              if (tt < 0) continue;
-              var tp = bezierPoint(p.path, tt);
-              ctx.globalAlpha = (1 - s / steps) * 0.3;
-              ctx.beginPath();
-              ctx.arc(tp.x, tp.y, p.r * (1 - s / steps * 0.5), 0, Math.PI * 2);
-              ctx.fillStyle = p.color;
-              ctx.fill();
-            }
+          /* Phase 1: Human → AI  (plan) */
+          drawParticles(c, P[0], el, 0, PLAN_N, STAGGER, FLOW_MS, HUMAN_C);
+          /* Phase 2: AI → Artifacts (execute) */
+          drawParticles(c, P[1], el, phase2S, EXEC_N, STAGGER, FLOW_MS, AI_C);
+          /* Phase 3: Artifacts → Human (review) */
+          drawParticles(c, P[2], el, phase3S, REV_N, STAGGER, FLOW_MS, REVIEW_C);
 
-            /* main dot */
-            ctx.globalAlpha = 1;
-            ctx.beginPath();
-            ctx.arc(pos.x, pos.y, p.r, 0, Math.PI * 2);
-            ctx.fillStyle = p.color;
-            ctx.fill();
-          }
-          ctx.globalAlpha = 1;
+          c.globalAlpha = 1;
 
-          if (!allDone) {
+          if (el < totalT) {
             requestAnimationFrame(frame);
           } else {
-            /* Add new artifacts */
-            var artBaseX = w * 0.62;
-            var artW = 14, artH = 18;
-            var cols = Math.floor((w * 0.32) / (artW + 4));
-            for (var j = 0; j < PARTICLE_COUNT; j++) {
+            /* Settle new artifacts */
+            var artW = 12, artH = 16, artGap = 4;
+            var cols = Math.floor((w * 0.24) / (artW + artGap));
+            if (cols < 1) cols = 1;
+            for (var j = 0; j < EXEC_N; j++) {
               var idx = artifacts.length;
               var col = idx % cols;
               var row = Math.floor(idx / cols);
               artifacts.push({
-                x: artBaseX + col * (artW + 4),
-                y: h * 0.2 + row * (artH + 4),
+                x: w*0.38 + col*(artW + artGap),
+                y: h*0.70 + row*(artH + artGap),
                 w: artW, h: artH,
-                color: ARTIFACT_COLORS[j % ARTIFACT_COLORS.length],
+                color: ART_COLORS[j % ART_COLORS.length],
               });
             }
-            drawScene(g());
+            drawScene(getCtx(), 0, 0);
             btn.disabled = false;
             ft.className = "panel-foot teal";
             ft.textContent = "Cycle #" + cycles + " \u2014 " + artifacts.length +
-              " artifact" + (artifacts.length === 1 ? "" : "s") + " produced. Foundation stable.";
+              " artifact" + (artifacts.length === 1 ? "" : "s") + ". Loop complete.";
           }
         }
         requestAnimationFrame(frame);
