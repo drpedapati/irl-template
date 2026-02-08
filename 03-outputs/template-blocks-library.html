@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRL Template Blocks Library</title>
+    <style>
+        :root {
+            --bg: #fafafa;
+            --card: #ffffff;
+            --text: #1a1a1a;
+            --muted: #666;
+            --border: #e5e5e5;
+            --accent: #6366f1;
+            --accent-light: #eef2ff;
+            --success: #22c55e;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .subtitle { color: var(--muted); margin-bottom: 2rem; }
+        h2 {
+            font-size: 1.3rem;
+            margin: 2.5rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .block {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        .block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+        }
+        .block-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .block-meta {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+        .block-tags {
+            display: flex;
+            gap: 0.3rem;
+            flex-wrap: wrap;
+        }
+        .tag {
+            font-size: 0.65rem;
+            padding: 0.15rem 0.4rem;
+            background: var(--accent-light);
+            border-radius: 3px;
+            color: var(--accent);
+        }
+        .tag-universal { background: #dcfce7; color: #166534; }
+
+        .block-content {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+        .copy-btn:hover { background: #4f46e5; }
+        .copy-btn.copied { background: var(--success); }
+        .copy-btn svg { width: 14px; height: 14px; }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1rem;
+            padding-right: 5rem;
+            overflow-x: auto;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            margin: 0;
+        }
+        pre code {
+            white-space: pre;
+        }
+
+        .toc {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .toc h3 { font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--muted); }
+        .toc-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            list-style: none;
+        }
+        .toc-list a {
+            font-size: 0.85rem;
+            color: var(--accent);
+            text-decoration: none;
+            padding: 0.2rem 0.5rem;
+            background: var(--accent-light);
+            border-radius: 4px;
+        }
+        .toc-list a:hover { background: var(--accent); color: white; }
+
+        .note {
+            background: #fef3c7;
+            border-left: 3px solid #f59e0b;
+            padding: 0.75rem 1rem;
+            margin: 1rem 0;
+            font-size: 0.85rem;
+            border-radius: 0 4px 4px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>IRL Template Blocks Library</h1>
+    <p class="subtitle">Browse and copy reusable blocks for building IRL templates</p>
+
+    <nav class="toc">
+        <h3>Jump to:</h3>
+        <ul class="toc-list">
+            <li><a href="#core">Core Blocks</a></li>
+            <li><a href="#metadata">Metadata</a></li>
+            <li><a href="#strategy">Strategy & Style</a></li>
+            <li><a href="#quarto">Quarto & Docs</a></li>
+            <li><a href="#quality">Quality & Testing</a></li>
+            <li><a href="#workflow">Workflow</a></li>
+            <li><a href="#domain">Domain-Specific</a></li>
+        </ul>
+    </nav>
+
+    <!-- ============ CORE BLOCKS ============ -->
+    <h2 id="core">Core Blocks</h2>
+    <p class="note">These 4 blocks form the skeleton of every IRL template. Always include them.</p>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Setup Block (Basic)</div>
+                <div class="block-meta">Directory structure for simple projects</div>
+            </div>
+            <div class="block-tags"><span class="tag tag-universal">universal</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Setup
+Create on first run:
+- plans/
+- data/raw/
+- data/derived/
+- outputs/
+- logs/</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Setup Block (With Quarto)</div>
+                <div class="block-meta">Includes _quarto.yml for rendered documentation</div>
+            </div>
+            <div class="block-tags"><span class="tag">quarto</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Setup
+Create on first run:
+- plans/
+- plans/_quarto.yml   # Configure: render: ["*.qmd"] to exclude .md files
+- plans/index.qmd     # Landing page
+- data/raw/
+- data/derived/
+- outputs/
+- logs/</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Pre-Run Hooks Block</div>
+                <div class="block-meta">Actions before each execution</div>
+            </div>
+            <div class="block-tags"><span class="tag tag-universal">universal</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Before Each Run
+- git commit before edits
+- do not edit this file</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Tasks Block (Basic)</div>
+                <div class="block-meta">Simple numbered task structure</div>
+            </div>
+            <div class="block-tags"><span class="tag tag-universal">universal</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Tasks
+
+### Task 1: [Description]
+- [Instructions]
+
+### Task 2: [Description]
+- [Instructions]</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Post-Run Hooks Block (Basic)</div>
+                <div class="block-meta">Minimal post-execution actions</div>
+            </div>
+            <div class="block-tags"><span class="tag tag-universal">universal</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## After Each Run
+- Update logs/activity.md
+- Render outputs
+- git commit changes</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Post-Run Hooks Block (Full)</div>
+                <div class="block-meta">Comprehensive post-execution with feedback</div>
+            </div>
+            <div class="block-tags"><span class="tag">advanced</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## After Each Run
+1. Render Quarto website (ensure no warnings/errors)
+2. Make surgical git commit of changes
+3. Update logs/decision-log.csv with:
+   - What was decided
+   - Why it was reasonable
+   - What evidence supported it
+   - How it was validated
+4. Provide feedback (1-2 lines):
+   - Flag obsolete instructions
+   - Note idempotency issues
+   - Highlight critical gaps</code></pre>
+        </div>
+    </div>
+
+    <!-- ============ METADATA BLOCKS ============ -->
+    <h2 id="metadata">Metadata Blocks</h2>
+    <p class="note">Pick one metadata block that matches your project type.</p>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Project Metadata (Coding)</div>
+                <div class="block-meta">For software development projects</div>
+            </div>
+            <div class="block-tags"><span class="tag">coding</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Project Metadata
+- Name: [Project name]
+- Language: [Python/Go/TypeScript/etc.]
+- Description: [One-line description]</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Project Metadata (Research)</div>
+                <div class="block-meta">For data science and research projects</div>
+            </div>
+            <div class="block-tags"><span class="tag">datascience</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Project Metadata
+- Project name: [Title]
+- Principal investigator: [Name]
+- Analyst: [Name]
+- Start date: [YYYY-MM-DD]
+- Status: [planning/exploratory/confirmatory/complete]</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Project Metadata (Publication)</div>
+                <div class="block-meta">For manuscripts and journal submissions</div>
+            </div>
+            <div class="block-tags"><span class="tag">manuscript</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Metadata
+- Working title: [Title]
+- Target journal: [Journal name]
+- Word limit: [if applicable]
+- Authors: [List]
+- Status: [outline/draft/revision/submitted]</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Project Metadata (Conference)</div>
+                <div class="block-meta">For meeting abstracts and presentations</div>
+            </div>
+            <div class="block-tags"><span class="tag">abstract</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Meeting Details
+- Conference: [Name]
+- Deadline: [Date]
+- Word/character limit: [limit]
+- Format requirements: [structured/unstructured, specific sections]</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Project Metadata (Educational)</div>
+                <div class="block-meta">For tutorials and courses</div>
+            </div>
+            <div class="block-tags"><span class="tag">tutorial</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Course Metadata
+- Title: [Tutorial/Course Title]
+- Topic: [Subject area]
+- Format: [Self-paced / Instructor-led / Workshop]
+- Duration: [Estimated time to complete]
+- Audience: [Target learners]
+- Skill level: [Beginner / Intermediate / Advanced]</code></pre>
+        </div>
+    </div>
+
+    <!-- ============ STRATEGY BLOCKS ============ -->
+    <h2 id="strategy">Strategy & Style Blocks</h2>
+    <p class="note">Define your methodology and formatting standards. Mix and match as needed.</p>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Academic Writing Style</div>
+                <div class="block-meta">APA 7, NIH formatting, scholarly tone</div>
+            </div>
+            <div class="block-tags"><span class="tag">manuscript</span><span class="tag">abstract</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Formatting Standards
+- Academic style: APA 7 (headings, citations, tables/figures, tone)
+- Layout: NIH-style (generous margins, readable typography)
+- Senior researcher writing style: high-density, grounded in literature
+- Only use references with confirmed PubMed IDs
+- No em-dashes or clichés
+- State claims once, no redundancy
+- Use dense prose to explain reasoning and steps
+- Tables and figures with formal captions</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Coding Standards</div>
+                <div class="block-meta">TDD, conventional commits, documentation</div>
+            </div>
+            <div class="block-tags"><span class="tag">coding</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Coding Standards
+- Test-driven: write tests alongside implementation
+- Document as you go: README, inline comments
+- Small commits: one logical change per commit
+- Conventional commits: feat:, fix:, docs:, test:, refactor:
+- Prefer linear scripts over deeply nested functions
+- Explain each code listing clearly and concisely
+- Group related code; avoid excessive code blocks
+- Deliverables must be reproducible and self-contained
+- Minimize file outputs to avoid directory clutter</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Data Science Methodology</div>
+                <div class="block-meta">Reproducibility, immutability, separation of concerns</div>
+            </div>
+            <div class="block-tags"><span class="tag">datascience</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Approach
+- Reproducibility first: all analyses scripted, no manual steps
+- Raw data is read-only: never modify files in data/raw/
+- Notebooks for exploration, scripts for production
+- Version data transformations: document each processing step
+- Separate exploratory (EDA) from confirmatory analyses
+- Use seeds for all random operations
+- Environment management: requirements.txt, renv.lock, or environment.yml</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Pedagogical Approach</div>
+                <div class="block-meta">For tutorials and educational content</div>
+            </div>
+            <div class="block-tags"><span class="tag">tutorial</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Approach
+- Progressive complexity: start simple, build to advanced
+- Hands-on first: every concept accompanied by working examples
+- Explain the "why": not just how, but why it matters
+- Common pitfalls: anticipate and address mistakes
+- Knowledge checks: verify understanding before moving forward
+- Real-world relevance: connect lessons to practical applications</code></pre>
+        </div>
+    </div>
+
+    <!-- ============ QUARTO & DOCS BLOCKS ============ -->
+    <h2 id="quarto">Quarto & Documentation Blocks</h2>
+    <p class="note">Configure Quarto rendering and document structure.</p>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Quarto Website Configuration</div>
+                <div class="block-meta">_quarto.yml setup with render exclusions</div>
+            </div>
+            <div class="block-tags"><span class="tag">quarto</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>### _quarto.yml Configuration
+```yaml
+project:
+  type: website
+  render:
+    - "*.qmd"    # Excludes .md files (reasoning docs) from render
+```
+
+Reference: https://quarto.org/docs/reference/projects/websites.html</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Paired File Strategy</div>
+                <div class="block-meta">.md for reasoning, .qmd for execution</div>
+            </div>
+            <div class="block-tags"><span class="tag">quarto</span><span class="tag">advanced</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>### Paired File Strategy
+For each instruction set, create two files sharing the same basename:
+
+| File | Purpose |
+|------|---------|
+| `NN_name.md` | **Reasoning plan**: intended approach, order, rationale. Short, editable, steers downstream work. |
+| `NN_name.qmd` | **Executed document**: implementation, code, analysis, outputs. Renders into the Quarto website. |
+
+The .md captures thinking; the .qmd captures execution. Always side-by-side.</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">References & Citations</div>
+                <div class="block-meta">BibTeX and PubMed verification</div>
+            </div>
+            <div class="block-tags"><span class="tag">manuscript</span><span class="tag">abstract</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## References
+- BibTeX references in references/references.bib
+- Only use references with confirmed PubMed IDs
+- Verify all PubMed IDs before submission
+- Track changes via git diffs</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Code Documentation</div>
+                <div class="block-meta">README, architecture, API docs</div>
+            </div>
+            <div class="block-tags"><span class="tag">coding</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Documentation
+- README.md: overview, setup, usage
+- docs/architecture.md: system design
+- docs/api.md: public interfaces (if applicable)</code></pre>
+        </div>
+    </div>
+
+    <!-- ============ QUALITY BLOCKS ============ -->
+    <h2 id="quality">Quality & Testing Blocks</h2>
+    <p class="note">Validation, testing, and acceptance criteria.</p>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Testing Block</div>
+                <div class="block-meta">Unit tests, integration tests, coverage</div>
+            </div>
+            <div class="block-tags"><span class="tag">coding</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Testing
+- Unit tests for functions/methods
+- Integration tests for components
+- Run tests before each commit
+- Target coverage: [X%]</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Reproducibility Checklist</div>
+                <div class="block-meta">Seeds, environment, checksums</div>
+            </div>
+            <div class="block-tags"><span class="tag">datascience</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Reproducibility Checklist
+- [ ] Random seeds set for all stochastic operations
+- [ ] Environment frozen (requirements.txt, renv.lock)
+- [ ] Raw data checksums recorded
+- [ ] All manual steps documented or automated
+- [ ] Code runs end-to-end from raw data to outputs
+- [ ] Results match when re-run</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Quality Control (Research)</div>
+                <div class="block-meta">Review, sanity checks, sensitivity</div>
+            </div>
+            <div class="block-tags"><span class="tag">datascience</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Quality Control
+- [ ] Code reviewed by second analyst
+- [ ] Results sanity-checked against expectations
+- [ ] Edge cases and subgroups examined
+- [ ] Sensitivity analyses performed</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Acceptance Criteria (Abstract)</div>
+                <div class="block-meta">Submission requirements checklist</div>
+            </div>
+            <div class="block-tags"><span class="tag">abstract</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Acceptance Criteria
+- [ ] Within word/character limit
+- [ ] Meets format requirements (structured/unstructured)
+- [ ] All PubMed IDs verified
+- [ ] Key statistics included
+- [ ] Self-contained and standalone</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Quality Checklist (Educational)</div>
+                <div class="block-meta">Tutorial completeness and accessibility</div>
+            </div>
+            <div class="block-tags"><span class="tag">tutorial</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Quality Checklist
+- [ ] Each lesson has a clear learning objective
+- [ ] All code examples are tested and working
+- [ ] Exercises have solutions available
+- [ ] Difficult concepts have multiple explanations
+- [ ] Common pitfalls are documented
+- [ ] Progressive complexity is maintained
+- [ ] Prerequisite knowledge is clearly stated
+- [ ] Time estimates are realistic
+
+## Accessibility Notes
+- Use clear, jargon-free language (or define jargon)
+- Provide alt text for diagrams/images
+- Include multiple formats when possible (video, text, interactive)
+- Consider different learning styles</code></pre>
+        </div>
+    </div>
+
+    <!-- ============ WORKFLOW BLOCKS ============ -->
+    <h2 id="workflow">Advanced Workflow Blocks</h2>
+    <p class="note">Sophisticated project lifecycle management.</p>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Maintenance Rules</div>
+                <div class="block-meta">Archive, remove, reactivate instructions</div>
+            </div>
+            <div class="block-tags"><span class="tag">advanced</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Maintenance Rules
+Apply explicitly when needed:
+- **Archive**: Move instruction set and outputs to plans/archive/
+- **Remove**: Delete instruction set and outputs entirely
+- **Reactivate**: Restore from archive to active folder</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Decision Logging</div>
+                <div class="block-meta">CSV-based audit trail</div>
+            </div>
+            <div class="block-tags"><span class="tag">advanced</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Decision Log
+Maintain logs/decision-log.csv with columns:
+- **timestamp**: When the decision was made (if sequencing matters)
+- **decision**: What was decided
+- **rationale**: Why it was reasonable
+- **evidence**: What evidence supported it
+- **validation**: How it was validated</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Milestones</div>
+                <div class="block-meta">Key deliverables with dates</div>
+            </div>
+            <div class="block-tags"><span class="tag">project-tracker</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Milestones
+- M1: [Description] | [Date]
+- M2: [Description] | [Date]
+- M3: [Description] | [Date]</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Tools Block</div>
+                <div class="block-meta">Available CLI tools and preferences</div>
+            </div>
+            <div class="block-tags"><span class="tag">optional</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Tools
+- Git CLI (version control)
+- Quarto CLI (rendering)
+- Prefer `trash` over `rm -rf` for safe deletion</code></pre>
+        </div>
+    </div>
+
+    <!-- ============ DOMAIN-SPECIFIC BLOCKS ============ -->
+    <h2 id="domain">Domain-Specific Blocks</h2>
+    <p class="note">Specialized blocks for specific project types.</p>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Data Specification</div>
+                <div class="block-meta">Data sources, dictionary, criteria</div>
+            </div>
+            <div class="block-tags"><span class="tag">datascience</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Data Specification
+
+### Data Sources
+| Source | Description | Format | Location |
+|--------|-------------|--------|----------|
+| [Name] | [What it contains] | [CSV/Parquet/etc.] | data/raw/ |
+
+### Data Dictionary
+- Document variables in: data/data-dictionary.md
+- Include: variable name, type, units, valid range, missing codes
+
+### Inclusion/Exclusion Criteria
+- Include: [criteria for including observations]
+- Exclude: [criteria for excluding observations]
+- Document exclusions with counts in logs/</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Research Context</div>
+                <div class="block-meta">Background, significance, objectives, hypotheses</div>
+            </div>
+            <div class="block-tags"><span class="tag">datascience</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Research Context
+
+### Background
+- [Brief context and motivation for the analysis]
+- [What is already known in this domain]
+
+### Significance
+- [Why this analysis matters]
+- [Potential impact of findings]
+
+### Objectives
+- Primary: [Main research question or goal]
+- Secondary: [Supporting questions, if any]
+
+### Hypotheses (if confirmatory)
+- H1: [Pre-specified hypothesis]
+- H0: [Null hypothesis]</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Analysis Plan (Phased)</div>
+                <div class="block-meta">Data science pipeline phases</div>
+            </div>
+            <div class="block-tags"><span class="tag">datascience</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Analysis Plan
+
+### Phase 1: Data Ingestion and Validation
+- Load and verify data integrity (checksums, row counts)
+- Validate against data dictionary
+- Check for unexpected values, out-of-range data
+- Document any data quality issues
+- Output: data/processed/validated-data.[format]
+
+### Phase 2: Exploratory Data Analysis (EDA)
+- Univariate summaries (distributions, missingness)
+- Bivariate relationships (correlations, cross-tabs)
+- Identify outliers and anomalies
+- Generate hypotheses (document, don't test formally)
+- Output: notebooks/01-eda.qmd, outputs/figures/eda-*
+
+### Phase 3: Data Preprocessing
+- Missing data handling: [strategy - MCAR/MAR/MNAR approach]
+- Outlier treatment: [strategy - winsorize/remove/flag]
+- Transformations: [log, standardize, normalize, etc.]
+- Output: data/processed/analysis-ready.[format]
+
+### Phase 4: Feature Engineering
+- Derived variables: [list planned features]
+- Encoding: [categorical handling strategy]
+- Feature selection: [method if applicable]
+- Document rationale for each engineered feature
+
+### Phase 5: Modeling (if applicable)
+- Algorithm(s): [specify methods]
+- Validation strategy: [holdout/k-fold/time-series split]
+- Hyperparameter tuning: [approach]
+- Evaluation metrics: [primary and secondary]
+
+### Phase 6: Results and Reporting
+- Primary analysis results
+- Sensitivity analyses
+- Visualizations for key findings
+- Final report compilation</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Learning Objectives</div>
+                <div class="block-meta">Educational outcomes</div>
+            </div>
+            <div class="block-tags"><span class="tag">tutorial</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Learning Objectives
+By the end of this tutorial, learners will be able to:
+1. [Objective 1: Action verb + specific outcome]
+2. [Objective 2: Action verb + specific outcome]
+3. [Objective 3: Action verb + specific outcome]
+
+## Prerequisites
+- **Knowledge**: [Required background knowledge]
+- **Tools**: [Software, languages, or tools needed]
+- **Setup**: [Environment setup instructions or link]</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Task Schema (CSV)</div>
+                <div class="block-meta">Project tracking data structure</div>
+            </div>
+            <div class="block-tags"><span class="tag">project-tracker</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Task Schema (tasks.csv)
+| Column | Values |
+|--------|--------|
+| id | P001, P002... |
+| task | description |
+| owner | person |
+| status | not_started / in_progress / blocked / done |
+| priority | high / medium / low |
+| due | YYYY-MM-DD |
+| depends_on | task ids |
+| notes | context |</code></pre>
+        </div>
+    </div>
+
+    <div class="block">
+        <div class="block-header">
+            <div>
+                <div class="block-title">Exercise Format Template</div>
+                <div class="block-meta">Standard structure for tutorial exercises</div>
+            </div>
+            <div class="block-tags"><span class="tag">tutorial</span></div>
+        </div>
+        <div class="block-content">
+            <button class="copy-btn" onclick="copyBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                Copy
+            </button>
+            <pre><code>## Exercise Format Template
+```markdown
+# Exercise: [Title]
+
+## Objective
+[What the learner will practice]
+
+## Starting Point
+[Starter code or initial state]
+
+## Instructions
+1. [Step 1]
+2. [Step 2]
+3. [Step 3]
+
+## Expected Output
+[What success looks like]
+
+## Hints
+&lt;details&gt;
+&lt;summary&gt;Hint 1&lt;/summary&gt;
+[First hint - conceptual]
+&lt;/details&gt;
+
+&lt;details&gt;
+&lt;summary&gt;Hint 2&lt;/summary&gt;
+[Second hint - more specific]
+&lt;/details&gt;
+
+## Stretch Goals (Optional)
+- [Advanced extension 1]
+- [Advanced extension 2]
+```</code></pre>
+        </div>
+    </div>
+
+    <script>
+        function copyBlock(button) {
+            const pre = button.parentElement.querySelector('pre code');
+            const text = pre.textContent;
+
+            navigator.clipboard.writeText(text).then(() => {
+                button.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                    Copied!
+                `;
+                button.classList.add('copied');
+
+                setTimeout(() => {
+                    button.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                        Copy
+                    `;
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+
+    <p style="margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.8rem;">
+        IRL Template Blocks Library | 35 blocks across 7 categories | Generated from 11 templates
+    </p>
+</body>
+</html>

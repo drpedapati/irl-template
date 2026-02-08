@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>IRL: Idempotent Research Loop</title>
+    <meta
+      name="description"
+      content="IRL is a document-centric workflow for reproducible AI-assisted research: you edit a plan, the AI executes, and git diffs become the audit trail."
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Mermaid renderer (SVG) with better theming than stock mermaid. -->
+    <script
+      defer
+      src="https://unpkg.com/beautiful-mermaid/dist/beautiful-mermaid.browser.global.js"
+    ></script>
+
+    <style>
+      :root {
+        --bg0: #fbf6ed;
+        --bg1: #f3ebdd;
+        --paper: rgba(255, 255, 255, 0.78);
+        --ink: #0f172a;
+        --muted: #475569;
+        --border: rgba(15, 23, 42, 0.12);
+        --shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
+
+        --accent: #0b5d54;
+        --accent2: #b45309;
+
+        --sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system,
+          "Segoe UI", "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans",
+          sans-serif;
+        --serif: "Fraunces", ui-serif, Georgia, Cambria, "Times New Roman",
+          Times, serif;
+        --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+          Consolas, "Liberation Mono", "Courier New", monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        font-family: var(--sans);
+        color: var(--ink);
+        background: radial-gradient(
+            1200px 700px at 10% 10%,
+            rgba(11, 93, 84, 0.12),
+            transparent 58%
+          ),
+          radial-gradient(
+            900px 500px at 90% 18%,
+            rgba(180, 83, 9, 0.12),
+            transparent 55%
+          ),
+          linear-gradient(180deg, var(--bg0), var(--bg1));
+      }
+
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .wrap {
+        max-width: 1040px;
+        padding: 32px 20px 80px;
+        margin: 0 auto;
+      }
+
+      header.hero {
+        border: 1px solid var(--border);
+        background: var(--paper);
+        box-shadow: var(--shadow);
+        border-radius: 22px;
+        padding: 28px 26px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      header.hero::before {
+        content: "";
+        position: absolute;
+        inset: -120px -140px auto auto;
+        width: 420px;
+        height: 420px;
+        background: conic-gradient(
+          from 230deg,
+          rgba(11, 93, 84, 0.18),
+          rgba(180, 83, 9, 0.18),
+          rgba(11, 93, 84, 0.18)
+        );
+        filter: blur(2px);
+        border-radius: 999px;
+        transform: rotate(-12deg);
+      }
+
+      .kicker {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        gap: 10px;
+        align-items: center;
+        font-size: 13px;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: rgba(15, 23, 42, 0.7);
+      }
+
+      .pill {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.65);
+      }
+
+      h1 {
+        position: relative;
+        z-index: 1;
+        font-family: var(--serif);
+        margin: 12px 0 10px;
+        font-size: clamp(36px, 4.6vw, 58px);
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+      }
+
+      .subhead {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        max-width: 72ch;
+        font-size: 18px;
+        line-height: 1.55;
+        color: var(--muted);
+      }
+
+      .nav {
+        position: relative;
+        z-index: 1;
+        margin-top: 18px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .nav a {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: var(--mono);
+        font-size: 12px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.66);
+      }
+
+      main {
+        margin-top: 26px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      section.card {
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 20px;
+        padding: 22px 22px;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+      }
+
+      h2 {
+        font-family: var(--serif);
+        margin: 0 0 8px;
+        font-size: 26px;
+        letter-spacing: -0.01em;
+      }
+
+      p {
+        margin: 10px 0;
+        line-height: 1.65;
+        color: rgba(15, 23, 42, 0.9);
+      }
+
+      .lede {
+        color: var(--muted);
+        margin-top: 6px;
+      }
+
+      .grid2 {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-top: 14px;
+      }
+      @media (min-width: 860px) {
+        .grid2 {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .callout {
+        border: 1px solid var(--border);
+        background: rgba(251, 246, 237, 0.65);
+        border-radius: 18px;
+        padding: 16px 16px;
+      }
+      .callout strong {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(15, 23, 42, 0.72);
+      }
+
+      pre {
+        margin: 14px 0 0;
+        padding: 14px 14px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background: rgba(15, 23, 42, 0.92);
+        color: #e2e8f0;
+        overflow: auto;
+        font-family: var(--mono);
+        font-size: 12.5px;
+        line-height: 1.5;
+      }
+
+      code {
+        font-family: var(--mono);
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.55);
+        margin-top: 12px;
+      }
+      .table th,
+      .table td {
+        text-align: left;
+        padding: 12px 12px;
+        border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+        vertical-align: top;
+      }
+      .table th {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(15, 23, 42, 0.72);
+        background: rgba(255, 255, 255, 0.66);
+      }
+      .table tr:last-child td {
+        border-bottom: 0;
+      }
+      .table td code {
+        font-size: 12px;
+      }
+
+      details {
+        margin-top: 12px;
+        border: 1px dashed rgba(15, 23, 42, 0.22);
+        border-radius: 16px;
+        padding: 10px 12px;
+        background: rgba(255, 255, 255, 0.45);
+      }
+      summary {
+        cursor: pointer;
+        font-family: var(--mono);
+        font-size: 12.5px;
+        color: rgba(15, 23, 42, 0.8);
+      }
+
+      .diagram {
+        margin-top: 14px;
+        border: 1px solid rgba(15, 23, 42, 0.14);
+        background: rgba(255, 255, 255, 0.74);
+        border-radius: 18px;
+        padding: 14px 14px;
+        min-height: 200px;
+      }
+      .diagram svg {
+        width: 100%;
+        height: auto;
+        min-height: 160px;
+      }
+      .caption {
+        margin: 10px auto 0;
+        max-width: 78ch;
+        color: rgba(71, 85, 105, 0.98);
+        font-size: 13px;
+        line-height: 1.55;
+        text-align: center;
+      }
+
+      footer {
+        margin-top: 20px;
+        color: rgba(71, 85, 105, 0.9);
+        font-size: 13px;
+        text-align: center;
+      }
+      footer code {
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="hero">
+        <div class="kicker">
+          <span class="pill">doc-centric</span>
+          <span class="pill">diff-driven</span>
+          <span class="pill">idempotent</span>
+        </div>
+        <h1>IRL: Idempotent Research Loop</h1>
+        <p class="subhead">
+          I got tired of research workflows that vanish into chat history. IRL is
+          a simple pattern: write your intent in a plan file, let an AI execute
+          it, and let git diffs be the audit trail.
+        </p>
+        <nav class="nav" aria-label="Sections">
+          <a href="#what">What It Is</a>
+          <a href="#pipeline">The Pipeline</a>
+          <a href="#anatomy">Project Anatomy</a>
+          <a href="#rules">Rules That Make It Work</a>
+          <a href="#cli">CLI Commands</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="card" id="what">
+          <h2>What IRL Is (And What It Isn’t)</h2>
+          <p class="lede">
+            IRL is not “a better chat.” It’s a workflow that makes AI-assisted
+            work reproducible.
+          </p>
+
+          <div class="grid2">
+            <div class="callout">
+              <strong>IRL is</strong>
+              <p>
+                A document-centric loop where the plan file is your control
+                surface. You edit it to change behavior, not the AI’s memory.
+              </p>
+              <p>
+                Outputs land in folders. Changes show up as diffs. You can
+                review, revert, or iterate.
+              </p>
+            </div>
+            <div class="callout">
+              <strong>IRL isn’t</strong>
+              <p>
+                A promise that the AI will “remember forever.” It’s the opposite:
+                assume it won’t, then write down what matters in files you can
+                version.
+              </p>
+              <p>
+                The point is control and traceability, not vibes.
+              </p>
+            </div>
+          </div>
+
+          <details>
+            <summary>Why the word “idempotent”?</summary>
+            <p>
+              In IRL, you want reruns to be safe. If you re-execute a step, it
+              should not duplicate outputs, corrupt state, or create mystery
+              changes. Determinism beats heroics.
+            </p>
+          </details>
+        </section>
+
+        <section class="card" id="pipeline">
+          <h2>The IRL Pipeline</h2>
+          <p class="lede">
+            The “loop” is small on purpose: intent lives in a plan; evidence
+            lives in files; diffs tell you what changed.
+          </p>
+
+          <div id="diagram-pipeline" class="diagram" aria-label="Pipeline diagram"></div>
+          <p class="caption">
+            <strong>Fig 1.</strong> The IRL loop: you edit a plan (intent), the AI
+            runs it (execution), artifacts land in outputs (evidence), then you
+            review diffs and commit (audit trail). Repeat until the plan is done.
+          </p>
+
+          <details>
+            <summary>What makes this different from “just write notes”?</summary>
+            <p>
+              The plan is executable intent. It’s not a diary. A good IRL plan
+              is concrete, testable, and scoped to produce artifacts you can
+              inspect.
+            </p>
+          </details>
+        </section>
+
+        <section class="card" id="anatomy">
+          <h2>Project Anatomy</h2>
+          <p class="lede">
+            A project is a small filesystem contract. Once you know where things
+            go, collaboration gets easier.
+          </p>
+
+          <div id="diagram-folders" class="diagram" aria-label="Folder layout diagram"></div>
+          <p class="caption">
+            <strong>Fig 2.</strong> A typical IRL project layout: the plan file
+            stays small and readable; raw inputs and derived data are separated;
+            outputs are versioned artifacts; logs keep the loop honest.
+          </p>
+
+          <pre><code>my-project/
+├── main-plan.md    # your control surface
+├── 02-data/
+│   ├── raw/
+│   └── derived/
+├── 03-outputs/
+└── 04-logs/</code></pre>
+        </section>
+
+        <section class="card" id="rules">
+          <h2>Rules That Make IRL Work</h2>
+          <p class="lede">
+            The “secret sauce” is boring engineering discipline applied to AI:
+            scope, idempotency, and review.
+          </p>
+
+          <div class="grid2">
+            <div class="callout">
+              <strong>Plan owns intent</strong>
+              <p>
+                If you want different behavior, edit the plan. Don’t rely on the
+                assistant to remember “how we usually do it.”
+              </p>
+            </div>
+            <div class="callout">
+              <strong>Artifacts over prose</strong>
+              <p>
+                Prefer outputs you can inspect: HTML reports, CSVs, diagrams,
+                scripts, tests. Make the work legible.
+              </p>
+            </div>
+            <div class="callout">
+              <strong>Idempotency by default</strong>
+              <p>
+                Rerun-safe steps. Use stable filenames. Detect and reuse prior
+                outputs. Avoid “append forever.”
+              </p>
+            </div>
+            <div class="callout">
+              <strong>Diffs are the truth</strong>
+              <p>
+                Before you trust results, look at what changed. If it can’t be
+                diffed, it’s hard to audit.
+              </p>
+            </div>
+          </div>
+
+          <details>
+            <summary>A small template for writing better plan steps</summary>
+            <pre><code>## Task: [short name]
+
+- Input(s): [files, links, assumptions]
+- Output(s): [exact paths]
+- Constraints: [idempotency rules]
+- Done when: [verifiable checks]</code></pre>
+          </details>
+        </section>
+
+        <section class="card" id="cli">
+          <h2>CLI Commands (IRL Tooling)</h2>
+          <p class="lede">
+            IRL usually comes with a small CLI to scaffold projects and check
+            your environment.
+          </p>
+
+          <table class="table" role="table" aria-label="IRL commands">
+            <thead>
+              <tr>
+                <th>Command</th>
+                <th>What it does</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>irl init "purpose"</code></td>
+                <td>Create a new project scaffold (plan + folders).</td>
+              </tr>
+              <tr>
+                <td><code>irl templates</code></td>
+                <td>List available templates.</td>
+              </tr>
+              <tr>
+                <td><code>irl update</code></td>
+                <td>Refresh templates from the template repository.</td>
+              </tr>
+              <tr>
+                <td><code>irl doctor</code></td>
+                <td>Check environment and tool availability.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <details>
+            <summary>Example loop (what a “good” iteration looks like)</summary>
+            <pre><code>1) Edit main-plan.md (tight scope)
+2) Run the agent
+3) Review diffs in 02-data/ and 03-outputs/
+4) Commit only intended changes
+5) Repeat</code></pre>
+          </details>
+        </section>
+      </main>
+
+      <footer>
+        Generated as an IRL artifact: <code>03-outputs/irl-explainer-site/index.html</code>
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        const diagrams = {
+          pipeline:
+            "flowchart LR\n" +
+            "  A[[Edit main-plan.md]] --> B[AI executes steps]\n" +
+            "  B --> C[(02-data)]\n" +
+            "  B --> D[(03-outputs)]\n" +
+            "  C --> E[Review diffs]\n" +
+            "  D --> E\n" +
+            "  E --> F[[Commit]]\n" +
+            "  F --> A\n",
+          folders:
+            "flowchart TB\n" +
+            "  subgraph P[IRL Project]\n" +
+            "    PLAN[[main-plan.md]]\n" +
+            "    D2[(02-data)]\n" +
+            "    O3[(03-outputs)]\n" +
+            "    L4[(04-logs)]\n" +
+            "  end\n" +
+            "  PLAN --> D2\n" +
+            "  PLAN --> O3\n" +
+            "  PLAN --> L4\n",
+        };
+
+        // Light theme that matches the page palette.
+        const theme = {
+          bg: "#ffffff",
+          fg: "#0f172a",
+          accent: "#0b5d54",
+          muted: "#475569",
+          surface: "#f8fafc",
+          border: "#cbd5e1",
+        };
+
+        function renderWhenReady() {
+          if (!window.beautifulMermaid) return false;
+
+          const { renderMermaid } = window.beautifulMermaid;
+
+          async function render(id, code) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            try {
+              el.innerHTML = await renderMermaid(code, theme);
+            } catch (e) {
+              el.innerHTML =
+                '<pre style="white-space:pre-wrap;color:#b91c1c;background:rgba(255,255,255,0.7);border:1px solid rgba(15,23,42,0.12);padding:12px;border-radius:16px;">' +
+                "Diagram failed to render. Mermaid source:\\n\\n" +
+                code.replace(/</g, "&lt;") +
+                "</pre>";
+            }
+          }
+
+          render("diagram-pipeline", diagrams.pipeline);
+          render("diagram-folders", diagrams.folders);
+          return true;
+        }
+
+        let tries = 0;
+        const timer = setInterval(function () {
+          tries++;
+          if (renderWhenReady() || tries > 80) clearInterval(timer);
+        }, 100);
+      })();
+    </script>
+  </body>
+</html>
+

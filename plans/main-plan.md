@@ -1,11 +1,13 @@
 # IRL Basic Template
 
-## 🔧 First Time Setup — Run once when starting a new project
+🔧 First Time Setup — Run once when starting a new project
 <!-- 👤 AUTHOR AREA: Define setup steps below -->
+
 
 ### Common Skill Library — Pre-installed tools available to all projects
 <!-- Uncomment to use -->
 Install Quarto Skill: https://github.com/posit-dev/skills/tree/main/quarto/authoring
+Install Explainer Skill: https://github.com/henrybloomingdale/explainer-site-skill
 <!-- Install Word DOCX Skill: https://github.com/anthropics/skills/tree/main/skills/docx -->
 
 ## ✅ Before Each Loop — Checklist to run before every iteration
@@ -20,13 +22,23 @@ Install Quarto Skill: https://github.com/posit-dev/skills/tree/main/quarto/autho
 
 <!-- 👤 AUTHOR AREA: Define each loop's work below -->
 
+1. Install skills
+2. learn about IRL
+3. use the explainer skill to draft a site explaining IRL
+
+locally serve the website so I can test it.
+
 ### One-Time Instructions — Tasks that should only execute once
 
 <!-- 👤 AUTHOR AREA: Add one-time tasks below -->
 
+
+
 ### Formatting Guidelines — Rules for output style and structure
 
 <!-- 👤 AUTHOR AREA: Add formatting rules below -->
+
+
 
 ---
 
@@ -34,12 +46,12 @@ Install Quarto Skill: https://github.com/posit-dev/skills/tree/main/quarto/autho
 
 > Uncomment your preferred options below.
 
-- **Update activity log**
-  - Use timestamps **only** when sequencing or causality matters
+- **Update activity log**  
+  - Use timestamps **only** when sequencing or causality matters  
   - In `plans/main-plan-activity.md`, write 1–2 lines describing:
-    - What you did
-    - Timestamp
-    - Git hash
+    - What you did  
+    - Timestamp  
+    - Git hash  
   <!-- Optional CSV logging -->
   <!--
   - In `plans/main-plan-activity.csv`, add 1 row:
@@ -48,19 +60,20 @@ Install Quarto Skill: https://github.com/posit-dev/skills/tree/main/quarto/autho
     - Git hash
   -->
 
-- **Update plan log**: Update `plans/main-plan-log.csv`
+- **Update plan log**: Update `plans/main-plan-log.csv`  
 
 - **Version control**: Commit intended changes only; verify no ignored or unintended files staged.
 
 - **Give feedback to the AUTHOR** — concise and actionable:
-  1. What was done, decisions needed, next steps
-  2. Identify anything breaking idempotency, or obsolete/outdated instructions
-  3. Identify critical reasoning errors
+  1. What was done, decisions needed, next steps  
+  2. Identify anything breaking idempotency, or obsolete/outdated instructions  
+  3. Identify critical reasoning errors   
+
 
 ## 📚 Skill Library — Optional community skills to install per project
 <!-- Uncomment to use -->
 
-<!-- Install PPTX Posters -->
+<!-- Install Posters -->
 <!-- https://github.com/K-Dense-AI/claude-scientific-skills/tree/main/scientific-skills/pptx-posters -->
 
 <!-- Install Scientific Writing Skill -->

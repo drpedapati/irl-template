@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRL Template Blocks Analysis</title>
+    <style>
+        :root {
+            --bg: #fafafa;
+            --card: #ffffff;
+            --text: #1a1a1a;
+            --muted: #666;
+            --border: #e5e5e5;
+            --accent: #6366f1;
+            --accent-light: #eef2ff;
+            --success: #22c55e;
+            --warning: #f59e0b;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .subtitle { color: var(--muted); margin-bottom: 2rem; }
+        h2 { font-size: 1.4rem; margin: 2rem 0 1rem; color: var(--accent); }
+        h3 { font-size: 1.1rem; margin: 1rem 0 0.5rem; }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .summary-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .summary-card .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .summary-card .label { color: var(--muted); font-size: 0.9rem; }
+
+        .block-category {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .block-category h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0;
+        }
+        .badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-universal { background: var(--accent-light); color: var(--accent); }
+        .badge-domain { background: #fef3c7; color: #92400e; }
+        .badge-optional { background: #f3f4f6; color: #6b7280; }
+
+        .block-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .block-item {
+            background: var(--bg);
+            border-radius: 6px;
+            padding: 1rem;
+        }
+        .block-item h4 {
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .block-item p { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem; }
+        .block-item code {
+            font-size: 0.75rem;
+            background: var(--card);
+            padding: 0.1rem 0.3rem;
+            border-radius: 3px;
+            border: 1px solid var(--border);
+        }
+
+        .template-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            margin-top: 0.5rem;
+        }
+        .template-tag {
+            font-size: 0.65rem;
+            padding: 0.15rem 0.4rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            color: var(--muted);
+        }
+        .template-tag.active { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            margin-top: 1rem;
+        }
+        .matrix-table th, .matrix-table td {
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            text-align: center;
+        }
+        .matrix-table th {
+            background: var(--bg);
+            font-weight: 600;
+        }
+        .matrix-table th:first-child { text-align: left; }
+        .matrix-table td:first-child { text-align: left; font-weight: 500; }
+        .matrix-table .yes { color: var(--success); }
+        .matrix-table .no { color: var(--border); }
+
+        .recommendation {
+            background: linear-gradient(135deg, var(--accent-light), #fef3c7);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        .recommendation h3 { margin-top: 0; }
+        .recommendation ul { margin-left: 1.5rem; margin-top: 0.5rem; }
+        .recommendation li { margin-bottom: 0.3rem; }
+
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.8rem;
+            margin-top: 1rem;
+        }
+        pre .comment { color: #6a9955; }
+        pre .key { color: #9cdcfe; }
+        pre .string { color: #ce9178; }
+    </style>
+</head>
+<body>
+    <h1>IRL Template Blocks Analysis</h1>
+    <p class="subtitle">Identifying reusable components across 11 templates for a modular "Lego block" system</p>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="number">11</div>
+            <div class="label">Templates Analyzed</div>
+        </div>
+        <div class="summary-card">
+            <div class="number">20</div>
+            <div class="label">Unique Blocks Identified</div>
+        </div>
+        <div class="summary-card">
+            <div class="number">4</div>
+            <div class="label">Universal Blocks</div>
+        </div>
+        <div class="summary-card">
+            <div class="number">16</div>
+            <div class="label">Domain-Specific Blocks</div>
+        </div>
+    </div>
+
+    <h2>Block Taxonomy</h2>
+
+    <!-- UNIVERSAL BLOCKS -->
+    <div class="block-category">
+        <h3><span class="badge badge-universal">Universal</span> Core Blocks (Present in All Templates)</h3>
+        <p>These blocks form the skeleton of every IRL template and should always be included.</p>
+
+        <div class="block-list">
+            <div class="block-item">
+                <h4>1. Setup Block</h4>
+                <p>Defines directory structure created on first run. Domain-specific folders vary.</p>
+                <code>## Setup</code>
+                <div class="template-tags">
+                    <span class="template-tag active">all templates</span>
+                </div>
+            </div>
+
+            <div class="block-item">
+                <h4>2. Pre-Run Hooks Block</h4>
+                <p>Actions before each execution: git commit, file protection, environment checks.</p>
+                <code>## Before Each Run</code>
+                <div class="template-tags">
+                    <span class="template-tag active">all templates</span>
+                </div>
+            </div>
+
+            <div class="block-item">
+                <h4>3. Tasks Block</h4>
+                <p>Numbered instruction sets that define the actual work to be done.</p>
+                <code>## Tasks / ### Task N:</code>
+                <div class="template-tags">
+                    <span class="template-tag active">all templates</span>
+                </div>
+            </div>
+
+            <div class="block-item">
+                <h4>4. Post-Run Hooks Block</h4>
+                <p>Actions after execution: logging, rendering, git commit, feedback to user.</p>
+                <code>## After Each Run</code>
+                <div class="template-tags">
+                    <span class="template-tag active">all templates</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- METADATA BLOCKS -->
+    <div class="block-category">
+        <h3><span class="badge badge-domain">Domain</span> Metadata Blocks</h3>
+        <p>Project/document identity. Content varies by domain but structure is consistent.</p>
+
+        <div class="block-list">
+            <div class="block-item">
+                <h4>5. Project Metadata</h4>
+                <p>Name, description, language/tools, status tracking.</p>
+                <code>## Project Metadata</code>
+                <div class="template-tags">
+                    <span class="template-tag active">coding</span>
+                    <span class="template-tag active">github-clone</span>
+                    <span class="template-tag active">project-tracker</span>
+                </div>
+            </div>
+
+            <div class="block-item">
+                <h4>6. Research Metadata</h4>
+                <p>PI, analyst, dates, IRB info, study status.</p>
+                <code>## Project Metadata</code>
+                <div class="template-tags">
+                    <span class="template-tag active">datascience</span>
+                </div>
+            </div>
+
+            <div class="block-item">
+                <h4>7. Publication Metadata</h4>
+                <p>Journal, word limits, format requirements, deadlines.</p>
+                <code>## Metadata / ## Meeting Details</code>
+                <div class="template-tags">
+                    <span class="template-tag active">manuscript</span>
+                    <span class="template-tag active">scientific-abstract</span>
+                    <span class="template-tag active">meeting-abstract</span>
+                </div>
+            </div>
+
+            <div class="block-item">
+                <h4>8. Educational Metadata</h4>
+                <p>Title, audience, skill level, duration, format.</p>
+                <code>## Course Metadata</code>
+                <div class="template-tags">
+                    <span class="template-tag active">tutorial</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STRATEGY BLOCKS -->
+    <div class="block-category">
+        <h3><span class="badge badge-domain">Domain</span> Strategy & Approach Blocks</h3>
+        <p>High-level methodology and guiding principles for execution.</p>
+
+        <div class="block-list">
+            <div class="block-item">
+                <h4>9. General Approach</h4>
+                <p>Basic methodology statement. Highly customizable.</p>
+                <code>## Approach</code>
+                <div class="template-tags">
+                    <span class="template-tag active">basic</span>
+                    <span class="template-tag active">admin</span>
+                    <span class="template-tag active">github-clone</span>
+                </div>
+            </div>
+
+            <div class="block-item">
+                <h4>10. Academic Writing Style</h4>
+                <p>APA 7, NIH formatting, no clichés, PubMed-verified citations, dense prose.</p>
+                <code>## Approach (academic variant)</code>
+                <div class="template-tags">
+                    <span class="template-tag active">manuscript</span>
+                    <span class="template-tag active">scientific-abstract</span>
+                    <span class="template-tag active">meeting-abstract</span>
+                    <span class="template-tag active">quarto-docs</span>
+                </div>
+            </div>
+
+            <div class="block-item">
+                <h4>11. Coding Standards</h4>
+                <p>TDD, conventional commits, linting, linear scripts, documentation.</p>
+                <code>## Approach (coding variant)</code>
+                <div class="template-tags">
+                    <span class="template-tag active">coding</span>
+                    <span class="template-tag active">quarto-docs</span>
+                </div>
+            </div>
+
+            <div class="block-item">
+                <h4>12. Data Science Methodology</h4>
+                <p>Reproducibility, raw data immutability, environment management, EDA vs confirmatory.</p>
+                <code>## Approach (data science variant)</code>
+                <div class="template-tags">
+                    <span class="template-tag active">datascience</span>
+                </div>
+            </div>
+
+            <div class="block-item">
+                <h4>13. Pedagogical Approach</h4>
+                <p>Progressive complexity, hands-on first, explain the "why", common pitfalls.</p>
+                <code>## Approach (educational variant)</code>
+                <div class="template-tags">
+                    <span class="template-tag active">tutorial</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DOCUMENTATION BLOCKS -->
+    <div class="block-category">
+        <h3><span class="badge badge-domain">Domain</span> Documentation & Output Blocks</h3>
+        <p>Structured content generation and rendering configuration.</p>
+
+        <div class="block-list">
+            <div class="block-item">
+                <h4>14. Quarto Configuration</h4>
+                <p>_quarto.yml setup, render key to exclude .md files, website/document output.</p>
+                <code>### _quarto.yml Configuration</code>
+                <div class="template-tags">
+                    <span class="template-tag active">quarto-docs</span>
+                    <span class="template-tag active">datascience</span>
+                    <span class="template-tag active">manuscript</span>
+                    <span class="template-tag active">basic</span>
+                </div>
+            </div>
+
+            <div class="block-item">
+                <h4>15. Paired File Strategy</h4>
+                <p>.md for reasoning/planning, .qmd for execution/output. Side-by-side with shared basename.</p>
+                <code>### Paired File Strategy</code>
+                <div class="template-tags">
+                    <span class="template-tag active">quarto-docs</span>
+                    <span class="template-tag active">basic</span>
+                </div>
+            </div>
+
+            <div class="block-item">
+                <h4>16. References & Citations</h4>
+                <p>BibTeX files, PubMed ID verification, citation style requirements.</p>
+                <code>references/references.bib</code>
+                <div class="template-tags">
+                    <span class="template-tag active">manuscript</span>
+                    <span class="template-tag active">scientific-abstract</span>
+                    <span class="template-tag active">meeting-abstract</span>
+                </div>
+            </div>
+
+            <div class="block-item">
+                <h4>17. Code Documentation</h4>
+                <p>README, architecture docs, API docs, inline comments.</p>
+                <code>## Documentation</code>
+                <div class="template-tags">
+                    <span class="template-tag active">coding</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DATA & QUALITY BLOCKS -->
+    <div class="block-category">
+        <h3><span class="badge badge-domain">Domain</span> Data & Quality Blocks</h3>
+        <p>Data management, validation, and quality assurance.</p>
+
+        <div class="block-list">
+            <div class="block-item">
+                <h4>18. Data Specification</h4>
+                <p>Data sources table, data dictionary, inclusion/exclusion criteria.</p>
+                <code>## Data Specification</code>
+                <div class="template-tags">
+                    <span class="template-tag active">datascience</span>
+                </div>
+            </div>
+
+            <div class="block-item">
+                <h4>19. Reproducibility Checklist</h4>
+                <p>Seeds, frozen environment, checksums, end-to-end validation.</p>
+                <code>## Reproducibility Checklist</code>
+                <div class="template-tags">
+                    <span class="template-tag active">datascience</span>
+                </div>
+            </div>
+
+            <div class="block-item">
+                <h4>20. Testing Block</h4>
+                <p>Unit/integration tests, coverage targets, pre-commit test runs.</p>
+                <code>## Testing</code>
+                <div class="template-tags">
+                    <span class="template-tag active">coding</span>
+                    <span class="template-tag active">github-clone</span>
+                </div>
+            </div>
+
+            <div class="block-item">
+                <h4>21. Acceptance Criteria</h4>
+                <p>Checkbox-style completion requirements for deliverables.</p>
+                <code>## Acceptance Criteria</code>
+                <div class="template-tags">
+                    <span class="template-tag active">scientific-abstract</span>
+                    <span class="template-tag active">meeting-abstract</span>
+                </div>
+            </div>
+
+            <div class="block-item">
+                <h4>22. Quality Checklist</h4>
+                <p>Review criteria, accessibility notes, polish requirements.</p>
+                <code>## Quality Checklist</code>
+                <div class="template-tags">
+                    <span class="template-tag active">tutorial</span>
+                    <span class="template-tag active">datascience</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WORKFLOW BLOCKS -->
+    <div class="block-category">
+        <h3><span class="badge badge-optional">Optional</span> Advanced Workflow Blocks</h3>
+        <p>Sophisticated workflow management for complex projects.</p>
+
+        <div class="block-list">
+            <div class="block-item">
+                <h4>23. Maintenance Rules</h4>
+                <p>Archive, remove, reactivate instructions for lifecycle management.</p>
+                <code>## Maintenance Rules</code>
+                <div class="template-tags">
+                    <span class="template-tag active">quarto-docs</span>
+                </div>
+            </div>
+
+            <div class="block-item">
+                <h4>24. Decision Logging</h4>
+                <p>CSV-based log: what, why, evidence, validation, timestamp.</p>
+                <code>logs/decision-log.csv</code>
+                <div class="template-tags">
+                    <span class="template-tag active">quarto-docs</span>
+                </div>
+            </div>
+
+            <div class="block-item">
+                <h4>25. Milestones</h4>
+                <p>Key deliverables with target dates.</p>
+                <code>## Milestones</code>
+                <div class="template-tags">
+                    <span class="template-tag active">project-tracker</span>
+                </div>
+            </div>
+
+            <div class="block-item">
+                <h4>26. Task Schema</h4>
+                <p>CSV structure for task tracking with defined columns.</p>
+                <code>## Task Schema</code>
+                <div class="template-tags">
+                    <span class="template-tag active">project-tracker</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TEMPLATE MATRIX -->
+    <h2>Block Distribution Matrix</h2>
+    <p>Which blocks appear in which templates:</p>
+
+    <table class="matrix-table">
+        <thead>
+            <tr>
+                <th>Block</th>
+                <th>basic</th>
+                <th>admin</th>
+                <th>coding</th>
+                <th>data-sci</th>
+                <th>github</th>
+                <th>manu-script</th>
+                <th>meeting</th>
+                <th>proj-track</th>
+                <th>quarto</th>
+                <th>sci-abs</th>
+                <th>tutorial</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Setup</td>
+                <td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td>
+            </tr>
+            <tr>
+                <td>Pre-Run Hooks</td>
+                <td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td>
+            </tr>
+            <tr>
+                <td>Tasks</td>
+                <td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td>
+            </tr>
+            <tr>
+                <td>Post-Run Hooks</td>
+                <td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td>
+            </tr>
+            <tr>
+                <td>Metadata</td>
+                <td class="no">-</td><td class="no">-</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td>
+            </tr>
+            <tr>
+                <td>Academic Style</td>
+                <td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="no">-</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="no">-</td>
+            </tr>
+            <tr>
+                <td>Coding Standards</td>
+                <td class="no">-</td><td class="no">-</td><td class="yes">&#10003;</td><td class="no">-</td><td class="yes">&#10003;</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="yes">&#10003;</td><td class="no">-</td><td class="no">-</td>
+            </tr>
+            <tr>
+                <td>Quarto Config</td>
+                <td class="yes">&#10003;</td><td class="no">-</td><td class="no">-</td><td class="yes">&#10003;</td><td class="no">-</td><td class="yes">&#10003;</td><td class="no">-</td><td class="no">-</td><td class="yes">&#10003;</td><td class="no">-</td><td class="no">-</td>
+            </tr>
+            <tr>
+                <td>Paired Files</td>
+                <td class="yes">&#10003;</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="yes">&#10003;</td><td class="no">-</td><td class="no">-</td>
+            </tr>
+            <tr>
+                <td>References</td>
+                <td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="no">-</td><td class="no">-</td><td class="yes">&#10003;</td><td class="no">-</td>
+            </tr>
+            <tr>
+                <td>Testing</td>
+                <td class="no">-</td><td class="no">-</td><td class="yes">&#10003;</td><td class="no">-</td><td class="yes">&#10003;</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td>
+            </tr>
+            <tr>
+                <td>Data Spec</td>
+                <td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="yes">&#10003;</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td>
+            </tr>
+            <tr>
+                <td>Reproducibility</td>
+                <td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="yes">&#10003;</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td>
+            </tr>
+            <tr>
+                <td>Quality Checklist</td>
+                <td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="yes">&#10003;</td><td class="no">-</td><td class="no">-</td><td class="yes">&#10003;</td><td class="no">-</td><td class="no">-</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td>
+            </tr>
+            <tr>
+                <td>Decision Log</td>
+                <td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="yes">&#10003;</td><td class="no">-</td><td class="no">-</td>
+            </tr>
+            <tr>
+                <td>Maintenance</td>
+                <td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="yes">&#10003;</td><td class="no">-</td><td class="no">-</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- RECOMMENDATIONS -->
+    <div class="recommendation">
+        <h3>Proposed Block Library Structure</h3>
+        <p>To implement a modular "Lego block" system, organize blocks into a library:</p>
+
+<pre>
+<span class="comment"># blocks/</span>
+<span class="comment"># ├── core/           # Universal (always include)</span>
+<span class="key">blocks/core/setup.md</span>
+<span class="key">blocks/core/pre-run-hooks.md</span>
+<span class="key">blocks/core/tasks.md</span>
+<span class="key">blocks/core/post-run-hooks.md</span>
+
+<span class="comment"># ├── metadata/       # Pick one per template</span>
+<span class="key">blocks/metadata/project.md</span>
+<span class="key">blocks/metadata/research.md</span>
+<span class="key">blocks/metadata/publication.md</span>
+<span class="key">blocks/metadata/educational.md</span>
+
+<span class="comment"># ├── strategy/       # Pick relevant ones</span>
+<span class="key">blocks/strategy/academic-style.md</span>
+<span class="key">blocks/strategy/coding-standards.md</span>
+<span class="key">blocks/strategy/data-science.md</span>
+<span class="key">blocks/strategy/pedagogical.md</span>
+
+<span class="comment"># ├── docs/           # Pick relevant ones</span>
+<span class="key">blocks/docs/quarto-config.md</span>
+<span class="key">blocks/docs/paired-files.md</span>
+<span class="key">blocks/docs/references.md</span>
+<span class="key">blocks/docs/code-docs.md</span>
+
+<span class="comment"># ├── quality/        # Pick relevant ones</span>
+<span class="key">blocks/quality/testing.md</span>
+<span class="key">blocks/quality/data-spec.md</span>
+<span class="key">blocks/quality/reproducibility.md</span>
+<span class="key">blocks/quality/acceptance-criteria.md</span>
+
+<span class="comment"># └── workflow/       # Optional advanced</span>
+<span class="key">blocks/workflow/maintenance.md</span>
+<span class="key">blocks/workflow/decision-log.md</span>
+<span class="key">blocks/workflow/milestones.md</span>
+</pre>
+
+        <h3 style="margin-top: 1.5rem;">Template Composition Example</h3>
+        <p>A new template could be composed declaratively:</p>
+
+<pre>
+<span class="comment"># template: data-science-manuscript</span>
+<span class="key">include:</span>
+  - <span class="string">core/*</span>                    <span class="comment"># All universal blocks</span>
+  - <span class="string">metadata/research</span>         <span class="comment"># Research project metadata</span>
+  - <span class="string">metadata/publication</span>      <span class="comment"># Journal submission info</span>
+  - <span class="string">strategy/academic-style</span>   <span class="comment"># APA 7, NIH formatting</span>
+  - <span class="string">strategy/data-science</span>     <span class="comment"># Reproducibility principles</span>
+  - <span class="string">docs/quarto-config</span>        <span class="comment"># Quarto website output</span>
+  - <span class="string">docs/references</span>           <span class="comment"># BibTeX management</span>
+  - <span class="string">quality/data-spec</span>         <span class="comment"># Data dictionary</span>
+  - <span class="string">quality/reproducibility</span>   <span class="comment"># Checksums, seeds</span>
+  - <span class="string">workflow/decision-log</span>     <span class="comment"># Audit trail</span>
+</pre>
+
+        <h3 style="margin-top: 1.5rem;">Key Insights</h3>
+        <ul>
+            <li><strong>4 blocks are truly universal</strong> (Setup, Pre-Run, Tasks, Post-Run) - these form the template skeleton</li>
+            <li><strong>Academic Style block</strong> appears in 4 templates - high reuse value, should be standardized</li>
+            <li><strong>Quarto Config block</strong> appears in 4 templates - could be auto-included when .qmd files are expected</li>
+            <li><strong>Metadata blocks are mutually exclusive</strong> - pick one category per project type</li>
+            <li><strong>Advanced workflow blocks</strong> (Decision Log, Maintenance) are powerful but underutilized - consider promoting</li>
+        </ul>
+    </div>
+
+    <p style="margin-top: 2rem; color: var(--muted); font-size: 0.85rem;">
+        Generated: 2026-02-01 | Templates analyzed: 11 | Blocks identified: 20+
+    </p>
+</body>
+</html>
