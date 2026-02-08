@@ -24,3 +24,4 @@
 - 2026-02-08 (aca3f66): Redesigned toy with two-phase animation (scatter out → settle in), constellation lines connecting nearby dots, teal/amber color palettes, 5:3 aspect ratio; both sides animate every run; validated both pages serve.
 - 2026-02-08 (84577f9): Added Toy 2 "The Recipe" to `toys.html` — animated flow visualization showing Plan → AI → Artifacts with cubic bezier particle paths, fading trails, and accumulating artifact rectangles; validated both pages serve.
 - 2026-02-08 (f91be00): Redesigned Toy 2 as "The Loop" — triangular layout with HUMAN (reason·plan) and AI (execute) nodes, three bezier loop paths (plan/execute/review) with arrowheads, three-phase animation with node glow, and accumulating artifacts at bottom; validated both pages serve.
+- 2026-02-08 (91644f5): Densified loop toy — bigger nodes (0.13), larger labels (15px/12px/11px), bigger particles/arrows/artifacts, auto-plays 3 cycles on load with 900ms gap; validated both pages serve.
