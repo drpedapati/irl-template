@@ -46,12 +46,12 @@
         background: var(--bg);
         color: var(--ink);
         font-family: var(--sans);
-        line-height: 1.65;
+        line-height: 1.7;
         text-rendering: optimizeLegibility;
       }
 
       .wrap {
-        max-width: 860px;
+        max-width: 740px;
         margin: 0 auto;
         padding: 28px 18px 80px;
       }
@@ -80,10 +80,18 @@
 
       a {
         color: var(--link);
-        text-decoration: none;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        text-decoration-thickness: 1px;
       }
       a:hover {
-        text-decoration: underline;
+        text-decoration: none;
+      }
+
+      a:focus-visible,
+      button:focus-visible {
+        outline: 2px solid #111827;
+        outline-offset: 2px;
       }
 
       .meta {
@@ -225,6 +233,9 @@
         background: #ffffff;
         cursor: pointer;
       }
+      .toy button:hover {
+        background: #f9fafb;
+      }
       .toy button:disabled {
         cursor: not-allowed;
         opacity: 0.6;
@@ -259,15 +270,22 @@
       <header>
         <h1>IRL: Idempotent Research Loop</h1>
         <p class="lede">
-          I got tired of research workflows that vanish into chat history.
-          Conversations drift. Decisions get lost. And when you come back a week
-          later, you can’t explain what happened, let alone reproduce it.
+          I'm obsessed with a specific kind of failure: you do something smart
+          with an AI assistant, it works, you feel productive... and then the
+          whole thing evaporates into a chat transcript nobody will ever read
+          again.
         </p>
         <p class="lede">
-          IRL is the pattern I wish I had earlier: keep your intent in a plan
-          file, let an assistant execute it, and let git diffs be your audit
-          trail. It’s not glamorous. It’s just a way to make AI-assisted work
-          legible.
+          A week later you can't answer basic questions. What inputs did we use?
+          What assumptions did we make? Which files changed? If the result is
+          wrong, where did it go wrong? And if you rerun it, do you get the same
+          thing or a slightly different thing that looks right until it doesn't?
+        </p>
+        <p class="lede">
+          IRL is the pattern I wish I had earlier: write your intent in a plan
+          file, let an assistant execute it, and let git diffs be the audit
+          trail. It's not a product. It's a discipline that turns "AI did stuff"
+          into artifacts you can inspect.
         </p>
         <p class="meta">
           Artifact: <span class="inline-code">03-outputs/irl-explainer-site/index.html</span>
@@ -310,9 +328,25 @@
             can review it like you would any other engineering output.
           </p>
 
+          <p>
+            The mental model I keep coming back to is a Makefile for thinking.
+            The plan is declarative: "given these inputs, produce these outputs,
+            under these constraints." The assistant is an executor, not an
+            author of intent. If you want different behavior, you change the
+            plan and rerun.
+          </p>
+
+          <p>
+            There is a trade-off: you spend more time up front writing down what
+            you mean. But you get the thing most AI workflows lack by default:
+            the ability to point at a commit and say, "this is what we did, this
+            is what changed, and this is why."
+          </p>
+
           <p class="aside">
             IRL isn’t “the AI remembers forever.” It’s “assume it won’t, then
-            write down what matters in versioned files.”
+            write down what matters in versioned files.” If it can’t be diffed,
+            it’s hard to trust.
           </p>
 
           <h3>A Useful Template For Plan Steps</h3>
@@ -329,6 +363,25 @@
           <p class="subhead">
             This loop is intentionally repetitive. Repetition is how you keep
             the work inspectable.
+          </p>
+
+          <p>
+            The loop has six verbs: edit, execute, write, review, commit,
+            repeat. If any one of those verbs is missing, the whole thing tends
+            to collapse back into "chat with an AI until it feels done."
+          </p>
+
+          <p>
+            Notice what isn't in the loop: "remember." IRL assumes memory is
+            unreliable. Your plan file replaces memory as the source of truth,
+            and your outputs replace "trust me" explanations as evidence.
+          </p>
+
+          <p>
+            A practical rule of thumb: keep execution short enough that you can
+            rerun it without dread. If a run takes 30 seconds to a few minutes,
+            you're more likely to iterate. If it takes half an hour, you'll
+            avoid reruns, and that’s where mistakes hide.
           </p>
 
           <figure class="figure">
@@ -378,6 +431,29 @@
             not scratch pads. Logs should exist so you can see what ran.
           </p>
 
+          <p>
+            The raw/derived split is doing real work. Raw data is sacred: it
+            should be immutable, or at least treated as immutable. Derived data
+            is disposable: if it gets corrupted, you should be able to delete it
+            and regenerate it from raw inputs by rerunning the plan.
+          </p>
+
+          <p>
+            Outputs are a different category. They’re the things you want to
+            show someone else: a report, a figure, a table, a website artifact.
+            Outputs should have stable filenames so diffs stay meaningful
+            (<span class="inline-code">03-outputs/report.html</span>, not
+            <span class="inline-code">report_2026-02-08_1412.html</span> unless
+            you explicitly want versioned snapshots).
+          </p>
+
+          <p class="aside">
+            Big binaries are an edge case. If your data is too large for git,
+            you can still keep the contract: store raw data elsewhere, commit a
+            manifest (paths, checksums, versions), and make regeneration steps
+            explicit.
+          </p>
+
           <figure class="figure">
             <div
               id="diagram-anatomy"
@@ -415,6 +491,22 @@
             outputs to specific paths, and it does not quietly mutate unrelated
             files. If a step needs to update state, it should do it explicitly
             and in the open, so git can show you.
+          </p>
+
+          <p>
+            The question I ask after every run is simple: could someone else
+            reproduce this result from scratch? Not "could they guess what I
+            meant," but could they follow the files. If the answer is no, the
+            fix is usually mechanical: missing inputs, unclear output paths, or
+            hidden decisions that should be written down.
+          </p>
+
+          <p>
+            A nice side effect is that the assistant becomes easier to manage.
+            When the plan says, "write <span class="inline-code">summary.csv</span>
+            and <span class="inline-code">report.html</span>," you can review
+            exactly those artifacts. When it doesn’t, you end up spelunking
+            through unrelated files trying to learn what happened.
           </p>
 
           <figure class="figure">
@@ -457,6 +549,21 @@
             logs in places where you want clean diffs.
           </p>
 
+          <p>
+            The easiest way to accidentally break idempotency is to hide time in
+            your outputs. Timestamps in filenames feel harmless until your repo
+            fills up with near-duplicates and you can’t tell which one matters.
+            IRL prefers stable paths for "current truth" and explicit snapshots
+            only when you mean to snapshot.
+          </p>
+
+          <p>
+            Another common failure mode is nondeterminism. If a step depends on
+            "latest" anything, you usually want to pin it: a commit hash, a
+            version number, or a downloaded artifact with a checksum. Otherwise,
+            reruns become "it worked yesterday" stories.
+          </p>
+
           <figure class="figure">
             <div
               id="diagram-idempotency"
@@ -491,6 +598,21 @@
             reason. After execution, you review what changed and decide whether it
             matches the plan’s intent. If you can’t explain a change, it doesn’t
             get committed.
+          </p>
+
+          <p>
+            Review is not one big thing; it’s a few small questions. Did we touch
+            the right files? Did we accidentally modify something unrelated? Are
+            there new outputs that should be kept out of git (large binaries,
+            caches)? And most importantly: does the change actually support the
+            plan’s goal, or did we just produce activity?
+          </p>
+
+          <p>
+            This is where git earns its keep. If a step is truly idempotent, a
+            second run should result in an empty diff. That’s an incredibly strong
+            signal: it means you can rerun without fear, and it means reviewers
+            can focus on intent rather than forensic reconstruction.
           </p>
 
           <figure class="figure">
@@ -532,6 +654,20 @@ git commit -m "..."</code></pre>
             This explainer site is a static artifact. You can serve it locally and
             access it over a shared network (LAN or ZeroTier) by pointing a browser
             at your machine’s IP and port.
+          </p>
+
+          <p>
+            If you’re testing from your phone on the same WiFi, the pattern is:
+            start the server, find your machine’s LAN IP (often
+            <span class="inline-code">192.168.x.y</span>), then open
+            <span class="inline-code">http://&lt;ip&gt;:8765/</span>.
+          </p>
+
+          <p class="aside">
+            Security note: <span class="inline-code">python3 -m http.server</span>
+            is a tiny dev server, not a hardened web server. Use it on trusted
+            networks (or a private ZeroTier network), and avoid serving directories
+            containing secrets.
           </p>
 
           <pre><code># from this repo
@@ -667,4 +803,3 @@ make -C 03-outputs/irl-explainer-site zt</code></pre>
     </script>
   </body>
 </html>
-

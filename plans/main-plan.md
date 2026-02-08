@@ -32,6 +32,8 @@ AI Feedback: Add ZeroTier address to access site
 
 4. The senior reviewer has reviewed your site and has provided extensive critical feedback. Before making any edits, please review all of the files in '/Users/ernie/Dropbox/Henry Projects/irl-feedback'
 
+it is hard to believe that you made all of the revisions in just one pass. Look at where you've been and what you've done in terms of responding to feedback. Go back to the feedback docs, read some more, and then continue to apply. Iteration will get better and better
+
 ### One-Time Instructions — Tasks that should only execute once
 
 <!-- 👤 AUTHOR AREA: Add one-time tasks below -->
