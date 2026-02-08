@@ -30,6 +30,8 @@ locally serve the website so I can test it.
 add makefile in website dir for easy management
 AI Feedback: Add ZeroTier address to access site
 
+4. The senior reviewer has reviewed your site and has provided extensive critical feedback. Before making any edits, please review all of the files in '/Users/ernie/Dropbox/Henry Projects/irl-feedback'
+
 ### One-Time Instructions — Tasks that should only execute once
 
 <!-- 👤 AUTHOR AREA: Add one-time tasks below -->

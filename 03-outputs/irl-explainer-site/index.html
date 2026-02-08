@@ -9,14 +9,7 @@
       content="IRL is a document-centric workflow for reproducible AI-assisted research: you edit a plan, the AI executes, and git diffs become the audit trail."
     />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
-
-    <!-- Mermaid renderer (SVG) with better theming than stock mermaid. -->
+    <!-- Mermaid renderer (SVG). Requires internet to load. -->
     <script
       defer
       src="https://unpkg.com/beautiful-mermaid/dist/beautiful-mermaid.browser.global.js"
@@ -24,24 +17,19 @@
 
     <style>
       :root {
-        --bg0: #fbf6ed;
-        --bg1: #f3ebdd;
-        --paper: rgba(255, 255, 255, 0.78);
-        --ink: #0f172a;
-        --muted: #475569;
-        --border: rgba(15, 23, 42, 0.12);
-        --shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
+        --bg: #ffffff;
+        --ink: #111827;
+        --muted: #4b5563;
+        --subtle: #6b7280;
+        --border: #e5e7eb;
+        --link: #2563eb;
+        --code-bg: #0b1020;
+        --code-ink: #e5e7eb;
 
-        --accent: #0b5d54;
-        --accent2: #b45309;
-
-        --sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system,
-          "Segoe UI", "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans",
-          sans-serif;
-        --serif: "Fraunces", ui-serif, Georgia, Cambria, "Times New Roman",
-          Times, serif;
-        --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-          Consolas, "Liberation Mono", "Courier New", monospace;
+        --sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
       }
 
       * {
@@ -55,385 +43,358 @@
 
       body {
         margin: 0;
-        font-family: var(--sans);
+        background: var(--bg);
         color: var(--ink);
-        background: radial-gradient(
-            1200px 700px at 10% 10%,
-            rgba(11, 93, 84, 0.12),
-            transparent 58%
-          ),
-          radial-gradient(
-            900px 500px at 90% 18%,
-            rgba(180, 83, 9, 0.12),
-            transparent 55%
-          ),
-          linear-gradient(180deg, var(--bg0), var(--bg1));
+        font-family: var(--sans);
+        line-height: 1.65;
+        text-rendering: optimizeLegibility;
+      }
+
+      .wrap {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 28px 18px 80px;
+      }
+
+      header {
+        padding-bottom: 18px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      h1 {
+        font-size: clamp(34px, 4.2vw, 48px);
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        margin: 0 0 12px;
+      }
+
+      p {
+        margin: 12px 0;
+      }
+
+      .lede {
+        color: var(--muted);
+        font-size: 17px;
+        margin-top: 0;
       }
 
       a {
-        color: var(--accent);
+        color: var(--link);
         text-decoration: none;
       }
       a:hover {
         text-decoration: underline;
       }
 
-      .wrap {
-        max-width: 1040px;
-        padding: 32px 20px 80px;
-        margin: 0 auto;
-      }
-
-      header.hero {
-        border: 1px solid var(--border);
-        background: var(--paper);
-        box-shadow: var(--shadow);
-        border-radius: 22px;
-        padding: 28px 26px;
-        position: relative;
-        overflow: hidden;
-      }
-
-      header.hero::before {
-        content: "";
-        position: absolute;
-        inset: -120px -140px auto auto;
-        width: 420px;
-        height: 420px;
-        background: conic-gradient(
-          from 230deg,
-          rgba(11, 93, 84, 0.18),
-          rgba(180, 83, 9, 0.18),
-          rgba(11, 93, 84, 0.18)
-        );
-        filter: blur(2px);
-        border-radius: 999px;
-        transform: rotate(-12deg);
-      }
-
-      .kicker {
-        position: relative;
-        z-index: 1;
-        display: inline-flex;
-        gap: 10px;
-        align-items: center;
-        font-size: 13px;
-        letter-spacing: 0.09em;
-        text-transform: uppercase;
-        color: rgba(15, 23, 42, 0.7);
-      }
-
-      .pill {
+      .meta {
         font-family: var(--mono);
         font-size: 12px;
-        letter-spacing: 0;
-        padding: 6px 10px;
-        border-radius: 999px;
-        border: 1px solid var(--border);
-        background: rgba(255, 255, 255, 0.65);
+        color: var(--subtle);
+        margin-top: 10px;
       }
 
-      h1 {
-        position: relative;
-        z-index: 1;
-        font-family: var(--serif);
-        margin: 12px 0 10px;
-        font-size: clamp(36px, 4.6vw, 58px);
-        line-height: 1.05;
-        letter-spacing: -0.02em;
-      }
-
-      .subhead {
-        position: relative;
-        z-index: 1;
-        margin: 0;
-        max-width: 72ch;
-        font-size: 18px;
-        line-height: 1.55;
-        color: var(--muted);
-      }
-
-      .nav {
-        position: relative;
-        z-index: 1;
+      nav {
         margin-top: 18px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-      .nav a {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-family: var(--mono);
-        font-size: 12px;
-        padding: 10px 12px;
-        border-radius: 14px;
+        padding: 12px 14px;
         border: 1px solid var(--border);
-        background: rgba(255, 255, 255, 0.66);
+        border-radius: 10px;
       }
-
-      main {
-        margin-top: 26px;
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 18px;
-      }
-
-      section.card {
-        border: 1px solid var(--border);
-        background: rgba(255, 255, 255, 0.7);
-        border-radius: 20px;
-        padding: 22px 22px;
-        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
-      }
-
-      h2 {
-        font-family: var(--serif);
-        margin: 0 0 8px;
-        font-size: 26px;
-        letter-spacing: -0.01em;
-      }
-
-      p {
-        margin: 10px 0;
-        line-height: 1.65;
-        color: rgba(15, 23, 42, 0.9);
-      }
-
-      .lede {
-        color: var(--muted);
-        margin-top: 6px;
-      }
-
-      .grid2 {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 14px;
-        margin-top: 14px;
-      }
-      @media (min-width: 860px) {
-        .grid2 {
-          grid-template-columns: 1fr 1fr;
-        }
-      }
-
-      .callout {
-        border: 1px solid var(--border);
-        background: rgba(251, 246, 237, 0.65);
-        border-radius: 18px;
-        padding: 16px 16px;
-      }
-      .callout strong {
+      nav .title {
         font-family: var(--mono);
         font-size: 12px;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: rgba(15, 23, 42, 0.72);
+        color: var(--subtle);
+        margin-bottom: 8px;
+      }
+      nav ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+      @media (min-width: 720px) {
+        nav ul {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      nav a {
+        font-family: var(--mono);
+        font-size: 12.5px;
+      }
+
+      main {
+        margin-top: 22px;
+      }
+
+      section {
+        padding-top: 22px;
+        margin-top: 22px;
+        border-top: 1px solid var(--border);
+      }
+
+      h2 {
+        font-size: 24px;
+        line-height: 1.25;
+        letter-spacing: -0.01em;
+        margin: 0 0 10px;
+      }
+
+      h3 {
+        font-size: 18px;
+        line-height: 1.3;
+        margin: 18px 0 8px;
+      }
+
+      .subhead {
+        color: var(--muted);
+        margin: 0 0 10px;
+      }
+
+      .aside {
+        border-left: 3px solid var(--border);
+        padding-left: 14px;
+        margin: 16px 0;
+        color: var(--muted);
+      }
+
+      .figure {
+        margin: 18px 0 6px;
+      }
+
+      .diagram {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px 12px;
+        min-height: 180px;
+        background: #ffffff;
+      }
+      .diagram svg {
+        width: 100%;
+        height: auto;
+        min-height: 140px;
+      }
+
+      figcaption {
+        margin: 10px auto 0;
+        max-width: 78ch;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.55;
       }
 
       pre {
-        margin: 14px 0 0;
-        padding: 14px 14px;
-        border-radius: 16px;
-        border: 1px solid var(--border);
-        background: rgba(15, 23, 42, 0.92);
-        color: #e2e8f0;
+        margin: 14px 0;
+        padding: 12px 12px;
+        border-radius: 10px;
+        background: var(--code-bg);
+        color: var(--code-ink);
         overflow: auto;
         font-family: var(--mono);
         font-size: 12.5px;
-        line-height: 1.5;
+        line-height: 1.55;
+        border: 1px solid rgba(17, 24, 39, 0.25);
       }
 
       code {
         font-family: var(--mono);
       }
 
-      .table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        overflow: hidden;
-        border-radius: 16px;
+      .inline-code {
+        background: #f3f4f6;
+        padding: 0.1rem 0.25rem;
+        border-radius: 6px;
         border: 1px solid var(--border);
-        background: rgba(255, 255, 255, 0.55);
-        margin-top: 12px;
+        font-size: 0.92em;
       }
-      .table th,
-      .table td {
-        text-align: left;
+
+      .toy {
+        border: 1px solid var(--border);
+        border-radius: 10px;
         padding: 12px 12px;
-        border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-        vertical-align: top;
+        background: #ffffff;
       }
-      .table th {
+      .toy button {
         font-family: var(--mono);
         font-size: 12px;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: rgba(15, 23, 42, 0.72);
-        background: rgba(255, 255, 255, 0.66);
-      }
-      .table tr:last-child td {
-        border-bottom: 0;
-      }
-      .table td code {
-        font-size: 12px;
-      }
-
-      details {
-        margin-top: 12px;
-        border: 1px dashed rgba(15, 23, 42, 0.22);
-        border-radius: 16px;
-        padding: 10px 12px;
-        background: rgba(255, 255, 255, 0.45);
-      }
-      summary {
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: #ffffff;
         cursor: pointer;
-        font-family: var(--mono);
-        font-size: 12.5px;
-        color: rgba(15, 23, 42, 0.8);
       }
-
-      .diagram {
-        margin-top: 14px;
-        border: 1px solid rgba(15, 23, 42, 0.14);
-        background: rgba(255, 255, 255, 0.74);
-        border-radius: 18px;
-        padding: 14px 14px;
-        min-height: 200px;
+      .toy button:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
       }
-      .diagram svg {
-        width: 100%;
-        height: auto;
-        min-height: 160px;
+      .toy ol {
+        margin: 12px 0 0;
+        padding-left: 18px;
       }
-      .caption {
-        margin: 10px auto 0;
-        max-width: 78ch;
-        color: rgba(71, 85, 105, 0.98);
-        font-size: 13px;
-        line-height: 1.55;
-        text-align: center;
+      .toy li {
+        margin: 6px 0;
+      }
+      .toy li.active {
+        background: #f9fafb;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 6px 8px;
+        margin-left: -10px;
+        margin-right: -2px;
       }
 
       footer {
-        margin-top: 20px;
-        color: rgba(71, 85, 105, 0.9);
+        margin-top: 28px;
+        padding-top: 18px;
+        border-top: 1px solid var(--border);
+        color: var(--subtle);
         font-size: 13px;
-        text-align: center;
-      }
-      footer code {
-        font-size: 12px;
       }
     </style>
   </head>
   <body>
     <div class="wrap">
-      <header class="hero">
-        <div class="kicker">
-          <span class="pill">doc-centric</span>
-          <span class="pill">diff-driven</span>
-          <span class="pill">idempotent</span>
-        </div>
+      <header>
         <h1>IRL: Idempotent Research Loop</h1>
-        <p class="subhead">
-          I got tired of research workflows that vanish into chat history. IRL is
-          a simple pattern: write your intent in a plan file, let an AI execute
-          it, and let git diffs be the audit trail.
+        <p class="lede">
+          I got tired of research workflows that vanish into chat history.
+          Conversations drift. Decisions get lost. And when you come back a week
+          later, you can’t explain what happened, let alone reproduce it.
         </p>
-        <nav class="nav" aria-label="Sections">
-          <a href="#what">What It Is</a>
-          <a href="#pipeline">The Pipeline</a>
-          <a href="#anatomy">Project Anatomy</a>
-          <a href="#rules">Rules That Make It Work</a>
-          <a href="#cli">CLI Commands</a>
+        <p class="lede">
+          IRL is the pattern I wish I had earlier: keep your intent in a plan
+          file, let an assistant execute it, and let git diffs be your audit
+          trail. It’s not glamorous. It’s just a way to make AI-assisted work
+          legible.
+        </p>
+        <p class="meta">
+          Artifact: <span class="inline-code">03-outputs/irl-explainer-site/index.html</span>
+        </p>
+
+        <nav aria-label="Table of contents">
+          <div class="title">Contents</div>
+          <ul>
+            <li><a href="#what">What IRL Is</a></li>
+            <li><a href="#loop">The Core Loop</a></li>
+            <li><a href="#anatomy">Project Anatomy</a></li>
+            <li><a href="#sequence">A Single Run (Sequence)</a></li>
+            <li><a href="#idempotency">Idempotency (The Boring Part)</a></li>
+            <li><a href="#review">Review, Commit, Repeat</a></li>
+            <li><a href="#remote">Remote Testing (ZeroTier)</a></li>
+          </ul>
         </nav>
       </header>
 
       <main>
-        <section class="card" id="what">
-          <h2>What IRL Is (And What It Isn’t)</h2>
-          <p class="lede">
-            IRL is not “a better chat.” It’s a workflow that makes AI-assisted
-            work reproducible.
+        <section id="what">
+          <h2>What IRL Is</h2>
+          <p class="subhead">
+            An IRL project is a filesystem contract and a discipline: the plan
+            owns intent, artifacts hold evidence, and diffs tell you what changed.
           </p>
 
-          <div class="grid2">
-            <div class="callout">
-              <strong>IRL is</strong>
-              <p>
-                A document-centric loop where the plan file is your control
-                surface. You edit it to change behavior, not the AI’s memory.
-              </p>
-              <p>
-                Outputs land in folders. Changes show up as diffs. You can
-                review, revert, or iterate.
-              </p>
-            </div>
-            <div class="callout">
-              <strong>IRL isn’t</strong>
-              <p>
-                A promise that the AI will “remember forever.” It’s the opposite:
-                assume it won’t, then write down what matters in files you can
-                version.
-              </p>
-              <p>
-                The point is control and traceability, not vibes.
-              </p>
-            </div>
+          <p>
+            The first move is small but important: instead of keeping “what we’re
+            trying to do” in a chat thread, you keep it in a file. That file is
+            your control surface. It’s where you state objectives, inputs, outputs,
+            constraints, and what “done” means. When something needs to change,
+            you edit the plan, not your assistant’s memory.
+          </p>
+
+          <p>
+            The second move is equally boring: the assistant produces artifacts,
+            not vibes. If a step matters, it should land as something you can
+            inspect: an HTML report, a CSV, a diagram, a script, a test. Then you
+            can review it like you would any other engineering output.
+          </p>
+
+          <p class="aside">
+            IRL isn’t “the AI remembers forever.” It’s “assume it won’t, then
+            write down what matters in versioned files.”
+          </p>
+
+          <h3>A Useful Template For Plan Steps</h3>
+          <pre><code>## Task: [short name]
+
+- Inputs: [files, links, assumptions]
+- Outputs: [exact paths]
+- Constraints: [idempotency rules]
+- Done when: [verifiable checks]</code></pre>
+        </section>
+
+        <section id="loop">
+          <h2>The Core Loop</h2>
+          <p class="subhead">
+            This loop is intentionally repetitive. Repetition is how you keep
+            the work inspectable.
+          </p>
+
+          <figure class="figure">
+            <div
+              id="diagram-loop"
+              class="diagram"
+              role="img"
+              aria-label="Flowchart showing the IRL loop from plan edits to execution to outputs to git diffs and commits"
+            ></div>
+            <figcaption>
+              <strong>Fig 1.</strong> The IRL loop. You edit the plan (a document),
+              run the assistant, produce artifacts in stable locations, review the
+              diffs, then commit what you intended. The final commit becomes a
+              durable checkpoint you can return to, reproduce, or revert.
+            </figcaption>
+          </figure>
+
+          <div class="toy" aria-label="Interactive toy: animate the loop">
+            <button id="toy-run" type="button">Run The Loop (Toy)</button>
+            <ol id="toy-steps">
+              <li>Edit <span class="inline-code">main-plan.md</span> (intent)</li>
+              <li>Execute steps (automation)</li>
+              <li>Write artifacts (evidence)</li>
+              <li>Review diffs (audit)</li>
+              <li>Commit (checkpoint)</li>
+              <li>Repeat (iterate)</li>
+            </ol>
+            <p class="aside" style="margin-bottom: 0">
+              This is the whole philosophy in miniature: intent, evidence, audit,
+              checkpoint.
+            </p>
           </div>
-
-          <details>
-            <summary>Why the word “idempotent”?</summary>
-            <p>
-              In IRL, you want reruns to be safe. If you re-execute a step, it
-              should not duplicate outputs, corrupt state, or create mystery
-              changes. Determinism beats heroics.
-            </p>
-          </details>
         </section>
 
-        <section class="card" id="pipeline">
-          <h2>The IRL Pipeline</h2>
-          <p class="lede">
-            The “loop” is small on purpose: intent lives in a plan; evidence
-            lives in files; diffs tell you what changed.
-          </p>
-
-          <div id="diagram-pipeline" class="diagram" aria-label="Pipeline diagram"></div>
-          <p class="caption">
-            <strong>Fig 1.</strong> The IRL loop: you edit a plan (intent), the AI
-            runs it (execution), artifacts land in outputs (evidence), then you
-            review diffs and commit (audit trail). Repeat until the plan is done.
-          </p>
-
-          <details>
-            <summary>What makes this different from “just write notes”?</summary>
-            <p>
-              The plan is executable intent. It’s not a diary. A good IRL plan
-              is concrete, testable, and scoped to produce artifacts you can
-              inspect.
-            </p>
-          </details>
-        </section>
-
-        <section class="card" id="anatomy">
+        <section id="anatomy">
           <h2>Project Anatomy</h2>
-          <p class="lede">
-            A project is a small filesystem contract. Once you know where things
-            go, collaboration gets easier.
+          <p class="subhead">
+            A project layout doesn’t guarantee good work, but it makes good work
+            easier to recognize.
           </p>
 
-          <div id="diagram-folders" class="diagram" aria-label="Folder layout diagram"></div>
-          <p class="caption">
-            <strong>Fig 2.</strong> A typical IRL project layout: the plan file
-            stays small and readable; raw inputs and derived data are separated;
-            outputs are versioned artifacts; logs keep the loop honest.
+          <p>
+            If you’ve ever inherited a research folder full of files named
+            <span class="inline-code">final_v7_REAL_FINAL2.xlsx</span>, you already
+            understand why a simple contract helps. IRL prefers separation:
+            inputs and derived data should not mix. Outputs should be artifacts,
+            not scratch pads. Logs should exist so you can see what ran.
           </p>
+
+          <figure class="figure">
+            <div
+              id="diagram-anatomy"
+              class="diagram"
+              role="img"
+              aria-label="Flowchart showing an IRL project folder structure and what each folder is for"
+            ></div>
+            <figcaption>
+              <strong>Fig 2.</strong> A typical IRL project layout. The plan is the
+              control surface. Raw and derived data are separated to avoid silent
+              contamination. Outputs contain reviewable artifacts (reports, figures,
+              tables). Logs capture what executed and when.
+            </figcaption>
+          </figure>
 
           <pre><code>my-project/
-├── main-plan.md    # your control surface
+├── main-plan.md
 ├── 02-data/
 │   ├── raw/
 │   └── derived/
@@ -441,121 +402,180 @@
 └── 04-logs/</code></pre>
         </section>
 
-        <section class="card" id="rules">
-          <h2>Rules That Make IRL Work</h2>
-          <p class="lede">
-            The “secret sauce” is boring engineering discipline applied to AI:
-            scope, idempotency, and review.
+        <section id="sequence">
+          <h2>A Single Run (Sequence)</h2>
+          <p class="subhead">
+            The loop looks simple in a flowchart. Here’s what a single run feels
+            like when you’re actually doing it.
           </p>
 
-          <div class="grid2">
-            <div class="callout">
-              <strong>Plan owns intent</strong>
-              <p>
-                If you want different behavior, edit the plan. Don’t rely on the
-                assistant to remember “how we usually do it.”
-              </p>
-            </div>
-            <div class="callout">
-              <strong>Artifacts over prose</strong>
-              <p>
-                Prefer outputs you can inspect: HTML reports, CSVs, diagrams,
-                scripts, tests. Make the work legible.
-              </p>
-            </div>
-            <div class="callout">
-              <strong>Idempotency by default</strong>
-              <p>
-                Rerun-safe steps. Use stable filenames. Detect and reuse prior
-                outputs. Avoid “append forever.”
-              </p>
-            </div>
-            <div class="callout">
-              <strong>Diffs are the truth</strong>
-              <p>
-                Before you trust results, look at what changed. If it can’t be
-                diffed, it’s hard to audit.
-              </p>
-            </div>
-          </div>
+          <p>
+            When you execute an IRL step, you want a predictable interaction:
+            the plan points to inputs, the assistant reads those inputs, it writes
+            outputs to specific paths, and it does not quietly mutate unrelated
+            files. If a step needs to update state, it should do it explicitly
+            and in the open, so git can show you.
+          </p>
 
-          <details>
-            <summary>A small template for writing better plan steps</summary>
-            <pre><code>## Task: [short name]
+          <figure class="figure">
+            <div
+              id="diagram-sequence"
+              class="diagram"
+              role="img"
+              aria-label="Sequence diagram of a single IRL run: user edits plan, agent reads plan and inputs, writes outputs, user reviews diffs and commits"
+            ></div>
+            <figcaption>
+              <strong>Fig 3.</strong> A single IRL run. The plan file drives what
+              gets read and written. Outputs land in stable locations. Review
+              happens through diffs (what changed, exactly), and commits become
+              checkpoints you can reproduce.
+            </figcaption>
+          </figure>
 
-- Input(s): [files, links, assumptions]
-- Output(s): [exact paths]
-- Constraints: [idempotency rules]
-- Done when: [verifiable checks]</code></pre>
-          </details>
+          <h3>What “Good” Feels Like</h3>
+          <p>
+            A good run is boring: it changes the files you expected, produces the
+            artifacts you asked for, and leaves everything else untouched. The
+            boring part is the point. Once runs are boring, collaboration becomes
+            easier: teammates can trust the structure, review diffs, and rerun
+            steps without fear.
+          </p>
         </section>
 
-        <section class="card" id="cli">
-          <h2>CLI Commands (IRL Tooling)</h2>
-          <p class="lede">
-            IRL usually comes with a small CLI to scaffold projects and check
-            your environment.
+        <section id="idempotency">
+          <h2>Idempotency (The Boring Part)</h2>
+          <p class="subhead">
+            The fastest way to lose trust is to rerun a step and get mystery
+            changes. Idempotency is how you avoid that.
           </p>
 
-          <table class="table" role="table" aria-label="IRL commands">
-            <thead>
-              <tr>
-                <th>Command</th>
-                <th>What it does</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><code>irl init "purpose"</code></td>
-                <td>Create a new project scaffold (plan + folders).</td>
-              </tr>
-              <tr>
-                <td><code>irl templates</code></td>
-                <td>List available templates.</td>
-              </tr>
-              <tr>
-                <td><code>irl update</code></td>
-                <td>Refresh templates from the template repository.</td>
-              </tr>
-              <tr>
-                <td><code>irl doctor</code></td>
-                <td>Check environment and tool availability.</td>
-              </tr>
-            </tbody>
-          </table>
+          <p>
+            In practice, “idempotent” means: if you execute the same step twice,
+            the second run should either do nothing or produce identical outputs.
+            That requires a few habits: stable filenames, explicit output paths,
+            and checks before overwriting. It also means avoiding “append forever”
+            logs in places where you want clean diffs.
+          </p>
 
-          <details>
-            <summary>Example loop (what a “good” iteration looks like)</summary>
-            <pre><code>1) Edit main-plan.md (tight scope)
-2) Run the agent
-3) Review diffs in 02-data/ and 03-outputs/
-4) Commit only intended changes
-5) Repeat</code></pre>
-          </details>
+          <figure class="figure">
+            <div
+              id="diagram-idempotency"
+              class="diagram"
+              role="img"
+              aria-label="Flowchart showing an idempotent step: check for existing outputs, validate, reuse or regenerate deterministically"
+            ></div>
+            <figcaption>
+              <strong>Fig 4.</strong> An idempotent step. Before doing expensive
+              work, check whether the expected outputs already exist. If they do,
+              validate and reuse them. If they’re missing or invalid, regenerate
+              deterministically and write to the same stable path.
+            </figcaption>
+          </figure>
+
+          <p class="aside">
+            If you can’t make a step perfectly idempotent, the fallback is
+            explicit versioning: write to a timestamped path and record the link
+            in the plan, so reruns are still legible.
+          </p>
+        </section>
+
+        <section id="review">
+          <h2>Review, Commit, Repeat</h2>
+          <p class="subhead">
+            The loop only works if “review” is real. Diffs are where reality
+            lives.
+          </p>
+
+          <p>
+            A commit in IRL isn’t just “save progress.” It’s a checkpoint with a
+            reason. After execution, you review what changed and decide whether it
+            matches the plan’s intent. If you can’t explain a change, it doesn’t
+            get committed.
+          </p>
+
+          <figure class="figure">
+            <div
+              id="diagram-state"
+              class="diagram"
+              role="img"
+              aria-label="State diagram for an IRL iteration: draft plan, execute, review diffs, commit or revise plan, repeat"
+            ></div>
+            <figcaption>
+              <strong>Fig 5.</strong> The iteration state machine. Most of the work
+              is “draft plan” and “review diffs.” Execution is a short, bounded
+              phase. If review fails, you revise the plan and rerun. If it passes,
+              you commit and move on.
+            </figcaption>
+          </figure>
+
+          <h3>A Minimal Review Checklist</h3>
+          <pre><code># before execution
+git status --porcelain
+
+# after execution
+git diff
+git diff --stat
+
+# only then
+git add -A
+git commit -m "..."</code></pre>
+        </section>
+
+        <section id="remote">
+          <h2>Remote Testing (ZeroTier)</h2>
+          <p class="subhead">
+            Sometimes you want to check the artifact from another machine (or
+            show it to a reviewer) without deploying anything.
+          </p>
+
+          <p>
+            This explainer site is a static artifact. You can serve it locally and
+            access it over a shared network (LAN or ZeroTier) by pointing a browser
+            at your machine’s IP and port.
+          </p>
+
+          <pre><code># from this repo
+make -C 03-outputs/irl-explainer-site serve PORT=8765
+
+# find likely IPs
+make -C 03-outputs/irl-explainer-site ips
+
+# if you use ZeroTier
+make -C 03-outputs/irl-explainer-site zt</code></pre>
         </section>
       </main>
 
       <footer>
-        Generated as an IRL artifact: <code>03-outputs/irl-explainer-site/index.html</code>
+        Diagrams render client-side via <span class="inline-code">beautiful-mermaid</span>.
+        If the CDN is blocked, diagram containers will remain empty.
       </footer>
     </div>
 
     <script>
       (function () {
+        const theme = {
+          bg: "#ffffff",
+          fg: "#111827",
+          accent: "#111827",
+          muted: "#6b7280",
+          surface: "#ffffff",
+          border: "#e5e7eb",
+        };
+
         const diagrams = {
-          pipeline:
+          loop:
             "flowchart LR\n" +
-            "  A[[Edit main-plan.md]] --> B[AI executes steps]\n" +
+            "  A>main-plan.md] --> B[Execute steps]\n" +
             "  B --> C[(02-data)]\n" +
             "  B --> D[(03-outputs)]\n" +
             "  C --> E[Review diffs]\n" +
             "  D --> E\n" +
-            "  E --> F[[Commit]]\n" +
+            "  E --> F([Commit])\n" +
             "  F --> A\n",
-          folders:
+          anatomy:
             "flowchart TB\n" +
-            "  subgraph P[IRL Project]\n" +
-            "    PLAN[[main-plan.md]]\n" +
+            "  subgraph P[IRL project]\n" +
+            "    PLAN>main-plan.md]\n" +
             "    D2[(02-data)]\n" +
             "    O3[(03-outputs)]\n" +
             "    L4[(04-logs)]\n" +
@@ -563,39 +583,61 @@
             "  PLAN --> D2\n" +
             "  PLAN --> O3\n" +
             "  PLAN --> L4\n",
+          sequence:
+            "sequenceDiagram\n" +
+            "  participant U as User\n" +
+            "  participant P as Plan (main-plan.md)\n" +
+            "  participant A as Assistant\n" +
+            "  participant FS as Filesystem\n" +
+            "  participant G as Git\n" +
+            "  U->>P: Edit intent + constraints\n" +
+            "  U->>A: Execute the plan\n" +
+            "  A->>P: Read instructions\n" +
+            "  A->>FS: Read inputs\n" +
+            "  A->>FS: Write outputs + logs\n" +
+            "  U->>G: Review diffs\n" +
+            "  U->>G: Commit checkpoint\n",
+          idempotency:
+            "flowchart TB\n" +
+            "  S([Start step]) --> O{Outputs exist?}\n" +
+            "  O -- Yes --> V{Validate outputs}\n" +
+            "  V -- OK --> R[Reuse outputs]\n" +
+            "  V -- Bad --> G[Regenerate]\n" +
+            "  O -- No --> G\n" +
+            "  G --> W[Write to stable paths]\n" +
+            "  W --> E([End])\n" +
+            "  R --> E\n",
+          state:
+            "stateDiagram-v2\n" +
+            "  [*] --> DraftPlan\n" +
+            "  DraftPlan --> Execute: run assistant\n" +
+            "  Execute --> ReviewDiffs\n" +
+            "  ReviewDiffs --> Commit: changes match intent\n" +
+            "  ReviewDiffs --> DraftPlan: revise plan\n" +
+            "  Commit --> DraftPlan: next iteration\n",
         };
 
-        // Light theme that matches the page palette.
-        const theme = {
-          bg: "#ffffff",
-          fg: "#0f172a",
-          accent: "#0b5d54",
-          muted: "#475569",
-          surface: "#f8fafc",
-          border: "#cbd5e1",
-        };
+        async function render(id, code) {
+          const el = document.getElementById(id);
+          if (!el) return;
+          try {
+            el.innerHTML = await window.beautifulMermaid.renderMermaid(code, theme);
+          } catch (e) {
+            el.innerHTML =
+              '<pre style="white-space:pre-wrap;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:12px;color:#991b1b;">' +
+              "Diagram failed to render. Mermaid source:\\n\\n" +
+              code.replace(/</g, "&lt;") +
+              "</pre>";
+          }
+        }
 
         function renderWhenReady() {
           if (!window.beautifulMermaid) return false;
-
-          const { renderMermaid } = window.beautifulMermaid;
-
-          async function render(id, code) {
-            const el = document.getElementById(id);
-            if (!el) return;
-            try {
-              el.innerHTML = await renderMermaid(code, theme);
-            } catch (e) {
-              el.innerHTML =
-                '<pre style="white-space:pre-wrap;color:#b91c1c;background:rgba(255,255,255,0.7);border:1px solid rgba(15,23,42,0.12);padding:12px;border-radius:16px;">' +
-                "Diagram failed to render. Mermaid source:\\n\\n" +
-                code.replace(/</g, "&lt;") +
-                "</pre>";
-            }
-          }
-
-          render("diagram-pipeline", diagrams.pipeline);
-          render("diagram-folders", diagrams.folders);
+          render("diagram-loop", diagrams.loop);
+          render("diagram-anatomy", diagrams.anatomy);
+          render("diagram-sequence", diagrams.sequence);
+          render("diagram-idempotency", diagrams.idempotency);
+          render("diagram-state", diagrams.state);
           return true;
         }
 
@@ -604,6 +646,23 @@
           tries++;
           if (renderWhenReady() || tries > 80) clearInterval(timer);
         }, 100);
+
+        // Simple interactive toy: highlight steps in order.
+        const btn = document.getElementById("toy-run");
+        const steps = Array.from(document.querySelectorAll("#toy-steps li"));
+        if (btn && steps.length) {
+          btn.addEventListener("click", async function () {
+            btn.disabled = true;
+            for (let i = 0; i < steps.length; i++) {
+              steps.forEach((x) => x.classList.remove("active"));
+              steps[i].classList.add("active");
+              await new Promise((r) => setTimeout(r, 550));
+            }
+            await new Promise((r) => setTimeout(r, 350));
+            steps.forEach((x) => x.classList.remove("active"));
+            btn.disabled = false;
+          });
+        }
       })();
     </script>
   </body>
