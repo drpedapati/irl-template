@@ -27,6 +27,7 @@ Install Explainer Skill: https://github.com/henrybloomingdale/explainer-site-ski
 3. use the explainer skill to draft a site explaining IRL
 
 locally serve the website so I can test it.
+add makefile in website dir for easy management
 
 ### One-Time Instructions — Tasks that should only execute once
 
