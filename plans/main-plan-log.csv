@@ -1,3 +1,4 @@
 date,change_summary,git_hash
 2026-02-08,Executed instruction loop: drafted IRL explainer site and added loop logs,c157e9b
 2026-02-08,Committed plan + artifacts to keep everything in this monorepo,187b982
+2026-02-08,Added Makefile for explainer site and validated local serve with make smoke,d0b0241
