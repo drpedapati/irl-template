@@ -54,6 +54,8 @@ Think about the difference between cooking from memory and cooking from a recipe
 IRL is a recipe for AI-assisted work. You write a plan file with your inputs, assumptions, and what the output should be. The AI follows the plan and produces files you can actually inspect: a report, a dataset, a diagram. You start small and layer complexity one step at a time. "Idempotent" just means: same recipe, same ingredients, same dish. You can rerun any step, add to it, and know the foundation hasn't shifted underneath you.
 The design plays to what each side is good at. Humans decide what matters, judge quality, notice when something is off. AI processes data, generates drafts, follows instructions without getting tired. But AI has no memory of why it did something last week, and humans lose track of assumptions fast. The plan file sits in the middle. It gives you a place to think clearly about what you want and gives the AI stable instructions that don't depend on anyone's memory. The files that come out become the shared record that holds both sides honest.
 
+revision: I don't know the right way of saying it, but I want to basically emphasize that this is worth learning because you're learning the thing that builds all the other things.
+
 New Task: 
 I want to experiment with design a bit. Make a separate page where I can build and isolate some toys. I want to create a toy that generlaly explains the concept of idempotent. Show contrast with a non-idempotent.
 revision: see example. I love these beautiful visual animations. what you have done is very concrete, and not elegant and taking advantage of the technology.
