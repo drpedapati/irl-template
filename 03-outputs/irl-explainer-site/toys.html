@@ -799,14 +799,14 @@
 
       function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
 
-      /* The plan content */
-      var planText = "## Task: Summarize ERP data\n\n- Input:  02-data/raw/erp-components.csv\n- Output: 03-outputs/summary.html\n- Done:   Table of means by group";
+      /* The plan content — based on the actual IRL Basic Template */
+      var planText = "\u2705 Before Each Loop\n- Version control: clean tree\n- Script designed to be idempotent\n\n\ud83d\udd01 Instruction Loop\n1. Read 02-data/raw/survey.csv\n2. Produce summary \u2192 03-outputs/report.html\n3. Log what changed";
 
-      /* The output content */
-      var outputText = "<h3>ERP Summary</h3>\n\nGroup    N    P300 mean   Latency\n─────    ──   ─────────   ───────\nALS      24   4.2 \u00B5V      342 ms\nControl  28   6.8 \u00B5V      318 ms\n\np = 0.023 (t-test, two-tailed)";
+      /* The output content — what the AI produces */
+      var outputText = "Survey Report\n\nRespondents:  142\nCompletion:   89%\nKey finding:  Score improved 2.4 pts\n              (p = 0.018, 95% CI [0.8, 4.0])\n\nGenerated from 02-data/raw/survey.csv";
 
       /* The diff content */
-      var diffText = " 03-outputs/summary.html | 12 ++++++++++++\n 1 file changed, 12 insertions(+)";
+      var diffText = " 03-outputs/report.html     | 18 ++++++++++++++++++\n 04-logs/activity.md        |  3 +++\n 2 files changed, 21 insertions(+)";
 
       async function runProcess() {
         if (running) return;
@@ -850,7 +850,7 @@
 
         /* Step 3: Output appears */
         ft.textContent = "Step 3 of 4 \u2014 Output produced";
-        var output = makeDoc("03-outputs/summary.html", AMBER);
+        var output = makeDoc("03-outputs/report.html", AMBER);
         stage.appendChild(output.wrap);
         await sleep(100);
         output.wrap.style.opacity = "1";
