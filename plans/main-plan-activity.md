@@ -33,3 +33,4 @@
 - 2026-02-08 (bea0940): Made loop toy arrows more prominent — path opacity 0.15→0.35, line width 1.5→2px, dash pattern [3,4]→[8,4]; arrowhead size 9→14px, opacity 0.35→0.7; validated both pages serve.
 - 2026-02-08 (b84ab9b): Replaced file rectangles with single growing report document in loop toy — "REPORT v1/v2/v3" card with content lines that grow each cycle, fresh lines highlighted in teal; validated both pages serve.
 - 2026-02-08 (516ecb0): Added accumulating activity hints to loop toy — IRL instruction snippets pop in and persist in canvas margins (human left, AI right), fade in over 600ms, older hints dim progressively, rotate per cycle; validated both pages serve.
+- 2026-02-08 (216ec8c): Updated Toy 2 intro/aside captions to reflect report output and accumulating instruction trail; Toys 1 and 3 captions verified accurate — no changes needed; validated both pages serve.
