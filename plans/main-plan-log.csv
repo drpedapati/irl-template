@@ -10,3 +10,4 @@ date,change_summary,git_hash
 2026-02-08,Updated explainer-site-skill and revalidated explainer site smoke test,a2e4cf2
 2026-02-08,Applied explainer-skill demo patterns (practical commands section) and validated with make smoke,61909a3
 2026-02-08,Refined explainer aesthetics toward sample elegance and validated with make smoke,c5c19a3
+2026-02-08,Applied explainer-skill header design pattern (frosted glass) and validated with make smoke,dae294b
