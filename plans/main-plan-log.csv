@@ -47,3 +47,4 @@ date,change_summary,git_hash
 2026-02-08,Redesigned Toy 8 as split layout with canvas animation (left) and conversation log (right); validated both pages serve,975c7a7
 2026-02-08,Split Getting Started into two paths (plain-text and IRL CLI); draft outline now 13 sections,7787cef
 2026-02-08,Built final combined webpage from outline with real prose across all 13 sections; backed up outline,8c4dbc8
+2026-02-08,Integrated all 8 interactive toys into combined draft page; merged CSS/HTML/JS from toys.html; widened to 860px,4f7247b
