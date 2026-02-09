@@ -43,3 +43,4 @@ date,change_summary,git_hash
 2026-02-08,Added Reset buttons with JS handlers to all 7 toys; validated both pages serve,2d04dc7
 2026-02-08,Created draft.html outline-only combined doc with 10 sections and toy placeholders for review,d9065bf
 2026-02-08,Revised draft outline: empowerment hook and reordered sections (now 11); validated page serves,ad60b3b
+2026-02-08,Added Toy 8 (Review Loop) and integrated expertise theme into draft outline (now 12 sections); validated both pages serve,ce1e0f6
