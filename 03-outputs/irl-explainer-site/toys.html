@@ -468,30 +468,39 @@
       <h2>The Review Loop</h2>
       <p class="intro">
         AI makes mistakes &mdash; so do human assistants. The difference is
-        whether you have a system for catching them. You state your reasoning,
-        review the output, spot issues, clarify, and iterate until you trust
-        the result. Watch three rounds of refinement.
+        whether you have a system for catching them. Watch three rounds of
+        review sharpen the output.
       </p>
 
-      <div class="panel" style="max-width:100%" id="review-panel">
-        <div class="panel-head">
-          <span class="panel-label" style="color:var(--subtle)">You &harr; AI &rarr; Trusted Output</span>
-          <button class="run-btn" id="review-reset" type="button">Reset</button>
-          <button class="run-btn" id="review-btn" type="button">Play</button>
-        </div>
-        <div id="review-stage" style="padding:18px;min-height:260px;border-top:1px solid var(--border);overflow:hidden;font-size:13px;line-height:1.55;position:relative">
-          <!-- Confidence bar -->
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-            <span style="font-family:var(--mono);font-size:11px;color:var(--subtle);white-space:nowrap">Your confidence:</span>
-            <div style="flex:1;height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden">
-              <div id="review-bar" style="height:100%;width:0%;background:#0d9488;border-radius:4px;transition:width 0.8s ease"></div>
-            </div>
-            <span id="review-pct" style="font-family:var(--mono);font-size:11px;color:var(--subtle);min-width:32px;text-align:right">0%</span>
+      <div class="contrast">
+        <!-- Left: animated loop visualization -->
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-label teal">Review Cycle</span>
+            <button class="run-btn" id="review-reset" type="button">Reset</button>
+            <button class="run-btn" id="review-btn" type="button">Play</button>
           </div>
-          <!-- Conversation area -->
-          <div id="review-conv" style="display:flex;flex-direction:column;gap:10px"></div>
+          <div class="canvas-wrap" style="aspect-ratio:1/1"><canvas id="cv-review"></canvas></div>
+          <div class="panel-foot neutral" id="ft-review-left">Your expertise drives every correction.</div>
         </div>
-        <div class="panel-foot neutral" id="ft-review">Mistakes are expected. The loop catches them.</div>
+        <!-- Right: conversation log -->
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-label" style="color:var(--subtle)">Conversation</span>
+          </div>
+          <div id="review-stage" style="padding:14px;min-height:280px;border-top:1px solid var(--border);overflow-y:auto;max-height:420px;font-size:12px;line-height:1.5;position:relative">
+            <!-- Confidence bar -->
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+              <span style="font-family:var(--mono);font-size:10px;color:var(--subtle);white-space:nowrap">Confidence</span>
+              <div style="flex:1;height:6px;background:#f3f4f6;border-radius:3px;overflow:hidden">
+                <div id="review-bar" style="height:100%;width:0%;background:#0d9488;border-radius:3px;transition:width 0.8s ease"></div>
+              </div>
+              <span id="review-pct" style="font-family:var(--mono);font-size:10px;color:var(--subtle);min-width:28px;text-align:right">0%</span>
+            </div>
+            <div id="review-conv" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+          <div class="panel-foot neutral" id="ft-review">Mistakes are expected. The loop catches them.</div>
+        </div>
       </div>
 
       <p class="aside">
@@ -1926,71 +1935,307 @@
        Toy 8 — The Review Loop (trust-building iteration)
        ══════════════════════════════════════════════════════════ */
     (function () {
+      var cv = document.getElementById("cv-review");
       var conv = document.getElementById("review-conv");
       var bar = document.getElementById("review-bar");
       var pct = document.getElementById("review-pct");
       var btn = document.getElementById("review-btn");
-      var ft = document.getElementById("ft-review");
+      var ftL = document.getElementById("ft-review-left");
+      var ftR = document.getElementById("ft-review");
       var running = false;
 
       var TEAL = "#0d9488";
-      var AMBER = "#92400e";
-      var BLUE = "#1d4ed8";
+      var AMBER_HEX = "#d97706";
+      var AMBER_DARK = "#92400e";
+      var GREEN = "#16a34a";
 
+      /* ── Canvas setup ── */
+      var dpr = window.devicePixelRatio || 1;
+      function fit() {
+        var r = cv.parentElement.getBoundingClientRect();
+        cv.width = r.width * dpr; cv.height = r.height * dpr;
+      }
+      fit(); window.addEventListener("resize", function () { fit(); drawStatic(lastRound); });
+
+      function C() { return cv.getContext("2d"); }
+      function W() { return cv.width; }
+      function H() { return cv.height; }
+
+      /* ── Layout: two nodes (YOU / AI) with a circular arrow loop ── */
+      var lastRound = -1;
+
+      function nodePos() {
+        var w = W(), h = H(), s = dpr;
+        var cx = w / 2, cy = h * 0.38;
+        var spread = Math.min(w * 0.28, 120 * s);
+        return {
+          you: { x: cx - spread, y: cy },
+          ai:  { x: cx + spread, y: cy },
+          cx: cx, cy: cy, spread: spread, s: s
+        };
+      }
+
+      function drawNode(c, x, y, radius, label, color, glow) {
+        var s = dpr;
+        c.save();
+        if (glow) {
+          c.shadowColor = color;
+          c.shadowBlur = 18 * s;
+        }
+        c.beginPath();
+        c.arc(x, y, radius, 0, Math.PI * 2);
+        c.fillStyle = color + "18";
+        c.fill();
+        c.lineWidth = 2.2 * s;
+        c.strokeStyle = color;
+        c.stroke();
+        c.restore();
+        c.font = "600 " + (13 * s) + "px " + getComputedStyle(document.body).fontFamily;
+        c.textAlign = "center";
+        c.textBaseline = "middle";
+        c.fillStyle = color;
+        c.fillText(label, x, y);
+      }
+
+      function drawArrow(c, x1, y1, x2, y2, color, opacity, progress) {
+        var s = dpr;
+        /* Curved path between nodes */
+        var mx = (x1 + x2) / 2;
+        var my = Math.min(y1, y2) - 40 * s;
+        c.save();
+        c.globalAlpha = opacity;
+        c.strokeStyle = color;
+        c.lineWidth = 2 * s;
+        c.setLineDash([]);
+        c.beginPath();
+        c.moveTo(x1, y1);
+        c.quadraticCurveTo(mx, my, x2, y2);
+        c.stroke();
+
+        /* Arrowhead at endpoint */
+        var t = 0.98;
+        var px = (1-t)*(1-t)*x1 + 2*(1-t)*t*mx + t*t*x2;
+        var py = (1-t)*(1-t)*y1 + 2*(1-t)*t*my + t*t*y2;
+        var angle = Math.atan2(y2 - py, x2 - px);
+        var hs = 10 * s;
+        c.beginPath();
+        c.moveTo(x2, y2);
+        c.lineTo(x2 - hs * Math.cos(angle - 0.35), y2 - hs * Math.sin(angle - 0.35));
+        c.lineTo(x2 - hs * Math.cos(angle + 0.35), y2 - hs * Math.sin(angle + 0.35));
+        c.closePath();
+        c.fillStyle = color;
+        c.fill();
+        c.restore();
+
+        /* Traveling particle */
+        if (typeof progress === "number" && progress >= 0) {
+          var pt = progress;
+          var ppx = (1-pt)*(1-pt)*x1 + 2*(1-pt)*pt*mx + pt*pt*x2;
+          var ppy = (1-pt)*(1-pt)*y1 + 2*(1-pt)*pt*my + pt*pt*y2;
+          c.beginPath();
+          c.arc(ppx, ppy, 4 * s, 0, Math.PI * 2);
+          c.fillStyle = color;
+          c.fill();
+        }
+      }
+
+      function drawReturnArrow(c, x1, y1, x2, y2, color, opacity, progress) {
+        var s = dpr;
+        var mx = (x1 + x2) / 2;
+        var my = Math.max(y1, y2) + 40 * s;
+        c.save();
+        c.globalAlpha = opacity;
+        c.strokeStyle = color;
+        c.lineWidth = 2 * s;
+        c.setLineDash([6 * s, 4 * s]);
+        c.beginPath();
+        c.moveTo(x1, y1);
+        c.quadraticCurveTo(mx, my, x2, y2);
+        c.stroke();
+        c.setLineDash([]);
+
+        var t = 0.98;
+        var px = (1-t)*(1-t)*x1 + 2*(1-t)*t*mx + t*t*x2;
+        var py = (1-t)*(1-t)*y1 + 2*(1-t)*t*my + t*t*y2;
+        var angle = Math.atan2(y2 - py, x2 - px);
+        var hs = 10 * s;
+        c.beginPath();
+        c.moveTo(x2, y2);
+        c.lineTo(x2 - hs * Math.cos(angle - 0.35), y2 - hs * Math.sin(angle - 0.35));
+        c.lineTo(x2 - hs * Math.cos(angle + 0.35), y2 - hs * Math.sin(angle + 0.35));
+        c.closePath();
+        c.fillStyle = color;
+        c.fill();
+        c.restore();
+
+        if (typeof progress === "number" && progress >= 0) {
+          var pt = progress;
+          var ppx = (1-pt)*(1-pt)*x1 + 2*(1-pt)*pt*mx + pt*pt*y2;
+          var ppy = (1-pt)*(1-pt)*y1 + 2*(1-pt)*pt*my + pt*pt*y2;
+          c.beginPath();
+          c.arc(ppx, ppy, 4 * s, 0, Math.PI * 2);
+          c.fillStyle = color;
+          c.fill();
+        }
+      }
+
+      /* Confidence ring drawn around a center point */
+      function drawConfRing(c, cx, cy, pctVal, color) {
+        var s = dpr;
+        var r = Math.min(W(), H()) * 0.14;
+        var startAngle = -Math.PI / 2;
+        var endAngle = startAngle + (Math.PI * 2 * pctVal / 100);
+
+        /* Track */
+        c.beginPath();
+        c.arc(cx, cy, r, 0, Math.PI * 2);
+        c.lineWidth = 6 * s;
+        c.strokeStyle = "#f3f4f6";
+        c.stroke();
+
+        /* Fill arc */
+        if (pctVal > 0) {
+          c.beginPath();
+          c.arc(cx, cy, r, startAngle, endAngle);
+          c.lineWidth = 6 * s;
+          c.strokeStyle = color;
+          c.lineCap = "round";
+          c.stroke();
+          c.lineCap = "butt";
+        }
+
+        /* Center text */
+        c.font = "700 " + (18 * s) + "px " + getComputedStyle(document.body).fontFamily;
+        c.textAlign = "center";
+        c.textBaseline = "middle";
+        c.fillStyle = color;
+        c.fillText(pctVal + "%", cx, cy);
+
+        /* Label below */
+        c.font = (9 * s) + "px " + getComputedStyle(document.body).fontFamily;
+        c.fillStyle = "#9ca3af";
+        c.fillText("CONFIDENCE", cx, cy + r + 16 * s);
+      }
+
+      /* Round indicators */
+      function drawRoundDots(c, round) {
+        var s = dpr;
+        var cx = W() / 2;
+        var y = H() - 22 * s;
+        for (var i = 0; i < 3; i++) {
+          c.beginPath();
+          c.arc(cx + (i - 1) * 18 * s, y, 4 * s, 0, Math.PI * 2);
+          c.fillStyle = i <= round ? TEAL : "#e5e7eb";
+          c.fill();
+        }
+        c.font = (9 * s) + "px " + getComputedStyle(document.body).fontFamily;
+        c.textAlign = "center";
+        c.fillStyle = "#9ca3af";
+        c.fillText("ROUND " + (round + 1) + " OF 3", cx, y - 12 * s);
+      }
+
+      function confColor(val) {
+        if (val >= 80) return GREEN;
+        if (val >= 50) return TEAL;
+        return AMBER_HEX;
+      }
+
+      function drawStatic(round) {
+        var c = C();
+        c.clearRect(0, 0, W(), H());
+        var p = nodePos();
+        var rad = 30 * p.s;
+
+        var youGlow = false, aiGlow = false;
+        if (round >= 0) {
+          drawArrow(c, p.you.x + rad, p.you.y, p.ai.x - rad, p.ai.y, TEAL, 0.3, -1);
+          drawReturnArrow(c, p.ai.x - rad, p.ai.y, p.you.x + rad, p.you.y, AMBER_HEX, 0.25, -1);
+        }
+
+        drawNode(c, p.you.x, p.you.y, rad, "YOU", TEAL, youGlow);
+        drawNode(c, p.ai.x, p.ai.y, rad, "AI", "#6366f1", aiGlow);
+
+        /* Confidence ring at bottom center */
+        var confVal = round < 0 ? 0 : rounds[Math.min(round, rounds.length - 1)].confidence;
+        drawConfRing(c, p.cx, H() * 0.72, confVal, confColor(confVal));
+
+        if (round >= 0) drawRoundDots(c, Math.min(round, 2));
+      }
+
+      /* ── Animation phases per round ── */
+      function ease(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
+
+      function animatePhase(drawFn, ms) {
+        return new Promise(function (resolve) {
+          var start = null;
+          function frame(ts) {
+            if (!start) start = ts;
+            var t = Math.min((ts - start) / ms, 1);
+            drawFn(ease(t));
+            if (t < 1) requestAnimationFrame(frame);
+            else resolve();
+          }
+          requestAnimationFrame(frame);
+        });
+      }
+
+      function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+      /* ── Conversation (right side) ── */
       var rounds = [
         {
-          reasoning: "I need a summary of survey responses grouped by treatment arm with p-values.",
-          output: "Here\u2019s a summary table with means for each group and a t-test result: p = 0.034.",
-          issue: "Wait \u2014 that\u2019s a one-tailed test. My protocol specifies two-tailed.",
-          clarify: "Rerun using two-tailed t-test. Also add confidence intervals.",
+          reasoning: "Summarize survey responses by treatment arm with p-values.",
+          output: "Summary table: means per group, t-test p = 0.034.",
+          issue: "That\u2019s one-tailed. My protocol specifies two-tailed.",
+          clarify: "Rerun with two-tailed t-test and add CIs.",
           confidence: 35,
-          footNote: "Round 1 \u2014 caught a statistical error. Clarifying\u2026"
+          footNote: "Round 1 \u2014 caught a statistical error."
         },
         {
-          reasoning: "Two-tailed test with 95% CI. Also verify the sample sizes match my inclusion criteria.",
-          output: "Two-tailed t-test: p = 0.048, 95% CI [0.12, 4.87]. N = 42 per group after filtering.",
-          issue: "N should be 38 per group \u2014 4 participants were excluded in the last data cleaning step.",
-          clarify: "Re-filter using the updated exclusion list in 02-data/raw/exclusions_v2.csv.",
+          reasoning: "Two-tailed test with 95% CI. Verify sample sizes match inclusion criteria.",
+          output: "Two-tailed p = 0.048, 95% CI [0.12, 4.87]. N = 42/group.",
+          issue: "N should be 38/group \u2014 4 excluded in last cleaning step.",
+          clarify: "Re-filter with updated exclusion list.",
           confidence: 60,
-          footNote: "Round 2 \u2014 caught a data filtering issue. Getting closer\u2026"
+          footNote: "Round 2 \u2014 caught a data filtering issue."
         },
         {
-          reasoning: "Use exclusions_v2.csv, two-tailed test, 95% CI, and add effect size (Cohen\u2019s d).",
-          output: "N = 38/group. Two-tailed p = 0.041, 95% CI [0.08, 4.52], Cohen\u2019s d = 0.47 (medium).",
+          reasoning: "Updated exclusions, two-tailed, 95% CI, add Cohen\u2019s d.",
+          output: "N = 38/group. p = 0.041, CI [0.08, 4.52], d = 0.47.",
           issue: null,
           clarify: null,
           confidence: 95,
-          footNote: "Round 3 \u2014 output matches your expectations. Trusted."
+          footNote: "Round 3 \u2014 output trusted."
         }
       ];
-
-      function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
 
       function bubble(text, who, color) {
         var d = document.createElement("div");
         var isYou = who === "you";
-        d.style.cssText = "padding:8px 12px;border-radius:8px;max-width:88%;opacity:0;transition:opacity 0.4s;" +
+        d.style.cssText = "padding:6px 10px;border-radius:7px;max-width:92%;opacity:0;transition:opacity 0.4s;font-size:11.5px;line-height:1.45;" +
           (isYou
             ? "align-self:flex-start;background:#f0fdfa;border:1px solid #99f6e4"
             : "align-self:flex-end;background:#f8fafc;border:1px solid #e2e8f0");
         var label = document.createElement("div");
-        label.style.cssText = "font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:" + color + ";margin-bottom:3px";
+        label.style.cssText = "font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:" + color + ";margin-bottom:2px";
         label.textContent = isYou ? "YOU" : "AI";
         var body = document.createElement("div");
-        body.style.cssText = "font-size:12.5px;color:#374151;line-height:1.5";
+        body.style.color = "#374151";
         body.textContent = text;
         d.appendChild(label);
         d.appendChild(body);
         conv.appendChild(d);
         void d.offsetHeight;
         d.style.opacity = "1";
+        /* Auto-scroll */
+        d.parentElement.parentElement.scrollTop = d.parentElement.parentElement.scrollHeight;
         return d;
       }
 
       function issueTag(text) {
         var d = document.createElement("div");
-        d.style.cssText = "padding:6px 10px;border-radius:6px;background:#fef3c7;border:1px solid #fcd34d;font-size:11.5px;color:" + AMBER + ";align-self:flex-start;opacity:0;transition:opacity 0.4s";
-        d.innerHTML = "\u26a0\ufe0f " + text;
+        d.style.cssText = "padding:4px 8px;border-radius:5px;background:#fef3c7;border:1px solid #fcd34d;font-size:10.5px;color:" + AMBER_DARK + ";align-self:flex-start;opacity:0;transition:opacity 0.4s";
+        d.innerHTML = "\u26a0 " + text;
         conv.appendChild(d);
         void d.offsetHeight;
         d.style.opacity = "1";
@@ -2000,15 +2245,10 @@
       function setConfidence(val) {
         bar.style.width = val + "%";
         pct.textContent = val + "%";
-        if (val >= 80) {
-          bar.style.background = "#16a34a";
-        } else if (val >= 50) {
-          bar.style.background = TEAL;
-        } else {
-          bar.style.background = "#f59e0b";
-        }
+        bar.style.background = confColor(val);
       }
 
+      /* ── Main review sequence ── */
       async function runReview() {
         if (running) return;
         running = true;
@@ -2016,56 +2256,98 @@
         btn.textContent = "Playing\u2026";
         conv.innerHTML = "";
         setConfidence(0);
-        ft.className = "panel-foot neutral";
-        ft.textContent = "Starting review cycle\u2026";
+        lastRound = -1;
+        drawStatic(-1);
+        ftL.className = "panel-foot neutral";
+        ftL.textContent = "Starting review cycle\u2026";
+        ftR.className = "panel-foot neutral";
+        ftR.textContent = "Watch the conversation unfold.";
 
         for (var i = 0; i < rounds.length; i++) {
           var r = rounds[i];
-          await sleep(600);
+          lastRound = i;
+          await sleep(500);
 
-          /* Your reasoning */
+          /* Phase 1: YOU sends reasoning → animate particle YOU→AI */
           bubble(r.reasoning, "you", TEAL);
-          await sleep(800);
+          await animatePhase(function (t) {
+            var c = C(); c.clearRect(0, 0, W(), H());
+            var p = nodePos(); var rad = 30 * p.s;
+            drawArrow(c, p.you.x + rad, p.you.y, p.ai.x - rad, p.ai.y, TEAL, 0.5, t);
+            if (i > 0) drawReturnArrow(c, p.ai.x - rad, p.ai.y, p.you.x + rad, p.you.y, AMBER_HEX, 0.2, -1);
+            drawNode(c, p.you.x, p.you.y, rad, "YOU", TEAL, true);
+            drawNode(c, p.ai.x, p.ai.y, rad, "AI", "#6366f1", false);
+            var cv = i > 0 ? rounds[i-1].confidence : 0;
+            drawConfRing(c, p.cx, H() * 0.72, cv, confColor(cv));
+            drawRoundDots(c, i);
+          }, 700);
 
-          /* AI output */
-          bubble(r.output, "ai", BLUE);
-          ft.textContent = r.footNote;
-          await sleep(1000);
-
-          if (r.issue) {
-            /* You spot an issue */
-            issueTag(r.issue);
-            await sleep(800);
-
-            /* You clarify */
-            bubble(r.clarify, "you", TEAL);
-            await sleep(600);
-          }
-
-          /* Confidence rises */
-          setConfidence(r.confidence);
           await sleep(400);
 
-          /* Divider between rounds (except last) */
+          /* Phase 2: AI responds → animate particle AI→YOU */
+          bubble(r.output, "ai", "#6366f1");
+          ftR.textContent = r.footNote;
+          await animatePhase(function (t) {
+            var c = C(); c.clearRect(0, 0, W(), H());
+            var p = nodePos(); var rad = 30 * p.s;
+            drawArrow(c, p.you.x + rad, p.you.y, p.ai.x - rad, p.ai.y, TEAL, 0.3, -1);
+            drawReturnArrow(c, p.ai.x - rad, p.ai.y, p.you.x + rad, p.you.y, AMBER_HEX, 0.45, t);
+            drawNode(c, p.you.x, p.you.y, rad, "YOU", TEAL, false);
+            drawNode(c, p.ai.x, p.ai.y, rad, "AI", "#6366f1", true);
+            var cv = i > 0 ? rounds[i-1].confidence : 0;
+            drawConfRing(c, p.cx, H() * 0.72, cv, confColor(cv));
+            drawRoundDots(c, i);
+          }, 700);
+
+          await sleep(400);
+
+          if (r.issue) {
+            issueTag(r.issue);
+            await sleep(600);
+            bubble(r.clarify, "you", TEAL);
+            await sleep(400);
+          }
+
+          /* Phase 3: Confidence rises with animation */
+          var prevConf = i > 0 ? rounds[i-1].confidence : 0;
+          var targetConf = r.confidence;
+          await animatePhase(function (t) {
+            var c = C(); c.clearRect(0, 0, W(), H());
+            var p = nodePos(); var rad = 30 * p.s;
+            drawArrow(c, p.you.x + rad, p.you.y, p.ai.x - rad, p.ai.y, TEAL, 0.3, -1);
+            drawReturnArrow(c, p.ai.x - rad, p.ai.y, p.you.x + rad, p.you.y, AMBER_HEX, 0.25, -1);
+            drawNode(c, p.you.x, p.you.y, rad, "YOU", TEAL, false);
+            drawNode(c, p.ai.x, p.ai.y, rad, "AI", "#6366f1", false);
+            var cv = Math.round(prevConf + (targetConf - prevConf) * t);
+            drawConfRing(c, p.cx, H() * 0.72, cv, confColor(cv));
+            drawRoundDots(c, i);
+          }, 600);
+
+          setConfidence(r.confidence);
+          await sleep(300);
+
           if (i < rounds.length - 1) {
             var hr = document.createElement("div");
-            hr.style.cssText = "border-top:1px dashed #e5e7eb;margin:4px 0;opacity:0;transition:opacity 0.3s";
+            hr.style.cssText = "border-top:1px dashed #e5e7eb;margin:3px 0;opacity:0;transition:opacity 0.3s";
             conv.appendChild(hr);
             void hr.offsetHeight;
             hr.style.opacity = "1";
-            await sleep(300);
+            await sleep(200);
           }
         }
 
         await sleep(400);
-        ft.className = "panel-foot teal";
-        ft.textContent = "Three rounds \u2014 two errors caught, output trusted. Your expertise drove every correction.";
+        ftL.className = "panel-foot teal";
+        ftL.textContent = "Three rounds. Two errors caught. Output trusted.";
+        ftR.className = "panel-foot teal";
+        ftR.textContent = "Your expertise drove every correction.";
         running = false;
         btn.disabled = false;
         btn.textContent = "Replay";
       }
 
       /* Auto-play on load */
+      drawStatic(-1);
       setTimeout(runReview, 1400);
       btn.addEventListener("click", function () { if (!running) runReview(); });
 
@@ -2073,10 +2355,14 @@
         if (running) return;
         conv.innerHTML = "";
         setConfidence(0);
+        lastRound = -1;
+        drawStatic(-1);
         btn.textContent = "Play";
         btn.disabled = false;
-        ft.textContent = "Mistakes are expected. The loop catches them.";
-        ft.className = "panel-foot neutral";
+        ftL.textContent = "Your expertise drives every correction.";
+        ftL.className = "panel-foot neutral";
+        ftR.textContent = "Mistakes are expected. The loop catches them.";
+        ftR.className = "panel-foot neutral";
       });
     })();
     </script>

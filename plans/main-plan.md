@@ -98,6 +98,10 @@ revision: Don't you think for the combined document that people really need a ho
 
 revision: should emphasize early that since this isn't about the "features" of the AI or the software or coding, this is about your expertise, judgement, and reasoning and the goal is to review the outputs. No different than if you were to have a human assistant. The key loop is writing out reasoning and critical review of the outputs. Could you integrate this into the outline but also draft in the toys a new toy that can capture this well. People get concerned about AI making mistakes, but the key like human assistant make mistakes, the key is runderstanding your reasoning and reviewing the outputs, then looping back and asking for clarification, running verification, restating your reasoning, and lopping over an dover till you trust and like the output.
 
+Revision: Toy. Almost perfect but like the other toys i like to have a right and left side and an animation of this review process loop. beautiful and elegant.
+
+Next: Good work on the toy. Let's get back to refining the combined outlines.
+
 ### One-Time Instructions — Tasks that should only execute once
 
 <!-- 👤 AUTHOR AREA: Add one-time tasks below -->
