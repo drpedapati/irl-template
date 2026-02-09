@@ -148,6 +148,9 @@ New Task: Found a critical point: there is no lead-in prose or friendly invitati
 New Task: I want a new page (you can copy the current draft.html as a template). replace content with an example task of a literature review using the pubmed skill and docx skill. I want progressive teaching starting with the basic template. Build it for the new user both to using an AI and terminal interfaces. TO do this possible, you need a new parameterized toy that is the IDE framework (vs code mockup that you built) and you can use it with animation through out the tutorial to walk people through. If you need to test real outputs you can do that.
 revision: base it on the real basic template and add the pubmed and docx skill. learn about them so you can make a complete tutorial. We run the AI by opening a terminal AI and running the command "review main-plan.md for any revisions and execute" over and over.
 
+revision: The lit-review tutorial is solid but could benefit from a link in draft.html
+   (the main explainer page) to help readers discover it.
+
 ### One-Time Instructions — Tasks that should only execute once
 
 <!-- 👤 AUTHOR AREA: Add one-time tasks below -->
