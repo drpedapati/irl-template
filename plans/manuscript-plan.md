@@ -21,6 +21,7 @@ Install Quarto Skill: https://github.com/posit-dev/skills/tree/main/quarto/autho
 
 <!-- 👤 AUTHOR AREA: Define each loop's work below -->
 review https://www.irloop.org/ documentation and then review the manuscript and look for areas to enhance the manuscript with content to be useful.
+combine and generate a new docx for me to review
 
 ### One-Time Instructions — Tasks that should only execute once
 

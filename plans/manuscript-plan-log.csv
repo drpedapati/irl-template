@@ -1,2 +1,3 @@
 date,change_summary,git_hash
 2026-02-09,Converted manuscript DOCX to Markdown and drafted irloop.org-based enhancement blocks,dd6a2c8
+2026-02-09,Combined manuscript markdown + enhancement blocks and generated review DOCX,f3ab627
