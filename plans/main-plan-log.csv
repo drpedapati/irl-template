@@ -40,3 +40,4 @@ date,change_summary,git_hash
 2026-02-08,Fixed workspace toy proportions for realistic IDE look; validated both pages serve,7ea31e8
 2026-02-08,Added meta-skill lede paragraph to index.html; validated with make smoke,36d249f
 2026-02-08,Added Toy 7 (One Pattern Many Projects) morphing animation with three use cases; validated both pages serve,9478d05
+2026-02-08,Added Reset buttons with JS handlers to all 7 toys; validated both pages serve,2d04dc7

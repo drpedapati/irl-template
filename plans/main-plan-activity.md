@@ -41,3 +41,4 @@
 - 2026-02-08 (7ea31e8): Fixed workspace toy proportions — taller editor area (280→360px), proper terminal height (56→80px) for realistic IDE look; validated both pages serve.
 - 2026-02-08 (36d249f): Added fifth lede paragraph to index.html emphasizing IRL as a meta-skill — "the thing that builds all the other things"; ran `make smoke`.
 - 2026-02-08 (9478d05): Added Toy 7 (One Pattern, Many Projects) — morphing animation showing same plan structure with three different use cases (website, data analysis, literature review); crossfade between skills and instructions; auto-plays on load; validated both pages serve.
+- 2026-02-08 (2d04dc7): Added Reset buttons with JS handlers to all 7 toys — each resets state to initial (re-randomizes dots, clears canvases, resets counters/footers); validated both pages serve with no console errors.
