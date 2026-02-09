@@ -49,3 +49,4 @@ date,change_summary,git_hash
 2026-02-08,Built final combined webpage from outline with real prose across all 13 sections; backed up outline,8c4dbc8
 2026-02-08,Integrated all 8 interactive toys into combined draft page; merged CSS/HTML/JS from toys.html; widened to 860px,4f7247b
 2026-02-08,Reviewed docfleet repo and wrote integration plan for deploying IRL explainer site,c663e22
+2026-02-08,Configured docfleet deployment for www.irloop.org: site files + nginx + Kamal config,8c72072
