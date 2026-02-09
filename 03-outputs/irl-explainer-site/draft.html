@@ -292,6 +292,29 @@
             exactly the same way.
           </p>
 
+          <!-- Toy 9 — What Plain Text Looks Like -->
+          <div class="contrast" style="margin:18px 0">
+            <div class="panel">
+              <div class="panel-head">
+                <span class="panel-label teal">What You Write</span>
+                <button class="run-btn" id="md-reset" type="button">Reset</button>
+              </div>
+              <div id="md-source" style="border-top:1px solid var(--border);background:#fafafa;padding:14px 16px;font-family:var(--mono);font-size:12px;line-height:1.65;min-height:180px;position:relative;overflow:hidden">
+                <div id="md-lines"></div>
+              </div>
+              <div class="panel-foot neutral" id="ft-md-left">A plan file is just text you type. Nothing proprietary.</div>
+            </div>
+            <div class="panel">
+              <div class="panel-head">
+                <span class="panel-label" style="color:var(--subtle)">What Any AI Reads</span>
+              </div>
+              <div id="md-rendered" style="border-top:1px solid var(--border);background:#fff;padding:14px 16px;font-size:13px;line-height:1.65;min-height:180px;position:relative;overflow:hidden">
+                <div id="md-output"></div>
+              </div>
+              <div class="panel-foot neutral" id="ft-md-right">Same file works with Claude, ChatGPT, or any AI.</div>
+            </div>
+          </div>
+
           <p>
             The payoff is that you learn one workflow and can use it to build
             almost anything: a website, a data analysis, a literature
@@ -2972,6 +2995,122 @@
         ftR.textContent = "Mistakes are expected. The loop catches them.";
         ftR.className = "panel-foot neutral";
       });
+    })();
+
+    /* ══════════════════════════════════════════════════════════
+       Toy 9 — What Plain Text Looks Like (markdown explainer)
+       ══════════════════════════════════════════════════════════ */
+    (function () {
+      var linesEl = document.getElementById("md-lines");
+      var outputEl = document.getElementById("md-output");
+      var ftL = document.getElementById("ft-md-left");
+      var ftR = document.getElementById("ft-md-right");
+
+      var TEAL = "#0d9488";
+      var MUTED = "#6b7280";
+
+      /* The markdown lines and their rendered equivalents */
+      var entries = [
+        {
+          md: '<span style="color:' + TEAL + ';font-weight:700">#</span> Instruction Loop',
+          html: '<div style="font-size:16px;font-weight:700;margin-bottom:4px;padding-bottom:3px;border-bottom:1px solid #e5e7eb">Instruction Loop</div>',
+          hint: '<span style="color:' + TEAL + '">#</span> means heading'
+        },
+        {
+          md: '',
+          html: '',
+          hint: ''
+        },
+        {
+          md: '<span style="color:' + TEAL + '">1.</span> Load survey data from <span style="color:#7c3aed">02-data/</span>',
+          html: '<div style="padding-left:16px;position:relative"><span style="position:absolute;left:0;color:' + MUTED + '">1.</span> Load survey data from <em>02-data/</em></div>',
+          hint: 'numbered list, file path'
+        },
+        {
+          md: '<span style="color:' + TEAL + '">2.</span> Compute group means, run <span style="color:' + TEAL + ';font-weight:600">**t-test**</span>',
+          html: '<div style="padding-left:16px;position:relative"><span style="position:absolute;left:0;color:' + MUTED + '">2.</span> Compute group means, run <strong>t-test</strong></div>',
+          hint: '<span style="color:' + TEAL + '">**bold**</span> for emphasis'
+        },
+        {
+          md: '<span style="color:' + TEAL + '">3.</span> Render results to <span style="color:#7c3aed">03-outputs/report.html</span>',
+          html: '<div style="padding-left:16px;position:relative"><span style="position:absolute;left:0;color:' + MUTED + '">3.</span> Render results to <em>03-outputs/report.html</em></div>',
+          hint: 'numbered steps, clear paths'
+        },
+        {
+          md: '',
+          html: '',
+          hint: ''
+        },
+        {
+          md: '<span style="color:' + TEAL + ';font-weight:700">#</span> After Each Loop',
+          html: '<div style="font-size:16px;font-weight:700;margin-top:6px;margin-bottom:4px;padding-bottom:3px;border-bottom:1px solid #e5e7eb">After Each Loop</div>',
+          hint: 'another section'
+        },
+        {
+          md: '<span style="color:' + TEAL + '">-</span> Save version checkpoint',
+          html: '<div style="padding-left:16px;position:relative"><span style="position:absolute;left:0;color:' + MUTED + '">&bull;</span> Save version checkpoint</div>',
+          hint: '<span style="color:' + TEAL + '">-</span> means bullet point'
+        },
+        {
+          md: '<span style="color:' + TEAL + '">-</span> Update activity log',
+          html: '<div style="padding-left:16px;position:relative"><span style="position:absolute;left:0;color:' + MUTED + '">&bull;</span> Update activity log</div>',
+          hint: 'readable by humans and AI alike'
+        }
+      ];
+
+      var shown = 0;
+      var timer = null;
+
+      function typeNext() {
+        if (shown >= entries.length) {
+          ftL.textContent = "That's the whole plan. Just text.";
+          ftL.className = "panel-foot teal";
+          ftR.textContent = "Any AI reads the same structure, no special format needed.";
+          ftR.className = "panel-foot teal";
+          return;
+        }
+        var e = entries[shown];
+        if (e.md === "") {
+          linesEl.innerHTML += '<div style="height:6px"></div>';
+          outputEl.innerHTML += '<div style="height:6px"></div>';
+        } else {
+          var srcLine = document.createElement("div");
+          srcLine.style.cssText = "opacity:0;transition:opacity 0.4s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis";
+          srcLine.innerHTML = e.md;
+          linesEl.appendChild(srcLine);
+          setTimeout(function () { srcLine.style.opacity = "1"; }, 30);
+
+          var outLine = document.createElement("div");
+          outLine.style.cssText = "opacity:0;transition:opacity 0.4s";
+          outLine.innerHTML = e.html;
+          outputEl.appendChild(outLine);
+          setTimeout(function () { outLine.style.opacity = "1"; }, 200);
+
+          if (e.hint) {
+            ftL.innerHTML = e.hint;
+            ftL.className = "panel-foot neutral";
+          }
+        }
+        shown++;
+        timer = setTimeout(typeNext, 650);
+      }
+
+      function reset() {
+        clearTimeout(timer);
+        shown = 0;
+        linesEl.innerHTML = "";
+        outputEl.innerHTML = "";
+        ftL.textContent = "A plan file is just text you type. Nothing proprietary.";
+        ftL.className = "panel-foot neutral";
+        ftR.textContent = "Same file works with Claude, ChatGPT, or any AI.";
+        ftR.className = "panel-foot neutral";
+        timer = setTimeout(typeNext, 500);
+      }
+
+      document.getElementById("md-reset").addEventListener("click", reset);
+
+      /* auto-play on load */
+      timer = setTimeout(typeNext, 800);
     })();
     </script>
   </body>

@@ -139,6 +139,10 @@ revision: clean up text no em dashes or clichees
 
 copy and insert tastefully into first few paragraphs /Users/ernie/Downloads/irl_framework_recipe.png
 
+new task: make a new toy to explain to non-tech users what markdown is. Make the component slim so it doesn't take alot of vertical space. use the left right pattern again. it's to support his paragraph: "IRL is different. It's a plain-text pattern, not a product. The plan file you write is just a text document. Any AI assistant can read it. The outputs are files on your computer that you own. Nothing is stored inside a proprietary platform. If you switch AI providers tomorrow, the pattern still works exactly the same way."
+
+
+
 ### One-Time Instructions — Tasks that should only execute once
 
 <!-- 👤 AUTHOR AREA: Add one-time tasks below -->
