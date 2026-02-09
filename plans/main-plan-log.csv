@@ -55,3 +55,4 @@ date,change_summary,git_hash
 2026-02-08,Cleaned up prose: removed all em dashes from explainer site and redeployed,5118bd1
 2026-02-08,Inserted IRL framework recipe diagram into opening paragraphs and redeployed,667d7e3
 2026-02-08,Added Toy 9 plain-text markdown explainer to Section 1 and redeployed,df6fa18
+2026-02-08,Revised Toy 9 markdown explanation and added lead-in prose to all 9 toys; redeployed,4d8a8d0
