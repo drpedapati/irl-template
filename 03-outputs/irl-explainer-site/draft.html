@@ -293,6 +293,7 @@
           </p>
 
           <!-- Toy 9 — What Plain Text Looks Like -->
+          <p class="aside">Here is what a plan file actually looks like. On the left is the plain text you write; on the right is how any AI assistant interprets it.</p>
           <div class="contrast" style="margin:18px 0">
             <div class="panel">
               <div class="panel-head">
@@ -302,7 +303,7 @@
               <div id="md-source" style="border-top:1px solid var(--border);background:#fafafa;padding:14px 16px;font-family:var(--mono);font-size:12px;line-height:1.65;min-height:180px;position:relative;overflow:hidden">
                 <div id="md-lines"></div>
               </div>
-              <div class="panel-foot neutral" id="ft-md-left">A plan file is just text you type. Nothing proprietary.</div>
+              <div class="panel-foot neutral" id="ft-md-left">A plan file is just text. The symbols (#, **, -) are Markdown, a lightweight way to add structure to plain text.</div>
             </div>
             <div class="panel">
               <div class="panel-head">
@@ -324,6 +325,7 @@
             of thinking and apply it everywhere.
           </p>
 
+          <p class="aside">Watch how the same plan structure adapts to three different projects: a website, a data analysis, and a literature review.</p>
           <div class="panel" style="max-width:100%" id="morph-panel">
             <div class="panel-head">
               <span class="panel-label" style="color:var(--subtle)">main-plan.md</span>
@@ -422,6 +424,7 @@
             comes back.
           </p>
 
+          <p class="aside">This is what that review process looks like in practice: you send instructions, check the output, flag problems, and iterate until it's right.</p>
           <div class="contrast">
             <!-- Left: animated loop visualization -->
             <div class="panel">
@@ -498,6 +501,7 @@
             you.
           </p>
 
+          <p class="aside">Press Run on both sides to see the difference. The idempotent side produces the same pattern every time; the other side drifts with each run.</p>
           <div class="contrast">
             <div class="panel">
               <div class="panel-head">
@@ -573,6 +577,7 @@
             you'll avoid reruns, and that's where mistakes hide.
           </p>
 
+          <p class="aside">Here is a simplified view of what one loop cycle looks like: you provide reasoning and instructions, the AI executes, and a report builds up over successive passes.</p>
           <div class="panel" style="max-width:100%">
             <div class="panel-head">
               <span class="panel-label" style="color:var(--subtle)">Human &harr; AI &rarr; Report</span>
@@ -631,6 +636,7 @@
             breaking something.
           </p>
 
+          <p class="aside">Watch a plan execute across two loops. Notice how the revision between loops refines the output without starting over.</p>
           <div class="panel" style="max-width:100%" id="process-panel">
             <div class="panel-head">
               <span class="panel-label" style="color:var(--subtle)">Plan &rarr; Execute &rarr; Revise &rarr; Repeat</span>
@@ -688,6 +694,7 @@
             work, they start with this file. Everything flows from the plan.
           </p>
 
+          <p class="aside">Click any section label on the right to see what each part of a plan file does and why it matters.</p>
           <div class="panel" style="max-width:100%" id="anatomy-panel">
             <div class="panel-head">
               <span class="panel-label" style="color:var(--subtle)">main-plan.md</span>
@@ -752,6 +759,7 @@
             gets a little more complete.
           </p>
 
+          <p class="aside">This is what a typical session looks like in your terminal. The same simple command drives every loop.</p>
           <div class="panel" style="max-width:100%" id="terminal-panel">
             <div class="panel-head">
               <span class="panel-label" style="color:var(--subtle)">Terminal &rarr; AI</span>
@@ -806,6 +814,7 @@
             preview. Review, revise, repeat.
           </p>
 
+          <p class="aside">Click any area of the workspace below to see what each pane does, or press Tour for a guided walkthrough.</p>
           <div class="panel" style="max-width:100%" id="workspace-panel">
             <div class="panel-head">
               <span class="panel-label" style="color:var(--subtle)">Editor Workspace</span>
@@ -3063,9 +3072,9 @@
 
       function typeNext() {
         if (shown >= entries.length) {
-          ftL.textContent = "That's the whole plan. Just text.";
+          ftL.textContent = "The symbols (#, **, -) are Markdown notation. It's still plain text, just with lightweight formatting any tool can read.";
           ftL.className = "panel-foot teal";
-          ftR.textContent = "Any AI reads the same structure, no special format needed.";
+          ftR.textContent = "Every AI assistant reads this structure the same way. No proprietary format required.";
           ftR.className = "panel-foot teal";
           return;
         }
@@ -3100,7 +3109,7 @@
         shown = 0;
         linesEl.innerHTML = "";
         outputEl.innerHTML = "";
-        ftL.textContent = "A plan file is just text you type. Nothing proprietary.";
+        ftL.textContent = "A plan file is just text. The symbols (#, **, -) are Markdown, a lightweight way to add structure to plain text.";
         ftL.className = "panel-foot neutral";
         ftR.textContent = "Same file works with Claude, ChatGPT, or any AI.";
         ftR.className = "panel-foot neutral";

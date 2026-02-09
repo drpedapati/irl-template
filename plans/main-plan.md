@@ -141,7 +141,9 @@ copy and insert tastefully into first few paragraphs /Users/ernie/Downloads/irl_
 
 new task: make a new toy to explain to non-tech users what markdown is. Make the component slim so it doesn't take alot of vertical space. use the left right pattern again. it's to support his paragraph: "IRL is different. It's a plain-text pattern, not a product. The plan file you write is just a text document. Any AI assistant can read it. The outputs are files on your computer that you own. Nothing is stored inside a proprietary platform. If you switch AI providers tomorrow, the pattern still works exactly the same way."
 
+Revision: Modify the new plain text #9 to briefly comment that the funny characters in the plain text are markdown, still plain text but having some formatting, say this in a professional way that will make sense to non-tech user.
 
+New Task: Found a critical point: there is no lead-in prose or friendly invitation to what each toy is for. It just plops the toy in the middle of the text. Please systematically address this for each toy.
 
 ### One-Time Instructions — Tasks that should only execute once
 
