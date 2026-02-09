@@ -122,6 +122,8 @@ no toys page needed
 hel2 is in ssh config (that's the ip)
 just fyi hel2 has kamal proxy on 8080 and cloudflare tunnel terminates there
 itis an amd64 server
+please check status of kamal, containers, and www.irloop.org on hel2 so we can understand the landscape before pushing it. I agree with turning off ssl. 
+i think currently there is a kamal container for the irloop (using mintify docs) that I want to retire and replace with this site.
 
 ### One-Time Instructions — Tasks that should only execute once
 
