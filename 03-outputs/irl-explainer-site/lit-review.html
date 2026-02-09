@@ -3,11 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>IRL Example: Literature Review (PubMed + DOCX)</title>
-    <meta
-      name="description"
-      content="A progressive, beginner-friendly walkthrough of using IRL to run a literature review workflow with PubMed search and DOCX output."
-    />
+    <title>Your First IRL Project | Literature Review Tutorial</title>
     <style>
       :root {
         --bg: #ffffff;
@@ -19,15 +15,12 @@
         --teal-light: #ccfbf1;
         --amber: #d97706;
         --amber-light: #fef3c7;
-        --link: #2563eb;
         --sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
         --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
           "Liberation Mono", "Courier New", monospace;
       }
-
       * { box-sizing: border-box; }
-
       body {
         margin: 0;
         background: linear-gradient(180deg, #ffffff 0%, #fbfbfb 70%, #ffffff 100%);
@@ -35,120 +28,99 @@
         font-family: var(--sans);
         line-height: 1.7;
       }
-
-      a {
-        color: var(--link);
-        text-decoration: underline;
-        text-underline-offset: 2px;
-      }
-      a:hover { text-decoration: none; }
-      a:focus-visible, button:focus-visible {
-        outline: 2px solid #111827;
-        outline-offset: 2px;
-      }
-
       .topbar {
-        position: sticky;
-        top: 0;
-        z-index: 50;
+        position: sticky; top: 0; z-index: 50;
         background: rgba(255,255,255,0.82);
         -webkit-backdrop-filter: blur(10px);
         backdrop-filter: blur(10px);
         border-bottom: 1px solid var(--border);
       }
       .topbar-inner {
-        max-width: 980px;
-        margin: 0 auto;
+        max-width: 860px; margin: 0 auto;
         padding: 12px 18px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
+        display: flex; align-items: center; justify-content: space-between;
       }
       .brand {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        font-weight: 650;
-        color: var(--ink);
-        text-decoration: none;
-        letter-spacing: -0.01em;
+        display: inline-flex; align-items: center; gap: 10px;
+        font-weight: 650; color: var(--ink); text-decoration: none;
       }
-      .brand:hover { text-decoration: none; }
       .brand svg { width: 14px; height: 14px; display: block; }
-      .util {
-        font-family: var(--mono);
-        font-size: 12px;
-        color: var(--subtle);
-        text-decoration: none;
+      .topbar a.util {
+        font-family: var(--mono); font-size: 12px;
+        color: var(--subtle); text-decoration: none;
       }
-      .util:hover { color: var(--ink); text-decoration: none; }
+      .topbar a.util:hover { color: var(--ink); text-decoration: none; }
+      .wrap { max-width: 860px; margin: 0 auto; padding: 28px 18px 80px; }
 
-      .wrap { max-width: 980px; margin: 0 auto; padding: 26px 18px 80px; }
-
-      header {
-        padding: 16px 0 22px;
-        border-bottom: 1px solid var(--border);
-      }
-      .title-block { text-align: center; padding-bottom: 14px; }
+      header { padding: 26px 0 22px; border-bottom: 1px solid var(--border); }
+      .title-block { text-align: center; padding-bottom: 20px; }
       .kicker {
-        font-family: var(--mono);
-        font-size: 12px;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--subtle);
-        margin-bottom: 10px;
+        font-family: var(--mono); font-size: 12px;
+        letter-spacing: 0.08em; text-transform: uppercase;
+        color: var(--subtle); margin-bottom: 10px;
       }
       h1 {
-        font-size: clamp(30px, 3.8vw, 44px);
-        line-height: 1.12;
-        letter-spacing: -0.02em;
-        margin: 0 0 8px;
+        font-size: clamp(34px, 4.2vw, 48px);
+        line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 8px;
       }
       .subtitle {
-        font-family: var(--mono);
-        font-size: 13.5px;
-        letter-spacing: 0.04em;
-        color: var(--subtle);
-        margin: 0 0 10px;
+        font-family: var(--mono); font-size: 14px;
+        letter-spacing: 0.04em; color: var(--subtle); margin: 0 0 10px;
       }
-      .lede { color: var(--muted); font-size: 16.5px; margin: 12px 0; }
+      .byline {
+        font-family: var(--mono); font-size: 12.5px;
+        color: var(--subtle); margin: -2px 0 14px;
+      }
+      .lede { color: var(--muted); font-size: 17px; margin: 12px 0; }
       .lede:first-of-type { margin-top: 0; }
 
       section {
-        padding-top: 22px;
-        margin-top: 22px;
+        padding-top: 22px; margin-top: 22px;
         border-top: 1px solid var(--border);
       }
       h2 {
-        font-size: 22px;
-        line-height: 1.25;
-        letter-spacing: -0.01em;
-        margin: 0 0 10px;
-        padding-bottom: 6px;
+        font-size: 24px; line-height: 1.25; letter-spacing: -0.01em;
+        margin: 0 0 10px; padding-bottom: 6px;
         border-bottom: 1px solid var(--border);
       }
       .subhead { color: var(--muted); margin: 0 0 10px; }
       .aside {
         border-left: 3px solid var(--border);
-        padding-left: 14px;
-        margin: 16px 0;
-        color: var(--muted);
+        padding-left: 14px; margin: 16px 0; color: var(--muted);
       }
+
+      .panel {
+        border: 1px solid var(--border); border-radius: 12px;
+        background: #fff; overflow: hidden;
+      }
+      .panel-head {
+        padding: 12px 14px 8px;
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .panel-label {
+        font-family: var(--mono); font-size: 11px; font-weight: 600;
+        letter-spacing: 0.08em; text-transform: uppercase;
+      }
+      .panel-label.teal { color: var(--teal); }
+      .panel-label.amber { color: var(--amber); }
 
       pre {
         margin: 14px 0;
         padding: 12px 12px;
-        border-radius: 12px;
+        border-radius: 10px;
         background: #0b1020;
         color: #e5e7eb;
         overflow: auto;
         font-family: var(--mono);
         font-size: 12.5px;
-        line-height: 1.6;
+        line-height: 1.55;
         border: 1px solid rgba(17, 24, 39, 0.25);
       }
-      code { font-family: var(--mono); }
+
+      code {
+        font-family: var(--mono);
+      }
+
       .inline-code {
         background: #f3f4f6;
         padding: 0.1rem 0.25rem;
@@ -157,407 +129,802 @@
         font-size: 0.92em;
       }
 
-      /* Parameterized IDE toy (VS Code-like frame). */
-      .ide {
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        overflow: hidden;
-        background: #ffffff;
+      footer {
+        margin-top: 28px; padding-top: 18px;
+        border-top: 1px solid var(--border);
+        color: var(--subtle); font-size: 13px;
       }
-      .ide-bar {
-        height: 40px;
-        border-bottom: 1px solid var(--border);
-        background: rgba(249, 250, 251, 0.8);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 12px;
-      }
-      .ide-title {
-        font-family: var(--mono);
-        font-size: 12px;
-        color: var(--subtle);
-      }
-      .ide-controls {
-        display: inline-flex;
-        gap: 6px;
-      }
-      .dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 999px;
-        border: 1px solid rgba(17, 24, 39, 0.18);
-        background: #ffffff;
-      }
-      .ide-body {
-        display: grid;
-        grid-template-columns: 240px 1fr;
-        grid-template-rows: 1fr 170px;
-        grid-template-areas:
-          "files editor"
-          "term term";
-        min-height: 520px;
-      }
-      @media (max-width: 860px) {
-        .ide-body {
-          grid-template-columns: 1fr;
-          grid-template-rows: auto auto 190px;
-          grid-template-areas:
-            "files"
-            "editor"
-            "term";
-        }
-      }
-      .pane {
-        position: relative;
-        background: #ffffff;
-      }
-      .pane + .pane { border-left: 1px solid var(--border); }
-      @media (max-width: 860px) { .pane + .pane { border-left: 0; border-top: 1px solid var(--border); } }
 
-      .pane-head {
-        padding: 10px 12px 8px;
-        border-bottom: 1px solid var(--border);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-        background: #fbfbfb;
-      }
-      .pane-label {
+      /* Workspace mockup styles */
+      .ws-container {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        margin: 18px 0;
+        background: #1e1e2e;
         font-family: var(--mono);
         font-size: 11px;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--subtle);
+        line-height: 1.5;
+        color: #cdd6f4;
       }
-      .pane-body {
-        padding: 10px 12px;
-        font-family: var(--mono);
-        font-size: 12.2px;
-        line-height: 1.55;
-        color: #0f172a;
-      }
-      .files { grid-area: files; }
-      .editor { grid-area: editor; }
-      .term { grid-area: term; border-top: 1px solid var(--border); }
-
-      .file {
-        padding: 6px 8px;
-        border-radius: 8px;
+      .ws-titlebar {
+        background: #181825;
+        padding: 4px 12px;
+        font-size: 10px;
+        color: #6c7086;
         display: flex;
-        justify-content: space-between;
-        gap: 10px;
-        align-items: baseline;
-      }
-      .file .name { color: #0f172a; }
-      .file .hint { color: var(--subtle); font-size: 11px; }
-      .file.active {
-        background: rgba(13, 148, 136, 0.10);
-        border: 1px solid rgba(13, 148, 136, 0.28);
-      }
-      .term pre {
-        margin: 0;
-        border: 0;
-        border-radius: 0;
-      }
-
-      .hl {
-        outline: 2px solid rgba(217, 119, 6, 0.55);
-        outline-offset: -2px;
-        box-shadow: 0 0 0 6px rgba(217, 119, 6, 0.10);
-      }
-
-      .toy-controls {
-        margin-top: 10px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
         align-items: center;
+        gap: 8px;
+        border-bottom: 1px solid #313244;
       }
-      button {
-        font-family: var(--mono);
-        font-size: 12px;
+      .ws-dots {
+        display: flex; gap: 4px;
+      }
+      .ws-dot {
+        width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+      }
+      .ws-dot.red { background: #f38ba8; }
+      .ws-dot.yellow { background: #f9e2af; }
+      .ws-dot.green { background: #a6e3a1; }
+      .ws-body {
+        display: flex;
+        min-height: 320px;
+      }
+      .ws-sidebar {
+        width: 160px;
+        background: #181825;
+        border-right: 1px solid #313244;
+        padding: 8px 0;
+        flex-shrink: 0;
+      }
+      .ws-sidebar-label {
+        padding: 2px 10px;
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #6c7086;
+        margin-bottom: 4px;
+      }
+      .ws-file {
+        padding: 2px 10px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .ws-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+      .ws-panes {
+        display: flex;
+        flex: 1;
+      }
+      .ws-editor {
+        flex: 1;
+        border-right: 1px solid #313244;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+      .ws-editor-tab {
+        background: #181825;
+        padding: 4px 10px;
+        font-size: 10px;
+        color: #89b4fa;
+        border-bottom: 1px solid #313244;
+      }
+      .ws-editor-content {
         padding: 8px 10px;
-        border-radius: 10px;
-        border: 1px solid var(--border);
-        background: #ffffff;
-        cursor: pointer;
+        flex: 1;
+        overflow: hidden;
       }
-      button:hover { background: #f9fafb; }
-      button:disabled { cursor: not-allowed; opacity: 0.5; }
-      .toy-step {
-        font-family: var(--mono);
-        font-size: 12px;
-        color: var(--subtle);
+      .ws-line-num {
+        color: #6c7086;
+        font-size: 10px;
+      }
+      .ws-preview {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+      .ws-preview-tab {
+        background: #181825;
+        padding: 4px 10px;
+        font-size: 10px;
+        color: #a6e3a1;
+        border-bottom: 1px solid #313244;
+      }
+      .ws-preview-content {
+        padding: 10px 12px;
+        flex: 1;
+        background: #252536;
+        overflow: hidden;
+      }
+      .ws-terminal {
+        border-top: 1px solid #313244;
+        padding: 10px 12px;
+        min-height: 70px;
+      }
+      .ws-terminal-label {
+        font-size: 10px;
+        color: #6c7086;
+        margin-bottom: 4px;
+      }
+      .ws-highlight {
+        box-shadow: inset 0 0 0 2px #cba6f7;
+        border-radius: 2px;
+      }
+      @media (max-width: 600px) {
+        .ws-body { flex-direction: column; }
+        .ws-sidebar { width: 100%; border-right: none; border-bottom: 1px solid #313244; padding: 6px 0; }
+        .ws-panes { flex-direction: column; }
+        .ws-editor { border-right: none; border-bottom: 1px solid #313244; }
       }
     </style>
   </head>
   <body>
     <header class="topbar">
       <div class="topbar-inner">
-        <a class="brand" href="./draft.html" aria-label="Back to IRL explainer draft">
+        <a class="brand" href="#">
           <svg viewBox="0 0 16 16" aria-hidden="true">
             <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
             <circle cx="8" cy="8" r="2" fill="currentColor"></circle>
           </svg>
-          IRL Examples
+          IRL Tutorial
         </a>
-        <div style="display:flex;align-items:center;gap:14px">
-          <a class="util" href="./draft.html">Explainer</a>
-          <a class="util" href="./toys.html">Toys</a>
-        </div>
+        <a
+          class="util"
+          href="draft.html"
+        >
+          Back to IRL Explainer
+        </a>
       </div>
     </header>
-
     <div class="wrap">
+
+      <!-- ═══════════════════════════════════════════════
+           HEADER / LEDE
+           ═══════════════════════════════════════════════ -->
       <header>
         <div class="title-block">
-          <div class="kicker">Example walkthrough</div>
-          <h1>A Literature Review You Can Re-run</h1>
-          <div class="subtitle">Idempotent Research Loop + PubMed + DOCX</div>
+          <div class="kicker">Hands-on Tutorial</div>
+          <h1>Your First IRL Project</h1>
+          <div class="subtitle">A Literature Review with PubMed</div>
+          <div class="byline">Ernest Pedapati, MD</div>
         </div>
+
         <p class="lede">
-          This page is a concrete example of IRL for a task most clinicians and
-          researchers recognize: doing a literature review and producing a
-          shareable document. The point is not a specific AI product. The point
-          is the loop: write the plan, run it, review the outputs, repeat.
+          In this tutorial, you will build a real literature review from scratch using
+          the IRL pattern. You will use the PubMed skill to search for papers and the
+          DOCX skill to produce a formatted Word document. By the end, you will have
+          a reproducible workflow that you can reuse for any topic.
+        </p>
+
+        <p class="lede">
+          No prior AI experience is needed. If you can write a few sentences describing
+          what you want, you can do this. The whole process takes about fifteen minutes,
+          and everything you produce belongs to you as plain files on your computer.
         </p>
       </header>
 
       <main>
-        <section id="start">
-          <h2>Start With The Basic Template</h2>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 1: What We're Building
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>1. What We're Building</h2>
           <p class="subhead">
-            Non-technical version: this is a recipe. It says what you are trying
-            to make, what ingredients you will use, and what “done” looks like.
+            A formatted Word document summarizing recent literature, produced reproducibly from a plan file.
           </p>
-          <pre><code># main-plan.md (excerpt)
 
-## ✅ Before Each Loop
-- Keep steps rerunnable (idempotent)
-- Save outputs to stable paths (easy to review changes)
-
-## 🔁 Instruction Loop
-1. Search PubMed for: ("atrial fibrillation" AND "ablation") AND 2020:2026[dp]
-2. Export citations to 02-data/derived/papers.csv
-3. Draft 03-outputs/lit-review.md with:
-   - Summary of evidence
-   - Key trials + limitations
-4. Generate 03-outputs/lit-review.docx from the markdown
-5. Review the docx, revise the plan, rerun</code></pre>
-          <p class="aside">
-            “Idempotent” here means: if you rerun the same step, you do not get
-            mystery differences. You either get the same output, or you get an
-            intentional change because you changed the plan.
-          </p>
-        </section>
-
-        <section id="terminal">
-          <h2>Run It From A Terminal AI</h2>
-          <p class="subhead">
-            For beginners: you can do IRL with nothing more than a plan file and
-            a terminal-based AI assistant. You run a short command over and over:
-            “review the plan, check for revisions, and execute.”
-          </p>
-          <pre><code># example loop (conceptual)
-ai run --plan 01-plans/main-plan.md
-
-# then review outputs
-open 03-outputs/lit-review.docx</code></pre>
           <p>
-            The “skills” part is what lets the assistant do real work:
-            a PubMed skill to search and export citations, and a DOCX skill to
-            generate a document you can share. You still do the important part:
-            decide what question you care about, and judge the output.
+            The end product is a literature review in Word format covering a specific
+            research topic. For this tutorial, we will use "ERP biomarkers in autism"
+            as our example. The document will include a summary table of the top
+            papers, key findings from each study, and a narrative synthesis that ties
+            them together.
+          </p>
+
+          <p>
+            More importantly, the review is <em>reproducible</em>. The plan file
+            records every search term, filter, and instruction you used. If your
+            advisor asks you to expand the date range or add a new keyword, you
+            update one line in the plan and run the loop again. The AI regenerates
+            the document with your changes applied. No copy-pasting, no starting over.
           </p>
         </section>
 
-        <section id="ide">
-          <h2>The IDE Toy (Parameterized Walkthrough)</h2>
+        <!-- ═══════════════════════════════════════════════
+             SECTION 2: Setting Up
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>2. Setting Up</h2>
           <p class="subhead">
-            This is a mock VS Code workspace. It’s a teaching scaffold. The same
-            toy can be reused across tutorials by swapping the step list.
+            Create a project from the IRL Basic Template and install two skills.
           </p>
 
-          <div class="ide" id="ide-toy">
-            <div class="ide-bar">
-              <div class="ide-controls" aria-hidden="true">
-                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-              </div>
-              <div class="ide-title">irl-project — literature review</div>
-              <div class="ide-title" style="opacity:0.7">Preview</div>
-            </div>
-            <div class="ide-body">
-              <div class="pane files" data-pane="files">
-                <div class="pane-head">
-                  <div class="pane-label">Files</div>
-                </div>
-                <div class="pane-body" id="ide-files">
-                  <div class="file active" data-file="01-plans/main-plan.md">
-                    <span class="name">01-plans/main-plan.md</span><span class="hint">plan</span>
-                  </div>
-                  <div class="file" data-file="02-data/derived/papers.csv">
-                    <span class="name">02-data/derived/papers.csv</span><span class="hint">citations</span>
-                  </div>
-                  <div class="file" data-file="03-outputs/lit-review.md">
-                    <span class="name">03-outputs/lit-review.md</span><span class="hint">draft</span>
-                  </div>
-                  <div class="file" data-file="03-outputs/lit-review.docx">
-                    <span class="name">03-outputs/lit-review.docx</span><span class="hint">deliverable</span>
-                  </div>
-                </div>
-              </div>
+          <p>
+            Start by creating a new IRL project. Open a terminal and run:
+          </p>
 
-              <div class="pane editor" data-pane="editor">
-                <div class="pane-head">
-                  <div class="pane-label">Editor</div>
-                  <div class="pane-label" style="color:var(--subtle)">main-plan.md</div>
-                </div>
-                <div class="pane-body" id="ide-editor">
-                  <div style="color:var(--subtle);font-size:11px;margin-bottom:8px">
-                    Excerpt
-                  </div>
-                  <div>
-                    1. Search PubMed for atrial fibrillation ablation (2020-2026)<br />
-                    2. Export citations to <span class="inline-code">papers.csv</span><br />
-                    3. Draft <span class="inline-code">lit-review.md</span><br />
-                    4. Generate <span class="inline-code">lit-review.docx</span><br />
-                    5. Review output and iterate
-                  </div>
-                </div>
-              </div>
+<pre>irl init "ERP biomarker lit review" -t irl-basic</pre>
 
-              <div class="pane term" data-pane="term">
-                <div class="pane-head">
-                  <div class="pane-label">Terminal</div>
-                  <div class="pane-label" style="color:var(--subtle)">AI</div>
-                </div>
-                <pre id="ide-term"><code>$ ai run --plan 01-plans/main-plan.md
-… reading plan …
-… searching PubMed …
-… writing 02-data/derived/papers.csv …
-… drafting 03-outputs/lit-review.md …
-… generating 03-outputs/lit-review.docx …
-Done.</code></pre>
-              </div>
-            </div>
-          </div>
+          <p>
+            This creates a folder named something like
+            <span class="inline-code">260209-erp-biomarker-lit-review</span> with
+            the standard IRL structure inside. Open this folder in VS Code (or any editor).
+          </p>
 
-          <div class="toy-controls">
-            <button id="ide-play" type="button">Play</button>
-            <button id="ide-reset" type="button">Reset</button>
-            <div class="toy-step" id="ide-step">Step 1/6</div>
-          </div>
+          <p>
+            Next, open <span class="inline-code">plans/main-plan.md</span> and find the
+            <strong>First Time Setup</strong> section. Add these two lines to install the
+            skills your project needs:
+          </p>
 
-          <p class="aside">
-            In the final tutorial, we can reuse this same IDE toy and update the
-            step list for other tasks (website build, data analysis, poster, etc).
+<pre>## First Time Setup
+
+- Install PubMed Skill: https://github.com/K-Dense-AI/claude-scientific-skills/tree/main/scientific-skills/pubmed-database
+- Install Word DOCX Skill: https://github.com/anthropics/skills/tree/main/skills/docx</pre>
+
+          <p>
+            Skills are small instruction sets that teach your AI assistant how to use
+            specific tools. The PubMed skill teaches it how to query the PubMed
+            database, and the DOCX skill teaches it how to produce properly formatted
+            Word documents. You install them once, and they stay available for every
+            loop.
+          </p>
+
+          <p class="aside">Here is what your workspace looks like after setup. The plan file is open in the editor, and the project structure is visible in the sidebar.</p>
+
+          <div id="ws-setup"></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 3: Writing Your First Instructions
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>3. Writing Your First Instructions</h2>
+          <p class="subhead">
+            Tell the AI what to do, step by step, in plain language.
+          </p>
+
+          <p>
+            Now comes the part that matters: writing the Instruction Loop. This is
+            where you tell the AI exactly what work to perform. Scroll down in your
+            plan file and find the <strong>Instruction Loop</strong> section. Write
+            your instructions as a numbered list:
+          </p>
+
+<pre>## Instruction Loop
+
+1. Search PubMed for "ERP biomarkers autism" (last 5 years, English, review articles)
+2. Save top 20 results to 02-data/pubmed-results.json
+3. Summarize each paper (title, authors, year, key findings) in a table
+4. Draft a narrative literature review to 03-outputs/lit-review.docx</pre>
+
+          <p>
+            That is the entire instruction set. Four lines. Notice that you are writing
+            in plain English, not code. You specify <em>what</em> you want, not
+            <em>how</em> to do it. The AI figures out the how, using the skills you
+            installed in the setup step.
+          </p>
+
+          <p>
+            Each line maps to a concrete action: search, save, summarize, draft.
+            The file paths (<span class="inline-code">02-data/pubmed-results.json</span>
+            and <span class="inline-code">03-outputs/lit-review.docx</span>) tell the AI
+            exactly where to put the results.
+          </p>
+
+          <p class="aside">Your editor now shows the instructions typed into the plan file. Nothing else has changed yet.</p>
+
+          <div id="ws-instructions"></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 4: Running the Loop
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>4. Running the Loop</h2>
+          <p class="subhead">
+            One command. That is all you need.
+          </p>
+
+          <p>
+            Open a terminal AI (Claude Code, Copilot Chat, or any AI assistant with
+            file access) and type:
+          </p>
+
+<pre>Review main-plan.md, check for any revisions, and execute</pre>
+
+          <p>
+            This is the only command you will ever need for any IRL project. The AI
+            reads your plan file, checks whether there are any revisions since the
+            last run, and then executes every instruction in the loop. You do not need
+            to remember different commands for different tasks. The plan file contains
+            all the context.
+          </p>
+
+          <p>
+            While the loop runs, you will see the AI working through each step:
+            connecting to PubMed, downloading results, building the summary table,
+            and drafting the review document. This typically takes one to three
+            minutes depending on the number of results.
+          </p>
+
+          <p class="aside">The terminal shows the AI executing your instructions. You can watch each step as it happens.</p>
+
+          <div id="ws-running"></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 5: Reviewing the Output
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>5. Reviewing the Output</h2>
+          <p class="subhead">
+            Check what the AI produced. Your judgment drives the quality.
+          </p>
+
+          <p>
+            After the loop finishes, two new files appear in your project:
+          </p>
+
+          <p>
+            <span class="inline-code">02-data/pubmed-results.json</span> contains
+            the raw search results from PubMed. This is your data layer. You can
+            inspect it, share it, or feed it into a different analysis later.
+          </p>
+
+          <p>
+            <span class="inline-code">03-outputs/lit-review.docx</span> is the
+            formatted literature review. Open it and read through it carefully. Check
+            that the citations are accurate, the summaries reflect each paper's actual
+            findings, and the narrative makes sense for your audience.
+          </p>
+
+          <p>
+            This is where your expertise matters most. The AI can summarize papers and
+            structure a document, but only you can judge whether the review captures
+            the right themes, whether any important studies are missing, and whether
+            the analysis holds up to scrutiny.
+          </p>
+
+          <p class="aside">New files appear in the sidebar. The preview shows an excerpt from the generated document.</p>
+
+          <div id="ws-review"></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 6: Making Revisions
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>6. Making Revisions</h2>
+          <p class="subhead">
+            Update the plan, run again. The loop handles the rest.
+          </p>
+
+          <p>
+            After reviewing the document, you notice two things you want to change:
+            the review needs a dedicated section on methodology gaps across the
+            studies, and the citations should use APA format. Instead of manually
+            editing the Word document, you go back to the plan file and add a revision.
+          </p>
+
+<pre>## Revisions
+
+- Add a section on methodology gaps across the reviewed studies.
+- Use APA citation format throughout.</pre>
+
+          <p>
+            Now run the same command again:
+          </p>
+
+<pre>Review main-plan.md, check for any revisions, and execute</pre>
+
+          <p>
+            The AI sees your revisions, reads through the existing data, and
+            regenerates the document with a new methodology gaps section and APA
+            citations applied throughout. The original search results are still in
+            <span class="inline-code">02-data/</span>, so it does not need to
+            re-query PubMed. It just rebuilds the output.
+          </p>
+
+          <p>
+            This is the power of the loop. Each revision is a small, traceable change.
+            You can look at the plan file and see exactly what changed between
+            versions. If the new section is not right, you revise the revision. The
+            cycle continues until the output meets your standards.
+          </p>
+
+          <p class="aside">The editor shows the revision added to the plan. The terminal re-runs the loop with the updated instructions.</p>
+
+          <div id="ws-revision"></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 7: The After-Loop
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>7. The After-Loop</h2>
+          <p class="subhead">
+            Save a checkpoint. Your plan file is your running record.
+          </p>
+
+          <p>
+            After each loop, save a version checkpoint. If you are using Git, this
+            is a commit. If not, simply note the date and what changed in your
+            activity log. The plan file template includes an
+            <span class="inline-code">activity.md</span> file for exactly this purpose.
+          </p>
+
+          <p>
+            The plan file itself becomes your running record of every decision and
+            change you made. Six months from now, when someone asks why you filtered
+            for review articles only, or why you chose a five-year window, the answer
+            is right there in the plan. No digging through chat logs. No trying to
+            remember what you asked the AI to do.
+          </p>
+
+          <p class="aside">The terminal shows the checkpoint process completing. Your project is versioned and traceable.</p>
+
+          <div id="ws-afterloop"></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 8: What You've Learned
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>8. What You've Learned</h2>
+          <p class="subhead">
+            One pattern, any project.
+          </p>
+
+          <p>
+            Here is what you just did. You wrote a plan describing what you wanted.
+            You ran a single command. You reviewed the output and decided what to
+            change. You updated the plan and ran the command again. That is the
+            entire IRL workflow.
+          </p>
+
+          <p>
+            The same pattern works for any project. A data analysis, a grant draft,
+            a conference poster, a course syllabus, a technical report. You change
+            the instructions in the plan file, install whatever skills you need, and
+            run the same loop. The structure stays the same. Only the content changes.
+          </p>
+
+          <p>
+            The key insight is that your plan file is the durable artifact, not the
+            chat. Every decision you made, every revision, every search parameter
+            is recorded in a file you own. That is work you can retrace, share, and
+            build on.
+          </p>
+
+          <p style="margin-top: 24px;">
+            <a href="draft.html" style="color: var(--teal); font-weight: 600;">
+              Read the full IRL Explainer to learn more about the pattern &rarr;
+            </a>
           </p>
         </section>
+
       </main>
+
+      <footer>
+        <p>IRL Tutorial. Built with the Idempotent Research Loop pattern.</p>
+      </footer>
     </div>
 
     <script>
-      (function () {
-        const root = document.getElementById("ide-toy");
-        if (!root) return;
+    /* ═══════════════════════════════════════════════
+       Workspace Mockup Generator
+       ═══════════════════════════════════════════════ */
 
-        const playBtn = document.getElementById("ide-play");
-        const resetBtn = document.getElementById("ide-reset");
-        const stepLabel = document.getElementById("ide-step");
+    function createWorkspace(containerId, config) {
+      var el = document.getElementById(containerId);
+      if (!el) return;
 
-        const panes = {
-          files: root.querySelector('[data-pane="files"]'),
-          editor: root.querySelector('[data-pane="editor"]'),
-          term: root.querySelector('[data-pane="term"]'),
-        };
-        const files = Array.from(root.querySelectorAll("[data-file]"));
+      // Build sidebar HTML
+      var sidebarHTML = '<div class="ws-sidebar-label">Explorer</div>';
+      if (config.sidebar) {
+        config.sidebar.forEach(function(f) {
+          var indent = (f.indent || 0) * 12 + 10;
+          var color = f.color || '#6c7086';
+          var bg = f.highlight ? 'background:rgba(137,180,250,0.1);' : '';
+          sidebarHTML += '<div class="ws-file" style="padding-left:' + indent + 'px;color:' + color + ';' + bg + '">' + f.name + '</div>';
+        });
+      }
 
-        const steps = [
-          {
-            label: "Read the plan",
-            focusPane: "editor",
-            activeFile: "01-plans/main-plan.md",
-            term: "$ ai run --plan 01-plans/main-plan.md\\n… reading plan …",
-          },
-          {
-            label: "Search PubMed",
-            focusPane: "term",
-            term: "$ pubmed.search \"afib ablation\" --years 2020..2026\\n… 128 results …\\n… filtering …",
-          },
-          {
-            label: "Export citations",
-            focusPane: "files",
-            activeFile: "02-data/derived/papers.csv",
-            term: "$ pubmed.export --format csv --out 02-data/derived/papers.csv\\nWrote 128 rows.",
-          },
-          {
-            label: "Draft markdown",
-            focusPane: "files",
-            activeFile: "03-outputs/lit-review.md",
-            term: "$ ai draft --in 02-data/derived/papers.csv --out 03-outputs/lit-review.md\\nWrote draft.",
-          },
-          {
-            label: "Generate DOCX",
-            focusPane: "files",
-            activeFile: "03-outputs/lit-review.docx",
-            term: "$ docx.render 03-outputs/lit-review.md --out 03-outputs/lit-review.docx\\nRendered.",
-          },
-          {
-            label: "Review and iterate",
-            focusPane: "editor",
-            activeFile: "01-plans/main-plan.md",
-            term: "$ open 03-outputs/lit-review.docx\\n(Review. Update plan. Rerun.)",
-          },
-        ];
+      // Build editor lines HTML
+      var editorHTML = '';
+      if (config.editorLines) {
+        config.editorLines.forEach(function(line) {
+          var color = line.color || '#cdd6f4';
+          editorHTML += '<div class="ws-line-num">' + line.num + '</div>';
+          editorHTML += '<div style="color:' + color + '">' + line.text + '</div>';
+        });
+      }
 
-        let running = false;
-        let idx = 0;
+      // Build preview HTML
+      var previewHTML = '';
+      if (config.previewContent) {
+        previewHTML = config.previewContent;
+      } else {
+        previewHTML = '<div style="color:#6c7086;font-size:10px;padding:20px 0;text-align:center">No preview available</div>';
+      }
 
-        function clearHighlights() {
-          Object.values(panes).forEach((p) => p && p.classList.remove("hl"));
-          files.forEach((f) => f.classList.remove("active"));
-        }
+      // Build terminal HTML
+      var terminalHTML = '';
+      if (config.terminalLines) {
+        config.terminalLines.forEach(function(line) {
+          var color = line.color || '#cdd6f4';
+          var prefix = line.prefix ? '<span style="color:#a6e3a1">' + line.prefix + '</span> ' : '';
+          terminalHTML += '<div>' + prefix + '<span style="color:' + color + '">' + line.text + '</span></div>';
+        });
+      }
 
-        function applyStep(i) {
-          const s = steps[i];
-          if (!s) return;
-          clearHighlights();
-          if (s.focusPane && panes[s.focusPane]) panes[s.focusPane].classList.add("hl");
-          if (s.activeFile) {
-            const el = root.querySelector('[data-file="' + s.activeFile + '"]');
-            if (el) el.classList.add("active");
-          }
-          const term = document.getElementById("ide-term");
-          if (term && s.term) term.textContent = s.term;
-          if (stepLabel) stepLabel.textContent = "Step " + (i + 1) + "/" + steps.length + ": " + s.label;
-        }
+      // Determine highlights
+      var hlSidebar = config.highlightZone === 'sidebar' ? ' ws-highlight' : '';
+      var hlEditor = config.highlightZone === 'editor' ? ' ws-highlight' : '';
+      var hlPreview = config.highlightZone === 'preview' ? ' ws-highlight' : '';
+      var hlTerminal = config.highlightZone === 'terminal' ? ' ws-highlight' : '';
 
-        function reset() {
-          idx = 0;
-          applyStep(0);
-        }
+      var html = '<div class="ws-container">' +
+        '<div class="ws-titlebar">' +
+          '<span class="ws-dots"><span class="ws-dot red"></span><span class="ws-dot yellow"></span><span class="ws-dot green"></span></span>' +
+          '<span style="margin-left:8px">' + (config.projectName || 'my-irl-project') + ': Code Editor</span>' +
+        '</div>' +
+        '<div class="ws-body">' +
+          '<div class="ws-sidebar' + hlSidebar + '">' + sidebarHTML + '</div>' +
+          '<div class="ws-main">' +
+            '<div class="ws-panes">' +
+              '<div class="ws-editor' + hlEditor + '">' +
+                '<div class="ws-editor-tab">' + (config.editorTab || 'main-plan.md') + '</div>' +
+                '<div class="ws-editor-content">' + editorHTML + '</div>' +
+              '</div>' +
+              '<div class="ws-preview' + hlPreview + '">' +
+                '<div class="ws-preview-tab">' + (config.previewTitle || 'Preview') + '</div>' +
+                '<div class="ws-preview-content">' + previewHTML + '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="ws-terminal' + hlTerminal + '">' +
+              '<div class="ws-terminal-label">TERMINAL</div>' +
+              terminalHTML +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
 
-        async function play() {
-          if (running) return;
-          running = true;
-          playBtn.disabled = true;
-          for (let i = 0; i < steps.length; i++) {
-            idx = i;
-            applyStep(i);
-            await new Promise((r) => setTimeout(r, 1200));
-          }
-          playBtn.disabled = false;
-          running = false;
-        }
+      el.innerHTML = html;
+    }
 
-        if (resetBtn) resetBtn.addEventListener("click", reset);
-        if (playBtn) playBtn.addEventListener("click", play);
+    /* ═══════════════════════════════════════════════
+       Workspace States
+       ═══════════════════════════════════════════════ */
 
-        reset();
-      })();
+    // Shared sidebar — base state (empty project)
+    var baseSidebar = [
+      { name: '\u25BC erp-biomarker-lit-review', indent: 0, color: '#cba6f7' },
+      { name: '\u25BC plans/', indent: 1, color: '#6c7086' },
+      { name: 'main-plan.md', indent: 2, color: '#89b4fa', highlight: true },
+      { name: 'activity.md', indent: 2, color: '#6c7086' },
+      { name: '\u25BC 02-data/', indent: 1, color: '#6c7086' },
+      { name: '(empty)', indent: 2, color: '#45475a' },
+      { name: '\u25BC 03-outputs/', indent: 1, color: '#6c7086' },
+      { name: '(empty)', indent: 2, color: '#45475a' }
+    ];
+
+    // Sidebar after loop produces files
+    var filledSidebar = [
+      { name: '\u25BC erp-biomarker-lit-review', indent: 0, color: '#cba6f7' },
+      { name: '\u25BC plans/', indent: 1, color: '#6c7086' },
+      { name: 'main-plan.md', indent: 2, color: '#89b4fa' },
+      { name: 'activity.md', indent: 2, color: '#6c7086' },
+      { name: '\u25BC 02-data/', indent: 1, color: '#6c7086' },
+      { name: 'pubmed-results.json', indent: 2, color: '#f9e2af', highlight: true },
+      { name: '\u25BC 03-outputs/', indent: 1, color: '#6c7086' },
+      { name: 'lit-review.docx', indent: 2, color: '#a6e3a1', highlight: true }
+    ];
+
+    // Section 2: Setup
+    createWorkspace('ws-setup', {
+      projectName: 'erp-biomarker-lit-review',
+      sidebar: baseSidebar,
+      editorTab: 'main-plan.md \u00D7',
+      editorLines: [
+        { num: 1, text: '<span style="color:#cba6f7">##</span> <span style="color:#f9e2af">First Time Setup</span>', color: '#cdd6f4' },
+        { num: 2, text: '' },
+        { num: 3, text: '- Install PubMed Skill: https://github.com/...', color: '#cdd6f4' },
+        { num: 4, text: '- Install Word DOCX Skill: https://github.com/...', color: '#cdd6f4' },
+        { num: 5, text: '' },
+        { num: 6, text: '<span style="color:#cba6f7">##</span> <span style="color:#f9e2af">Instruction Loop</span>', color: '#cdd6f4' },
+        { num: 7, text: '' },
+        { num: 8, text: '<span style="color:#45475a">(instructions go here)</span>', color: '#45475a' }
+      ],
+      previewTitle: 'Preview',
+      previewContent: '<div style="color:#6c7086;font-size:10px;padding:30px 0;text-align:center">Open a file to preview</div>',
+      terminalLines: [
+        { prefix: '$', text: 'irl init "ERP biomarker lit review" -t irl-basic', color: '#cdd6f4' },
+        { text: 'Created: 260209-erp-biomarker-lit-review/', color: '#a6e3a1' },
+        { prefix: '$', text: '\u2588', color: '#6c7086' }
+      ],
+      highlightZone: 'editor'
+    });
+
+    // Section 3: Instructions written
+    createWorkspace('ws-instructions', {
+      projectName: 'erp-biomarker-lit-review',
+      sidebar: baseSidebar,
+      editorTab: 'main-plan.md \u00D7',
+      editorLines: [
+        { num: 1, text: '<span style="color:#cba6f7">##</span> <span style="color:#f9e2af">Instruction Loop</span>', color: '#cdd6f4' },
+        { num: 2, text: '' },
+        { num: 3, text: '1. Search PubMed for "ERP biomarkers autism"', color: '#cdd6f4' },
+        { num: 4, text: '   (last 5 years, English, review articles)', color: '#6c7086' },
+        { num: 5, text: '2. Save top 20 results to 02-data/pubmed-results.json', color: '#cdd6f4' },
+        { num: 6, text: '3. Summarize each paper (title, authors, year,', color: '#cdd6f4' },
+        { num: 7, text: '   key findings) in a table', color: '#cdd6f4' },
+        { num: 8, text: '4. Draft a narrative literature review to', color: '#cdd6f4' },
+        { num: 9, text: '   03-outputs/lit-review.docx', color: '#cdd6f4' }
+      ],
+      previewTitle: 'Preview',
+      previewContent: '<div style="color:#6c7086;font-size:10px;padding:30px 0;text-align:center">Open a file to preview</div>',
+      terminalLines: [
+        { prefix: '$', text: '\u2588', color: '#6c7086' }
+      ],
+      highlightZone: 'editor'
+    });
+
+    // Section 4: Running the loop
+    createWorkspace('ws-running', {
+      projectName: 'erp-biomarker-lit-review',
+      sidebar: baseSidebar,
+      editorTab: 'main-plan.md \u00D7',
+      editorLines: [
+        { num: 1, text: '<span style="color:#cba6f7">##</span> <span style="color:#f9e2af">Instruction Loop</span>', color: '#cdd6f4' },
+        { num: 2, text: '' },
+        { num: 3, text: '1. Search PubMed for "ERP biomarkers autism"', color: '#cdd6f4' },
+        { num: 4, text: '   (last 5 years, English, review articles)', color: '#6c7086' },
+        { num: 5, text: '2. Save top 20 results to 02-data/pubmed-results.json', color: '#cdd6f4' },
+        { num: 6, text: '3. Summarize each paper in a table', color: '#cdd6f4' },
+        { num: 7, text: '4. Draft a narrative literature review to', color: '#cdd6f4' },
+        { num: 8, text: '   03-outputs/lit-review.docx', color: '#cdd6f4' }
+      ],
+      previewTitle: 'Preview',
+      previewContent: '<div style="color:#6c7086;font-size:10px;padding:30px 0;text-align:center">Waiting for output...</div>',
+      terminalLines: [
+        { prefix: '$', text: 'Review main-plan.md, check for any revisions, and execute', color: '#cdd6f4' },
+        { text: '\u2714 Reading plan file...', color: '#a6e3a1' },
+        { text: '\u2714 Installing PubMed skill...', color: '#a6e3a1' },
+        { text: '\u2714 Installing DOCX skill...', color: '#a6e3a1' },
+        { text: '\u25CB Querying PubMed: "ERP biomarkers autism"...', color: '#f9e2af' },
+        { text: '  Found 47 results, filtering to top 20...', color: '#6c7086' }
+      ],
+      highlightZone: 'terminal'
+    });
+
+    // Section 5: Reviewing output
+    createWorkspace('ws-review', {
+      projectName: 'erp-biomarker-lit-review',
+      sidebar: filledSidebar,
+      editorTab: 'main-plan.md \u00D7',
+      editorLines: [
+        { num: 1, text: '<span style="color:#cba6f7">##</span> <span style="color:#f9e2af">Instruction Loop</span>', color: '#cdd6f4' },
+        { num: 2, text: '' },
+        { num: 3, text: '1. Search PubMed for "ERP biomarkers autism"', color: '#cdd6f4' },
+        { num: 4, text: '2. Save top 20 results to 02-data/...', color: '#cdd6f4' },
+        { num: 5, text: '3. Summarize each paper in a table', color: '#cdd6f4' },
+        { num: 6, text: '4. Draft a narrative literature review', color: '#cdd6f4' }
+      ],
+      previewTitle: 'lit-review.docx: Preview',
+      previewContent:
+        '<div style="font-size:12px;font-weight:700;color:#cdd6f4;margin-bottom:6px">Literature Review: ERP Biomarkers in Autism</div>' +
+        '<div style="font-size:10px;color:#6c7086;margin-bottom:10px">Generated from main-plan.md</div>' +
+        '<div style="font-size:10px;color:#cba6f7;margin-bottom:6px;font-weight:600">Summary Table</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:10px">' +
+          '<div style="background:#313244;padding:4px 6px;border-radius:3px;font-size:9px">' +
+            '<div style="color:#89b4fa">Wang et al. (2024)</div>' +
+            '<div style="color:#6c7086">P300 latency differences</div>' +
+          '</div>' +
+          '<div style="background:#313244;padding:4px 6px;border-radius:3px;font-size:9px">' +
+            '<div style="color:#89b4fa">Chen et al. (2023)</div>' +
+            '<div style="color:#6c7086">MMN amplitude in ASD</div>' +
+          '</div>' +
+          '<div style="background:#313244;padding:4px 6px;border-radius:3px;font-size:9px">' +
+            '<div style="color:#89b4fa">Patel et al. (2023)</div>' +
+            '<div style="color:#6c7086">N170 face processing</div>' +
+          '</div>' +
+          '<div style="background:#313244;padding:4px 6px;border-radius:3px;font-size:9px">' +
+            '<div style="color:#89b4fa">Kim et al. (2022)</div>' +
+            '<div style="color:#6c7086">Auditory ERP review</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="font-size:10px;color:#a6adc8;line-height:1.5">Event-related potentials have emerged as promising biomarkers for autism spectrum disorder, with several components showing consistent...</div>',
+      terminalLines: [
+        { text: '\u2714 Saved 20 results to 02-data/pubmed-results.json', color: '#a6e3a1' },
+        { text: '\u2714 Summary table generated (20 papers)', color: '#a6e3a1' },
+        { text: '\u2714 Literature review written to 03-outputs/lit-review.docx', color: '#a6e3a1' },
+        { text: 'Loop complete. 3 files produced.', color: '#cba6f7' }
+      ],
+      highlightZone: 'preview'
+    });
+
+    // Section 6: Making revisions
+    createWorkspace('ws-revision', {
+      projectName: 'erp-biomarker-lit-review',
+      sidebar: filledSidebar,
+      editorTab: 'main-plan.md \u00D7',
+      editorLines: [
+        { num: 1, text: '<span style="color:#cba6f7">##</span> <span style="color:#f9e2af">Instruction Loop</span>', color: '#cdd6f4' },
+        { num: 2, text: '1. Search PubMed for "ERP biomarkers autism"', color: '#cdd6f4' },
+        { num: 3, text: '2. Save top 20 results to 02-data/...', color: '#cdd6f4' },
+        { num: 4, text: '3. Summarize each paper in a table', color: '#cdd6f4' },
+        { num: 5, text: '4. Draft a narrative literature review', color: '#cdd6f4' },
+        { num: 6, text: '' },
+        { num: 7, text: '<span style="color:#cba6f7">##</span> <span style="color:#f9e2af">Revisions</span>', color: '#cdd6f4' },
+        { num: 8, text: '' },
+        { num: 9, text: '<span style="color:#f38ba8">\u2738</span> <span style="color:#f9e2af;font-style:italic">Add methodology gaps section</span>', color: '#cdd6f4' },
+        { num: 10, text: '<span style="color:#f38ba8">\u2738</span> <span style="color:#f9e2af;font-style:italic">Use APA citation format</span>', color: '#cdd6f4' }
+      ],
+      previewTitle: 'lit-review.docx: Preview',
+      previewContent:
+        '<div style="color:#6c7086;font-size:10px;padding:20px 0;text-align:center">' +
+          '<div style="color:#f9e2af;margin-bottom:6px">Regenerating document...</div>' +
+          '<div>Applying 2 revisions</div>' +
+        '</div>',
+      terminalLines: [
+        { prefix: '$', text: 'Review main-plan.md, check for any revisions, and execute', color: '#cdd6f4' },
+        { text: '\u2714 Reading plan file...', color: '#a6e3a1' },
+        { text: '\u2714 Found 2 revisions to apply', color: '#f9e2af' },
+        { text: '\u25CB Rebuilding lit-review.docx with revisions...', color: '#f9e2af' },
+        { text: '  Adding methodology gaps section...', color: '#6c7086' },
+        { text: '  Reformatting citations to APA...', color: '#6c7086' }
+      ],
+      highlightZone: 'editor'
+    });
+
+    // Section 7: After-Loop
+    createWorkspace('ws-afterloop', {
+      projectName: 'erp-biomarker-lit-review',
+      sidebar: [
+        { name: '\u25BC erp-biomarker-lit-review', indent: 0, color: '#cba6f7' },
+        { name: '\u25BC plans/', indent: 1, color: '#6c7086' },
+        { name: 'main-plan.md', indent: 2, color: '#89b4fa' },
+        { name: 'activity.md', indent: 2, color: '#f9e2af', highlight: true },
+        { name: '\u25BC 02-data/', indent: 1, color: '#6c7086' },
+        { name: 'pubmed-results.json', indent: 2, color: '#f9e2af' },
+        { name: '\u25BC 03-outputs/', indent: 1, color: '#6c7086' },
+        { name: 'lit-review.docx', indent: 2, color: '#a6e3a1' }
+      ],
+      editorTab: 'activity.md \u00D7',
+      editorLines: [
+        { num: 1, text: '<span style="color:#cba6f7">##</span> <span style="color:#f9e2af">Activity Log</span>', color: '#cdd6f4' },
+        { num: 2, text: '' },
+        { num: 3, text: '<span style="color:#89b4fa">### Loop 1</span>', color: '#cdd6f4' },
+        { num: 4, text: 'Initial PubMed search, 20 papers, draft review', color: '#6c7086' },
+        { num: 5, text: '' },
+        { num: 6, text: '<span style="color:#89b4fa">### Loop 2</span>', color: '#cdd6f4' },
+        { num: 7, text: 'Added methodology gaps section, APA format', color: '#6c7086' },
+        { num: 8, text: '' },
+        { num: 9, text: '<span style="color:#a6e3a1">\u2714 Version checkpoint saved</span>', color: '#a6e3a1' }
+      ],
+      previewTitle: 'lit-review.docx: Preview',
+      previewContent:
+        '<div style="font-size:11px;font-weight:700;color:#cdd6f4;margin-bottom:6px">Literature Review (v2)</div>' +
+        '<div style="font-size:9px;color:#6c7086;margin-bottom:8px">Updated: methodology gaps, APA format</div>' +
+        '<div style="font-size:10px;color:#a6adc8;line-height:1.5">...Several methodological gaps persist across the reviewed literature. Sample sizes remain small in most ERP studies of ASD, with only 3 of 20 reviewed studies exceeding...</div>',
+      terminalLines: [
+        { text: '\u2714 Literature review updated (v2)', color: '#a6e3a1' },
+        { text: '\u2714 Activity log updated', color: '#a6e3a1' },
+        { text: '\u2714 Version checkpoint saved', color: '#a6e3a1' },
+        { text: 'All done. 2 loops completed.', color: '#cba6f7' }
+      ],
+      highlightZone: 'terminal'
+    });
     </script>
   </body>
 </html>
-

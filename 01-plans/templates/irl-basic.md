@@ -13,7 +13,7 @@ Install Quarto Skill: https://github.com/posit-dev/skills/tree/main/quarto/autho
 - Script designed to be **idempotent**
 - **Version control**: clean tree (`git status`), commit baseline, `.gitignore` enforced
 - The **only permitted modification** is within the `## One-Time Instructions` section.
-
+- New agents: review existing outputs before recreating; don’t overwrite unless explicitly instructed. Seek clarification if unsure.
 ---
 
 ## 🔁 Instruction Loop — Define the work for each iteration
