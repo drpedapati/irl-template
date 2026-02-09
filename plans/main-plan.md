@@ -86,6 +86,7 @@ i think both sides need some nice animations. Maybe a subtle touch of color. Rea
 
     For all the toys please update the text and captions to reflect the changes.
     These are not comptuer programers so refer to the real irl template where we aren't using words like git, use words like version control.
+    Add reset button to each toy
 
 ### One-Time Instructions — Tasks that should only execute once
 

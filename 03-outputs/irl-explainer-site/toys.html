@@ -167,6 +167,7 @@
         <div class="panel">
           <div class="panel-head">
             <span class="panel-label teal">Idempotent</span>
+            <button class="run-btn" id="idem-reset" type="button">Reset</button>
             <button class="run-btn" id="idem-btn" type="button">Run</button>
           </div>
           <div class="canvas-wrap"><canvas id="cv-idem"></canvas></div>
@@ -175,6 +176,7 @@
         <div class="panel">
           <div class="panel-head">
             <span class="panel-label amber">Non-Idempotent</span>
+            <button class="run-btn" id="nonidem-reset" type="button">Reset</button>
             <button class="run-btn" id="nonidem-btn" type="button">Run</button>
           </div>
           <div class="canvas-wrap"><canvas id="cv-nonidem"></canvas></div>
@@ -199,6 +201,7 @@
       <div class="panel" style="max-width:100%">
         <div class="panel-head">
           <span class="panel-label" style="color:var(--subtle)">Human &harr; AI &rarr; Report</span>
+          <button class="run-btn" id="recipe-reset" type="button">Reset</button>
           <button class="run-btn" id="recipe-btn" type="button">Run Cycle</button>
         </div>
         <div class="canvas-wrap" style="aspect-ratio:5/2.5"><canvas id="cv-recipe"></canvas></div>
@@ -221,6 +224,7 @@
       <div class="panel" style="max-width:100%" id="process-panel">
         <div class="panel-head">
           <span class="panel-label" style="color:var(--subtle)">Plan &rarr; Execute &rarr; Revise &rarr; Repeat</span>
+          <button class="run-btn" id="process-reset" type="button">Reset</button>
           <button class="run-btn" id="process-btn" type="button">Play</button>
         </div>
         <div id="process-stage" style="padding:14px 16px;min-height:300px;font-family:var(--mono);font-size:12px;line-height:1.55;background:#fafafa;border-top:1px solid var(--border);overflow:hidden;position:relative">
@@ -244,6 +248,7 @@
       <div class="panel" style="max-width:100%" id="anatomy-panel">
         <div class="panel-head">
           <span class="panel-label" style="color:var(--subtle)">main-plan.md</span>
+          <button class="run-btn" id="anatomy-reset" type="button">Reset</button>
         </div>
         <div id="anatomy-stage" style="display:flex;gap:0;border-top:1px solid var(--border);min-height:340px;background:#fafafa">
           <!-- Left: visual plan document -->
@@ -276,6 +281,7 @@
       <div class="panel" style="max-width:100%" id="terminal-panel">
         <div class="panel-head">
           <span class="panel-label" style="color:var(--subtle)">Terminal &rarr; AI</span>
+          <button class="run-btn" id="terminal-reset" type="button">Reset</button>
           <button class="run-btn" id="terminal-btn" type="button">Play</button>
         </div>
         <div id="terminal-stage" style="padding:16px 18px;min-height:180px;font-family:var(--mono);font-size:13px;line-height:1.6;background:#1e1e2e;color:#cdd6f4;border-top:1px solid var(--border);overflow:hidden;border-radius:0 0 8px 8px">
@@ -299,6 +305,7 @@
       <div class="panel" style="max-width:100%" id="workspace-panel">
         <div class="panel-head">
           <span class="panel-label" style="color:var(--subtle)">Editor Workspace</span>
+          <button class="run-btn" id="workspace-reset" type="button">Reset</button>
           <button class="run-btn" id="workspace-tour-btn" type="button">Tour</button>
         </div>
         <div id="workspace-stage" style="border-top:1px solid var(--border);background:#1e1e2e;border-radius:0 0 8px 8px;overflow:hidden;font-family:var(--mono);font-size:11px;line-height:1.5;color:#cdd6f4;position:relative">
@@ -404,6 +411,7 @@
       <div class="panel" style="max-width:100%" id="morph-panel">
         <div class="panel-head">
           <span class="panel-label" style="color:var(--subtle)">main-plan.md</span>
+          <button class="run-btn" id="morph-reset" type="button">Reset</button>
           <button class="run-btn" id="morph-btn" type="button">Replay</button>
         </div>
         <div id="morph-stage" style="border-top:1px solid var(--border);background:#fafafa;overflow:hidden;position:relative;min-height:340px;font-family:var(--mono);font-size:11px;line-height:1.6">
@@ -646,6 +654,16 @@
         });
       });
 
+      document.getElementById("idem-reset").addEventListener("click", function () {
+        if (iBtn.disabled) return;
+        iRuns = 0;
+        var d = dim(iCv);
+        iCur = randPts(N, d.w, d.h);
+        draw(ctx(iCv), iCur, iCol, d.w, d.h, "rgba(13,148,136,0.35)");
+        iFt.textContent = "Press Run to form the constellation.";
+        iFt.className = "panel-foot neutral";
+      });
+
       /* ══════════════════════════════════════
          NON-IDEMPOTENT
          ══════════════════════════════════════ */
@@ -682,6 +700,17 @@
             ? "Run #1 \u2014 " + newN + " dots, random positions."
             : "Run #" + nRuns + " \u2014 " + newN + " dots. Shape changed again.";
         });
+      });
+
+      document.getElementById("nonidem-reset").addEventListener("click", function () {
+        if (nBtn.disabled) return;
+        nRuns = 0;
+        nCount = N;
+        var d = dim(nCv);
+        nCur = randPts(N, d.w, d.h);
+        draw(ctx(nCv), nCur, nCol, d.w, d.h, "rgba(217,119,6,0.3)");
+        nFt.textContent = "Press Run — watch it shift every time.";
+        nFt.className = "panel-foot neutral";
       });
     })();
 
@@ -1025,6 +1054,21 @@
       btn.addEventListener("click", function () {
         if (!autoPlaying) runOneCycle(null);
       });
+
+      document.getElementById("recipe-reset").addEventListener("click", function () {
+        if (autoPlaying) return;
+        cycles = 0;
+        reportVer = 0;
+        hintLog = [];
+        hintFired = 0;
+        var c = getCtx();
+        c.clearRect(0, 0, W(), H());
+        drawScene(c, 0, 0);
+        btn.textContent = "Run Cycle";
+        btn.disabled = false;
+        ft.textContent = "Human reasons, AI executes, report grows each cycle.";
+        ft.className = "panel-foot neutral";
+      });
     })();
 
     /* ══════════════════════════════════════════════
@@ -1251,6 +1295,15 @@
       /* Auto-play on load */
       setTimeout(runProcess, 1200);
       btn.addEventListener("click", function() { if (!running) runProcess(); });
+
+      document.getElementById("process-reset").addEventListener("click", function () {
+        if (running) return;
+        stage.innerHTML = "";
+        btn.textContent = "Play";
+        btn.disabled = false;
+        ft.textContent = "Watch the plan execute step by step.";
+        ft.className = "panel-foot neutral";
+      });
     })();
 
     /* ══════════════════════════════════════════════════════════
@@ -1436,6 +1489,11 @@
 
       buildPlan();
       buildLabels();
+
+      /* Reset: clear selection */
+      document.getElementById("anatomy-reset").addEventListener("click", function() {
+        clearHighlight();
+      });
     })();
 
     /* ══════════════════════════════════════════════════════════
@@ -1544,6 +1602,15 @@
       /* Auto-play on load */
       setTimeout(runTerminal, 1800);
       btn.addEventListener("click", function() { if (!running) runTerminal(); });
+
+      /* Reset: clear terminal */
+      document.getElementById("terminal-reset").addEventListener("click", function() {
+        if (running) return;
+        stage.innerHTML = "";
+        btn.textContent = "Play";
+        ft.textContent = "Watch the workflow loop.";
+        ft.className = "panel-foot neutral";
+      });
     })();
 
     /* ══════════════════════════════════════════════════════════
@@ -1667,6 +1734,12 @@
       }
 
       tourBtn.addEventListener("click", runTour);
+
+      /* Reset: clear zone highlight */
+      document.getElementById("workspace-reset").addEventListener("click", function() {
+        if (touring) return;
+        clearZone();
+      });
     })();
 
     /* ══════════════════════════════════════════════════════════
@@ -1802,6 +1875,16 @@
       }, 2400);
 
       btn.addEventListener("click", runMorph);
+
+      document.getElementById("morph-reset").addEventListener("click", function () {
+        if (running) return;
+        [badge, setup, output].concat(lines).forEach(function (el) {
+          el.style.opacity = "0"; el.textContent = "";
+        });
+        badge.style.background = ""; badge.style.color = "";
+        ft.textContent = "Same structure. Different project.";
+        ft.className = "panel-foot neutral";
+      });
     })();
     </script>
   </body>
