@@ -11,6 +11,10 @@
         --muted: #4b5563;
         --subtle: #6b7280;
         --border: #e5e7eb;
+        --teal: #0d9488;
+        --teal-light: #ccfbf1;
+        --amber: #d97706;
+        --amber-light: #fef3c7;
         --sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
         --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
@@ -32,7 +36,7 @@
         border-bottom: 1px solid var(--border);
       }
       .topbar-inner {
-        max-width: 700px; margin: 0 auto;
+        max-width: 860px; margin: 0 auto;
         padding: 12px 18px;
         display: flex; align-items: center; justify-content: space-between;
       }
@@ -46,7 +50,7 @@
         color: var(--subtle); text-decoration: none;
       }
       .topbar a.util:hover { color: var(--ink); text-decoration: none; }
-      .wrap { max-width: 700px; margin: 0 auto; padding: 28px 18px 80px; }
+      .wrap { max-width: 860px; margin: 0 auto; padding: 28px 18px 80px; }
 
       header { padding: 26px 0 22px; border-bottom: 1px solid var(--border); }
       .title-block { text-align: center; padding-bottom: 20px; }
@@ -85,20 +89,48 @@
         padding-left: 14px; margin: 16px 0; color: var(--muted);
       }
 
-      .toy-placeholder {
-        border: 2px dashed var(--border);
-        border-radius: 10px;
-        padding: 18px 16px;
-        margin: 18px 0;
-        background: #fafafa;
-        text-align: center;
+      .contrast { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      @media (max-width: 600px) { .contrast { grid-template-columns: 1fr; } }
+
+      .panel {
+        border: 1px solid var(--border); border-radius: 12px;
+        background: #fff; overflow: hidden;
       }
-      .toy-placeholder .toy-name {
-        font-weight: 700; font-size: 14px; margin-bottom: 4px;
+      .panel-head {
+        padding: 12px 14px 8px;
+        display: flex; align-items: center; justify-content: space-between;
       }
-      .toy-placeholder .toy-desc {
-        font-size: 13px; color: var(--subtle);
+      .panel-label {
+        font-family: var(--mono); font-size: 11px; font-weight: 600;
+        letter-spacing: 0.08em; text-transform: uppercase;
       }
+      .panel-label.teal { color: var(--teal); }
+      .panel-label.amber { color: var(--amber); }
+
+      .run-btn {
+        font-family: var(--mono); font-size: 11px; padding: 4px 10px;
+        border-radius: 6px; border: 1px solid var(--border);
+        background: #fff; cursor: pointer; transition: background 0.15s;
+      }
+      .run-btn:hover { background: #f9fafb; }
+      .run-btn:disabled { cursor: not-allowed; opacity: 0.4; }
+
+      .canvas-wrap {
+        position: relative; width: 100%; aspect-ratio: 5 / 3;
+        background: #fafafa; border-top: 1px solid var(--border);
+      }
+      .canvas-wrap canvas {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      }
+
+      .panel-foot {
+        padding: 8px 14px; font-family: var(--mono); font-size: 11px;
+        line-height: 1.4; border-top: 1px solid var(--border);
+        min-height: 34px; transition: background 0.4s, color 0.4s;
+      }
+      .panel-foot.neutral { background: #f9fafb; color: var(--subtle); }
+      .panel-foot.teal { background: var(--teal-light); color: var(--teal); }
+      .panel-foot.amber { background: var(--amber-light); color: var(--amber); }
 
       pre {
         margin: 14px 0;
@@ -263,14 +295,62 @@
             of thinking and apply it everywhere.
           </p>
 
-          <div class="toy-placeholder">
-            <div class="toy-name">Toy 7: One Pattern, Many Projects</div>
-            <div class="toy-desc">
-              Morphing animation showing the same plan structure with three different
-              use cases (website, data analysis, literature review). Drives home:
-              learn once, build anything.
+          <div class="panel" style="max-width:100%" id="morph-panel">
+            <div class="panel-head">
+              <span class="panel-label" style="color:var(--subtle)">main-plan.md</span>
+              <button class="run-btn" id="morph-reset" type="button">Reset</button>
+              <button class="run-btn" id="morph-btn" type="button">Replay</button>
             </div>
+            <div id="morph-stage" style="border-top:1px solid var(--border);background:#fafafa;overflow:hidden;position:relative;min-height:340px;font-family:var(--mono);font-size:11px;line-height:1.6">
+
+              <!-- Fixed structure (always visible) -->
+              <div style="padding:14px 18px 0">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                  <div style="width:32px;height:3px;background:#0d9488;border-radius:2px"></div>
+                  <span style="font-weight:700;font-size:13px;color:#111827">IRL Basic Template</span>
+                </div>
+
+                <div style="padding:6px 8px;border-left:3px solid #0d9488;background:#f0fdfa22;margin-bottom:6px;border-radius:0 4px 4px 0">
+                  <div style="font-weight:700;font-size:11px;color:#0d9488">&check; Before Each Loop</div>
+                  <div style="font-size:10px;color:#6b7280">&bull; Version control: clean tree &bull; Data unchanged</div>
+                </div>
+              </div>
+
+              <!-- Morphing instruction area -->
+              <div style="padding:0 18px">
+                <div style="padding:8px 10px;border-left:3px solid #d97706;background:#fffbeb22;border-radius:0 4px 4px 0;margin-bottom:6px;position:relative;min-height:140px">
+                  <div style="font-weight:700;font-size:11px;color:#d97706;margin-bottom:4px">&orarr; Instruction Loop</div>
+                  <!-- Project badge -->
+                  <div id="morph-badge" style="position:absolute;top:8px;right:10px;font-size:9px;padding:2px 8px;border-radius:10px;font-family:var(--sans);font-weight:600;letter-spacing:0.03em;transition:opacity 0.5s,background 0.5s,color 0.5s"></div>
+                  <!-- Setup line -->
+                  <div id="morph-setup" style="font-size:10.5px;color:#6b7280;margin-bottom:3px;transition:opacity 0.5s"></div>
+                  <!-- Instruction lines -->
+                  <div id="morph-line1" style="font-size:10.5px;color:#374151;transition:opacity 0.5s"></div>
+                  <div id="morph-line2" style="font-size:10.5px;color:#374151;transition:opacity 0.5s"></div>
+                  <div id="morph-line3" style="font-size:10.5px;color:#374151;transition:opacity 0.5s"></div>
+                  <div id="morph-line4" style="font-size:10.5px;color:#374151;transition:opacity 0.5s"></div>
+                  <!-- Output line -->
+                  <div id="morph-output" style="font-size:10.5px;color:#059669;margin-top:4px;transition:opacity 0.5s"></div>
+                </div>
+              </div>
+
+              <!-- Fixed after-loop -->
+              <div style="padding:0 18px 14px">
+                <div style="padding:6px 8px;border-left:3px solid #059669;background:#ecfdf522;margin-bottom:0;border-radius:0 4px 4px 0">
+                  <div style="font-weight:700;font-size:11px;color:#059669">&check; After Each Loop</div>
+                  <div style="font-size:10px;color:#6b7280">&bull; Update activity log &bull; Save version checkpoint &bull; Give feedback</div>
+                </div>
+              </div>
+
+            </div>
+            <div class="panel-foot neutral" id="ft-morph">Same structure. Different project.</div>
           </div>
+
+          <p class="aside">
+            A report, an analysis pipeline, a literature review &mdash;
+            they&rsquo;re all just different instructions in the same kind of plan.
+            Learn the pattern once, use it everywhere.
+          </p>
         </section>
 
         <!-- ═══════════════════════════════════════════════
@@ -313,16 +393,42 @@
             comes back.
           </p>
 
-          <div class="toy-placeholder">
-            <div class="toy-name">Toy 8: The Review Loop</div>
-            <div class="toy-desc">
-              Animated visualization of the trust-building cycle: you state
-              reasoning &rarr; AI produces output &rarr; you review critically
-              &rarr; spot an issue &rarr; clarify/redirect &rarr; AI revises
-              &rarr; you verify &rarr; trust grows. Shows 3 iterations where
-              output quality improves and a "confidence" indicator rises.
+          <div class="contrast">
+            <!-- Left: animated loop visualization -->
+            <div class="panel">
+              <div class="panel-head">
+                <span class="panel-label teal">Review Cycle</span>
+                <button class="run-btn" id="review-reset" type="button">Reset</button>
+                <button class="run-btn" id="review-btn" type="button">Play</button>
+              </div>
+              <div class="canvas-wrap" style="aspect-ratio:1/1"><canvas id="cv-review"></canvas></div>
+              <div class="panel-foot neutral" id="ft-review-left">Your expertise drives every correction.</div>
+            </div>
+            <!-- Right: conversation log -->
+            <div class="panel">
+              <div class="panel-head">
+                <span class="panel-label" style="color:var(--subtle)">Conversation</span>
+              </div>
+              <div id="review-stage" style="padding:14px;min-height:280px;border-top:1px solid var(--border);overflow-y:auto;max-height:420px;font-size:12px;line-height:1.5;position:relative">
+                <!-- Confidence bar -->
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                  <span style="font-family:var(--mono);font-size:10px;color:var(--subtle);white-space:nowrap">Confidence</span>
+                  <div style="flex:1;height:6px;background:#f3f4f6;border-radius:3px;overflow:hidden">
+                    <div id="review-bar" style="height:100%;width:0%;background:#0d9488;border-radius:3px;transition:width 0.8s ease"></div>
+                  </div>
+                  <span id="review-pct" style="font-family:var(--mono);font-size:10px;color:var(--subtle);min-width:28px;text-align:right">0%</span>
+                </div>
+                <div id="review-conv" style="display:flex;flex-direction:column;gap:8px"></div>
+              </div>
+              <div class="panel-foot neutral" id="ft-review">Mistakes are expected. The loop catches them.</div>
             </div>
           </div>
+
+          <p class="aside">
+            The goal isn&rsquo;t a perfect AI. It&rsquo;s a system where your
+            expertise drives the process and every output earns your trust through
+            review. No different than managing any capable assistant.
+          </p>
         </section>
 
         <!-- ═══════════════════════════════════════════════
@@ -363,14 +469,33 @@
             you.
           </p>
 
-          <div class="toy-placeholder">
-            <div class="toy-name">Toy 1: Idempotent vs. Non-Idempotent</div>
-            <div class="toy-desc">
-              Side-by-side constellation animation. Teal side always settles into the
-              same shape; amber side drifts and accumulates dots each run. Visual,
-              immediate, no jargon.
+          <div class="contrast">
+            <div class="panel">
+              <div class="panel-head">
+                <span class="panel-label teal">Idempotent</span>
+                <button class="run-btn" id="idem-reset" type="button">Reset</button>
+                <button class="run-btn" id="idem-btn" type="button">Run</button>
+              </div>
+              <div class="canvas-wrap"><canvas id="cv-idem"></canvas></div>
+              <div class="panel-foot neutral" id="ft-idem">Same recipe, same dish. Press Run.</div>
+            </div>
+            <div class="panel">
+              <div class="panel-head">
+                <span class="panel-label amber">Non-Idempotent</span>
+                <button class="run-btn" id="nonidem-reset" type="button">Reset</button>
+                <button class="run-btn" id="nonidem-btn" type="button">Run</button>
+              </div>
+              <div class="canvas-wrap"><canvas id="cv-nonidem"></canvas></div>
+              <div class="panel-foot neutral" id="ft-nonidem">Same recipe, different dish. Press Run.</div>
             </div>
           </div>
+
+          <p class="aside">
+            The teal side is safe to rerun: the constellation always settles into
+            the same shape. The amber side drifts: positions shift, new dots appear,
+            and you can't tell which run was "right." Idempotency is what makes
+            iteration trustworthy.
+          </p>
         </section>
 
         <!-- ═══════════════════════════════════════════════
@@ -419,14 +544,22 @@
             you'll avoid reruns, and that's where mistakes hide.
           </p>
 
-          <div class="toy-placeholder">
-            <div class="toy-name">Toy 2: The Loop</div>
-            <div class="toy-desc">
-              Canvas animation showing HUMAN &harr; AI &rarr; REPORT triangle.
-              Particles flow along plan/execute/review paths. Report card grows
-              each cycle. Activity hints accumulate in margins.
+          <div class="panel" style="max-width:100%">
+            <div class="panel-head">
+              <span class="panel-label" style="color:var(--subtle)">Human &harr; AI &rarr; Report</span>
+              <button class="run-btn" id="recipe-reset" type="button">Reset</button>
+              <button class="run-btn" id="recipe-btn" type="button">Run Cycle</button>
             </div>
+            <div class="canvas-wrap" style="aspect-ratio:5/2.5"><canvas id="cv-recipe"></canvas></div>
+            <div class="panel-foot neutral" id="ft-recipe">Watching the loop&hellip;</div>
           </div>
+
+          <p class="aside">
+            You write a plan with your instructions. The AI reads it and produces
+            a report. As each cycle runs, planning appears on the left, execution
+            on the right &mdash; a visible trail of the work. You review the output,
+            refine your plan, and loop again. Each pass builds on the last.
+          </p>
         </section>
 
         <!-- ═══════════════════════════════════════════════
@@ -469,15 +602,23 @@
             breaking something.
           </p>
 
-          <div class="toy-placeholder">
-            <div class="toy-name">Toy 3: The Process</div>
-            <div class="toy-desc">
-              Side-by-side DOM animation. Plan on the left (Before / Instruction /
-              After Each Loop sections highlight in sequence). Outputs accumulate on
-              the right. Two loops with a revision between them showing iterative
-              refinement.
+          <div class="panel" style="max-width:100%" id="process-panel">
+            <div class="panel-head">
+              <span class="panel-label" style="color:var(--subtle)">Plan &rarr; Execute &rarr; Revise &rarr; Repeat</span>
+              <button class="run-btn" id="process-reset" type="button">Reset</button>
+              <button class="run-btn" id="process-btn" type="button">Play</button>
             </div>
+            <div id="process-stage" style="padding:14px 16px;min-height:300px;font-family:var(--mono);font-size:12px;line-height:1.55;background:#fafafa;border-top:1px solid var(--border);overflow:hidden;position:relative">
+            </div>
+            <div class="panel-foot neutral" id="ft-process">Watch the IRL loop in action.</div>
           </div>
+
+          <p class="aside">
+            Each loop follows the same structure: check prerequisites, execute
+            instructions, save a checkpoint. When the author adds a revision,
+            the next loop picks it up and improves the output. Nothing is hidden
+            in chat history &mdash; it all lives in files you can inspect.
+          </p>
         </section>
 
         <!-- ═══════════════════════════════════════════════
@@ -518,14 +659,32 @@
             work, they start with this file. Everything flows from the plan.
           </p>
 
-          <div class="toy-placeholder">
-            <div class="toy-name">Toy 4: Anatomy of a Plan</div>
-            <div class="toy-desc">
-              Split layout: plan document on the left with realistic content,
-              clickable section labels with colored dots on the right. Click a
-              section to highlight both sides and see a description.
+          <div class="panel" style="max-width:100%" id="anatomy-panel">
+            <div class="panel-head">
+              <span class="panel-label" style="color:var(--subtle)">main-plan.md</span>
+              <button class="run-btn" id="anatomy-reset" type="button">Reset</button>
             </div>
+            <div id="anatomy-stage" style="display:flex;gap:0;border-top:1px solid var(--border);min-height:340px;background:#fafafa">
+              <!-- Left: visual plan document -->
+              <div id="anatomy-plan" style="flex:1;padding:16px 18px;font-family:var(--mono);font-size:11px;line-height:1.65;border-right:1px solid var(--border);overflow:hidden;position:relative">
+              </div>
+              <!-- Right: clickable section labels + description -->
+              <div id="anatomy-labels" style="width:260px;min-width:220px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;font-family:var(--sans);font-size:12px">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#9ca3af;margin-bottom:2px">Sections</div>
+                <div id="anatomy-label-list"></div>
+                <div id="anatomy-detail" style="margin-top:auto;padding:10px 12px;background:#fff;border:1px solid #e5e7eb;border-radius:6px;font-size:11.5px;line-height:1.55;color:#374151;min-height:50px;opacity:0;transition:opacity 0.3s">
+                  Click a section to learn more.
+                </div>
+              </div>
+            </div>
+            <div class="panel-foot neutral" id="ft-anatomy">Click a section to see its role in the loop.</div>
           </div>
+
+          <p class="aside">
+            The plan file is the single source of truth. The human writes the
+            instructions; the AI reads and executes them. Every section has a clear
+            role &mdash; and nothing important lives only in chat history.
+          </p>
         </section>
 
         <!-- ═══════════════════════════════════════════════
@@ -564,14 +723,22 @@
             gets a little more complete.
           </p>
 
-          <div class="toy-placeholder">
-            <div class="toy-name">Toy 5: The Execution Loop</div>
-            <div class="toy-desc">
-              Dark terminal animation. Three loops of the same command with
-              revisions appearing between loops. Shows the rhythmic pattern of
-              execute &rarr; review &rarr; revise &rarr; execute.
+          <div class="panel" style="max-width:100%" id="terminal-panel">
+            <div class="panel-head">
+              <span class="panel-label" style="color:var(--subtle)">Terminal &rarr; AI</span>
+              <button class="run-btn" id="terminal-reset" type="button">Reset</button>
+              <button class="run-btn" id="terminal-btn" type="button">Play</button>
             </div>
+            <div id="terminal-stage" style="padding:16px 18px;min-height:180px;font-family:var(--mono);font-size:13px;line-height:1.6;background:#1e1e2e;color:#cdd6f4;border-top:1px solid var(--border);overflow:hidden;border-radius:0 0 8px 8px">
+            </div>
+            <div class="panel-foot neutral" id="ft-terminal">Watch the workflow loop.</div>
           </div>
+
+          <p class="aside">
+            This is the entire workflow: open a terminal, give the AI your plan,
+            and tell it to execute. Each pass picks up your latest revisions
+            and builds on previous output. The plan file is the interface.
+          </p>
         </section>
 
         <!-- ═══════════════════════════════════════════════
@@ -610,14 +777,105 @@
             preview. Review, revise, repeat.
           </p>
 
-          <div class="toy-placeholder">
-            <div class="toy-name">Toy 6: The Workspace</div>
-            <div class="toy-desc">
-              Interactive mock IDE layout. Four clickable zones (file explorer,
-              plan editor, output preview, terminal) with overlay descriptions.
-              Guided Tour button walks through each zone automatically.
+          <div class="panel" style="max-width:100%" id="workspace-panel">
+            <div class="panel-head">
+              <span class="panel-label" style="color:var(--subtle)">Editor Workspace</span>
+              <button class="run-btn" id="workspace-reset" type="button">Reset</button>
+              <button class="run-btn" id="workspace-tour-btn" type="button">Tour</button>
             </div>
+            <div id="workspace-stage" style="border-top:1px solid var(--border);background:#1e1e2e;border-radius:0 0 8px 8px;overflow:hidden;font-family:var(--mono);font-size:11px;line-height:1.5;color:#cdd6f4;position:relative">
+
+              <!-- Title bar -->
+              <div style="background:#181825;padding:4px 12px;font-size:10px;color:#6c7086;display:flex;align-items:center;gap:8px;border-bottom:1px solid #313244">
+                <span style="display:flex;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#f38ba8;display:inline-block"></span><span style="width:8px;height:8px;border-radius:50%;background:#f9e2af;display:inline-block"></span><span style="width:8px;height:8px;border-radius:50%;background:#a6e3a1;display:inline-block"></span></span>
+                <span style="margin-left:8px">my-irl-project &mdash; Code Editor</span>
+              </div>
+
+              <div style="display:flex;min-height:360px">
+                <!-- Sidebar: file list -->
+                <div id="ws-sidebar" data-ws-zone="sidebar" style="width:160px;background:#181825;border-right:1px solid #313244;padding:8px 0;cursor:pointer;transition:background 0.3s">
+                  <div style="padding:2px 10px;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:#6c7086;margin-bottom:4px">Explorer</div>
+                  <div style="padding:3px 10px;color:#cba6f7">&#9660; my-irl-project</div>
+                  <div style="padding:2px 10px 2px 22px;color:#6c7086">&#9660; plans/</div>
+                  <div style="padding:2px 10px 2px 34px;color:#89b4fa">main-plan.md</div>
+                  <div style="padding:2px 10px 2px 34px;color:#6c7086">activity.md</div>
+                  <div style="padding:2px 10px 2px 22px;color:#6c7086">&#9660; 02-data/</div>
+                  <div style="padding:2px 10px 2px 34px;color:#6c7086">survey.csv</div>
+                  <div style="padding:2px 10px 2px 22px;color:#6c7086">&#9660; 03-outputs/</div>
+                  <div style="padding:2px 10px 2px 34px;color:#a6e3a1">report.html</div>
+                </div>
+
+                <!-- Main area: editor + preview side by side -->
+                <div style="flex:1;display:flex;flex-direction:column">
+                  <div style="display:flex;flex:1">
+                    <!-- Editor pane -->
+                    <div id="ws-editor" data-ws-zone="editor" style="flex:1;border-right:1px solid #313244;cursor:pointer;transition:background 0.3s;display:flex;flex-direction:column">
+                      <div style="background:#181825;padding:4px 10px;font-size:10px;color:#89b4fa;border-bottom:1px solid #313244">main-plan.md &times;</div>
+                      <div style="padding:8px 10px;flex:1;overflow:hidden">
+                        <div style="color:#6c7086;font-size:10px">1</div>
+                        <div><span style="color:#cba6f7">##</span> <span style="color:#f9e2af">Instruction Loop</span></div>
+                        <div style="color:#6c7086;font-size:10px">2</div>
+                        <div style="color:#cdd6f4">1. Load 02-data/survey.csv</div>
+                        <div style="color:#6c7086;font-size:10px">3</div>
+                        <div style="color:#cdd6f4">2. Filter by inclusion criteria</div>
+                        <div style="color:#6c7086;font-size:10px">4</div>
+                        <div style="color:#cdd6f4">3. Compute group statistics</div>
+                        <div style="color:#6c7086;font-size:10px">5</div>
+                        <div style="color:#cdd6f4">4. Run t-test, render report</div>
+                        <div style="color:#6c7086;font-size:10px">6</div>
+                        <div style="color:#6c7086;font-size:10px">7</div>
+                        <div><span style="color:#f38ba8">&#10078;</span> <span style="color:#f9e2af;font-style:italic">add confidence intervals</span></div>
+                      </div>
+                    </div>
+
+                    <!-- Preview pane -->
+                    <div id="ws-preview" data-ws-zone="preview" style="flex:1;cursor:pointer;transition:background 0.3s;display:flex;flex-direction:column">
+                      <div style="background:#181825;padding:4px 10px;font-size:10px;color:#a6e3a1;border-bottom:1px solid #313244">report.html &mdash; Preview</div>
+                      <div style="padding:10px 12px;flex:1;background:#252536;overflow:hidden">
+                        <div style="font-size:12px;font-weight:700;color:#cdd6f4;margin-bottom:6px">Survey Analysis Report</div>
+                        <div style="font-size:10px;color:#6c7086;margin-bottom:8px">Generated from main-plan.md</div>
+                        <div style="display:flex;gap:12px;margin-bottom:8px">
+                          <div style="background:#313244;padding:6px 8px;border-radius:4px;flex:1;text-align:center">
+                            <div style="font-size:9px;color:#6c7086">Treatment</div>
+                            <div style="font-size:13px;color:#89b4fa;font-weight:600">4.82</div>
+                            <div style="font-size:8px;color:#6c7086">SD = 1.14</div>
+                          </div>
+                          <div style="background:#313244;padding:6px 8px;border-radius:4px;flex:1;text-align:center">
+                            <div style="font-size:9px;color:#6c7086">Control</div>
+                            <div style="font-size:13px;color:#f9e2af;font-weight:600">3.51</div>
+                            <div style="font-size:8px;color:#6c7086">SD = 1.08</div>
+                          </div>
+                        </div>
+                        <div style="font-size:10px;color:#a6e3a1">t(58) = 2.41, p = .019</div>
+                        <div style="font-size:10px;color:#a6e3a1">95% CI [0.22, 2.40]</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Terminal pane -->
+                  <div id="ws-terminal" data-ws-zone="terminal" style="border-top:1px solid #313244;cursor:pointer;transition:background 0.3s;padding:10px 12px;min-height:80px">
+                    <div style="font-size:10px;color:#6c7086;margin-bottom:4px">TERMINAL</div>
+                    <div><span style="color:#a6e3a1">$</span> <span style="color:#cdd6f4">Review main-plan.md, check for revisions, and execute</span></div>
+                    <div style="color:#6c7086;font-size:10px;margin-top:2px">Loop 2 &mdash; AI executing instructions&hellip;</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Overlay for zone info -->
+              <div id="ws-overlay" style="display:none;position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(24,24,37,0.95) 30%);padding:16px 18px 12px;pointer-events:none">
+                <div id="ws-overlay-title" style="font-size:13px;font-weight:700;color:#cba6f7;margin-bottom:4px"></div>
+                <div id="ws-overlay-desc" style="font-size:11px;color:#a6adc8;line-height:1.5"></div>
+              </div>
+
+            </div>
+            <div class="panel-foot neutral" id="ft-workspace">Click any area or take the tour.</div>
           </div>
+
+          <p class="aside">
+            Everything lives in one place: the plan you write, the data it reads,
+            the output it produces, and the terminal where you trigger each loop.
+            No context is hidden &mdash; you can inspect every piece.
+          </p>
         </section>
 
         <!-- ═══════════════════════════════════════════════
@@ -856,5 +1114,1859 @@
       </footer>
 
     </div>
+    <script>
+    (function () {
+      var N = 12;
+      var R = 5;
+      var LINE_DIST = 80;
+      var SCATTER_MS = 300;
+      var SETTLE_MS = 800;
+
+      function ease(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
+
+      /* ── Canvas boilerplate ── */
+      function init(id) {
+        var c = document.getElementById(id);
+        var dpr = window.devicePixelRatio || 1;
+        function fit() {
+          var r = c.parentElement.getBoundingClientRect();
+          c.width = r.width * dpr; c.height = r.height * dpr;
+        }
+        fit(); window.addEventListener("resize", fit);
+        return { c: c, dpr: dpr, fit: fit };
+      }
+      function ctx(cv) {
+        var g = cv.c.getContext("2d");
+        g.setTransform(cv.dpr, 0, 0, cv.dpr, 0, 0);
+        return g;
+      }
+      function dim(cv) { return { w: cv.c.width / cv.dpr, h: cv.c.height / cv.dpr }; }
+
+      /* ── Seeded RNG (mulberry32) ── */
+      function rng(s) {
+        return function () {
+          s |= 0; s = s + 0x6d2b79f5 | 0;
+          var t = Math.imul(s ^ s >>> 15, 1 | s);
+          t = (t + Math.imul(t ^ t >>> 7, 61 | t)) ^ t;
+          return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        };
+      }
+
+      function seededPts(n, w, h, seed) {
+        var r = rng(seed), pad = R + 14, pts = [];
+        for (var i = 0; i < n; i++)
+          pts.push({ x: pad + r() * (w - 2*pad), y: pad + r() * (h - 2*pad) });
+        return pts;
+      }
+      function randPts(n, w, h) {
+        var pad = R + 14, pts = [];
+        for (var i = 0; i < n; i++)
+          pts.push({ x: pad + Math.random()*(w-2*pad), y: pad + Math.random()*(h-2*pad) });
+        return pts;
+      }
+
+      /* ── Drawing ── */
+      function draw(g, pts, colors, w, h, lineColor) {
+        g.clearRect(0, 0, w, h);
+
+        /* constellation lines */
+        g.strokeStyle = lineColor;
+        g.lineWidth = 1;
+        for (var i = 0; i < pts.length; i++) {
+          for (var j = i + 1; j < pts.length; j++) {
+            var dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
+            var d = Math.sqrt(dx*dx + dy*dy);
+            if (d < LINE_DIST) {
+              var a = 0.25 * (1 - d / LINE_DIST);
+              g.globalAlpha = a;
+              g.beginPath();
+              g.moveTo(pts[i].x, pts[i].y);
+              g.lineTo(pts[j].x, pts[j].y);
+              g.stroke();
+            }
+          }
+        }
+
+        /* dots */
+        for (var k = 0; k < pts.length; k++) {
+          g.globalAlpha = pts[k].a !== undefined ? pts[k].a : 1;
+          g.beginPath();
+          g.arc(pts[k].x, pts[k].y, R, 0, Math.PI * 2);
+          g.fillStyle = colors[k % colors.length];
+          g.fill();
+        }
+        g.globalAlpha = 1;
+      }
+
+      /* ── Two-phase animation: scatter out, then settle ── */
+      function animate(cv, from, to, colors, lineColor, done) {
+        var d = dim(cv);
+        /* Phase 1: scatter from current positions outward */
+        var scattered = [];
+        var cx = d.w / 2, cy = d.h / 2;
+        for (var i = 0; i < to.length; i++) {
+          var src = from[i] || { x: cx, y: cy };
+          var angle = Math.atan2(src.y - cy, src.x - cx) + (Math.random()-0.5)*1.2;
+          var dist = 30 + Math.random() * 40;
+          scattered.push({
+            x: src.x + Math.cos(angle) * dist,
+            y: src.y + Math.sin(angle) * dist,
+          });
+        }
+
+        var start = null;
+        var totalMs = SCATTER_MS + SETTLE_MS;
+
+        function frame(ts) {
+          if (!start) start = ts;
+          var el = ts - start;
+          var g = ctx(cv);
+          var pts = [];
+
+          if (el < SCATTER_MS) {
+            /* Phase 1: current → scattered */
+            var t1 = ease(el / SCATTER_MS);
+            for (var i = 0; i < to.length; i++) {
+              var src = from[i] || { x: cx, y: cy };
+              pts.push({
+                x: src.x + (scattered[i].x - src.x) * t1,
+                y: src.y + (scattered[i].y - src.y) * t1,
+                a: from[i] ? 1 : t1,
+              });
+            }
+          } else {
+            /* Phase 2: scattered → target */
+            var t2 = ease(Math.min((el - SCATTER_MS) / SETTLE_MS, 1));
+            for (var j = 0; j < to.length; j++) {
+              pts.push({
+                x: scattered[j].x + (to[j].x - scattered[j].x) * t2,
+                y: scattered[j].y + (to[j].y - scattered[j].y) * t2,
+                a: from[j] ? 1 : Math.min(1, (el / SCATTER_MS)),
+              });
+            }
+          }
+
+          draw(g, pts, colors, d.w, d.h, lineColor);
+
+          if (el < totalMs) {
+            requestAnimationFrame(frame);
+          } else {
+            /* final clean draw at exact targets */
+            draw(g, to.map(function(p) { return { x:p.x, y:p.y, a:1 }; }), colors, d.w, d.h, lineColor);
+            if (done) done(to);
+          }
+        }
+        requestAnimationFrame(frame);
+      }
+
+      /* ── Color palettes ── */
+      var tealPalette = ["#0d9488","#14b8a6","#2dd4bf","#5eead4","#99f6e4","#0f766e"];
+      var amberPalette = ["#d97706","#f59e0b","#fbbf24","#fcd34d","#b45309","#92400e"];
+
+      function pickColors(n, palette, seed) {
+        var r = rng(seed), out = [];
+        for (var i = 0; i < n; i++) out.push(palette[Math.floor(r() * palette.length)]);
+        return out;
+      }
+
+      /* ══════════════════════════════════════
+         IDEMPOTENT
+         ══════════════════════════════════════ */
+      var iCv = init("cv-idem");
+      var iBtn = document.getElementById("idem-btn");
+      var iFt = document.getElementById("ft-idem");
+      var iRuns = 0, iCur = null;
+      var SEED = 42;
+      var iCol = pickColors(N, tealPalette, SEED);
+
+      (function () {
+        var d = dim(iCv);
+        iCur = randPts(N, d.w, d.h);
+        draw(ctx(iCv), iCur, iCol, d.w, d.h, "rgba(13,148,136,0.35)");
+      })();
+
+      iBtn.addEventListener("click", function () {
+        iBtn.disabled = true;
+        iRuns++;
+        var d = dim(iCv);
+        var targets = seededPts(N, d.w, d.h, SEED);
+        animate(iCv, iCur, targets, iCol, "rgba(13,148,136,0.35)", function (final) {
+          iCur = final;
+          iBtn.disabled = false;
+          iFt.className = "panel-foot teal";
+          iFt.textContent = iRuns === 1
+            ? "Run #1 \u2014 constellation formed."
+            : "Run #" + iRuns + " \u2014 identical shape. Nothing changed.";
+        });
+      });
+
+      document.getElementById("idem-reset").addEventListener("click", function () {
+        if (iBtn.disabled) return;
+        iRuns = 0;
+        var d = dim(iCv);
+        iCur = randPts(N, d.w, d.h);
+        draw(ctx(iCv), iCur, iCol, d.w, d.h, "rgba(13,148,136,0.35)");
+        iFt.textContent = "Press Run to form the constellation.";
+        iFt.className = "panel-foot neutral";
+      });
+
+      /* ══════════════════════════════════════
+         NON-IDEMPOTENT
+         ══════════════════════════════════════ */
+      var nCv = init("cv-nonidem");
+      var nBtn = document.getElementById("nonidem-btn");
+      var nFt = document.getElementById("ft-nonidem");
+      var nRuns = 0, nCur = null, nCount = N;
+      var nCol = pickColors(N + 30, amberPalette, 99);
+
+      (function () {
+        var d = dim(nCv);
+        nCur = randPts(N, d.w, d.h);
+        draw(ctx(nCv), nCur, nCol, d.w, d.h, "rgba(217,119,6,0.3)");
+      })();
+
+      nBtn.addEventListener("click", function () {
+        nBtn.disabled = true;
+        nRuns++;
+        var d = dim(nCv);
+        var extra = Math.floor(Math.random() * 2) + 1;
+        var newN = nCount + extra;
+        var targets = randPts(newN, d.w, d.h);
+
+        /* Pad from with center-spawns for new dots */
+        var from = (nCur || []).slice();
+        while (from.length < newN) from.push({ x: d.w/2, y: d.h/2 });
+
+        animate(nCv, from, targets, nCol, "rgba(217,119,6,0.3)", function (final) {
+          nCur = final;
+          nCount = newN;
+          nBtn.disabled = false;
+          nFt.className = "panel-foot amber";
+          nFt.textContent = nRuns === 1
+            ? "Run #1 \u2014 " + newN + " dots, random positions."
+            : "Run #" + nRuns + " \u2014 " + newN + " dots. Shape changed again.";
+        });
+      });
+
+      document.getElementById("nonidem-reset").addEventListener("click", function () {
+        if (nBtn.disabled) return;
+        nRuns = 0;
+        nCount = N;
+        var d = dim(nCv);
+        nCur = randPts(N, d.w, d.h);
+        draw(ctx(nCv), nCur, nCol, d.w, d.h, "rgba(217,119,6,0.3)");
+        nFt.textContent = "Press Run — watch it shift every time.";
+        nFt.className = "panel-foot neutral";
+      });
+    })();
+
+    /* ══════════════════════════════════════════════
+       TOY 2: THE LOOP — human ↔ AI → artifacts
+       ══════════════════════════════════════════════ */
+    (function () {
+      var cv = (function (id) {
+        var c = document.getElementById(id);
+        var dpr = window.devicePixelRatio || 1;
+        function fit() {
+          var r = c.parentElement.getBoundingClientRect();
+          c.width = r.width * dpr; c.height = r.height * dpr;
+        }
+        fit(); window.addEventListener("resize", fit);
+        return { c: c, dpr: dpr };
+      })("cv-recipe");
+
+      var btn = document.getElementById("recipe-btn");
+      var ft = document.getElementById("ft-recipe");
+      var cycles = 0;
+      var reportVer = 0;
+      var RLINE_W = [0.72,0.50,0.88,0.62,0.40,0.78,0.55,0.83,0.68];
+      var autoPlaying = false;
+      var mono = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
+
+      function getCtx() {
+        var c = cv.c.getContext("2d");
+        c.setTransform(cv.dpr, 0, 0, cv.dpr, 0, 0);
+        return c;
+      }
+      function W() { return cv.c.width / cv.dpr; }
+      function H() { return cv.c.height / cv.dpr; }
+      function ease(t) { return t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2; }
+
+      var HUMAN_C = "#0d9488";
+      var AI_C = "#6b7280";
+      var REVIEW_C = "#92400e";
+      /* report line widths pre-defined in RLINE_W above */
+
+      /* Activity hint snippets — from actual IRL instructions */
+      var PLAN_HINTS = ["load survey data", "filter responses", "run t-test", "compute stats", "render report", "check inputs"];
+      var EXEC_HINTS = ["reading data\u2026", "filtering rows\u2026", "computing means\u2026", "running t-test\u2026", "writing report\u2026", "saving output\u2026"];
+      var hintLog = []; /* accumulated: {text, side:"h"|"a", born} */
+      var hintSchedule = [], hintFired = 0;
+
+      function drawAllHints(ctx) {
+        var w = W(), now = performance.now();
+        var hc = 0, ac = 0;
+        for (var i = 0; i < hintLog.length; i++) {
+          var ht = hintLog[i];
+          var age = now - ht.born;
+          var fadeIn = Math.min(age / 600, 1);
+          var recency = hintLog.length - 1 - i;
+          var baseA = Math.max(0.12, 0.45 - recency * 0.05);
+          var alpha = fadeIn * baseA;
+          if (alpha < 0.01) continue;
+          ctx.font = "italic 10px " + mono;
+          ctx.globalAlpha = alpha;
+          if (ht.side === "h") {
+            ctx.textAlign = "left"; ctx.fillStyle = HUMAN_C;
+            ctx.fillText(ht.text, 8, 14 + hc * 14); hc++;
+          } else {
+            ctx.textAlign = "right"; ctx.fillStyle = AI_C;
+            ctx.fillText(ht.text, w - 8, 14 + ac * 14); ac++;
+          }
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      function nodeR() { return Math.min(W(), H()) * 0.15; }
+
+      function layout() {
+        var w = W(), h = H();
+        return { hx: w*0.22, hy: h*0.38, ax: w*0.78, ay: h*0.38, r: nodeR() };
+      }
+
+      /* Three bezier legs forming the loop */
+      function loopPaths() {
+        var w = W(), h = H(), L = layout(), r = L.r;
+        return [
+          /* 0: Human → AI (arc over top) */
+          { sx: L.hx + r*0.85, sy: L.hy - r*0.5,
+            c1x: w*0.38, c1y: h*0.08, c2x: w*0.62, c2y: h*0.08,
+            ex: L.ax - r*0.85, ey: L.ay - r*0.5,
+            color: HUMAN_C, label: "plan" },
+          /* 1: AI → Files (curve down right) */
+          { sx: L.ax + r*0.15, sy: L.ay + r,
+            c1x: w*0.85, c1y: h*0.65, c2x: w*0.68, c2y: h*0.82,
+            ex: w*0.58, ey: h*0.80,
+            color: AI_C, label: "execute" },
+          /* 2: Files → Human (curve up left) */
+          { sx: w*0.42, sy: h*0.80,
+            c1x: w*0.30, c1y: h*0.82, c2x: w*0.14, c2y: h*0.65,
+            ex: L.hx - r*0.15, ey: L.hy + r,
+            color: REVIEW_C, label: "review" },
+        ];
+      }
+
+      function bezAt(p, t) {
+        var u = 1 - t;
+        return {
+          x: u*u*u*p.sx + 3*u*u*t*p.c1x + 3*u*t*t*p.c2x + t*t*t*p.ex,
+          y: u*u*u*p.sy + 3*u*u*t*p.c1y + 3*u*t*t*p.c2y + t*t*t*p.ey,
+        };
+      }
+
+      function drawArrow(ctx, p) {
+        var dx = p.ex - p.c2x, dy = p.ey - p.c2y;
+        var len = Math.sqrt(dx*dx + dy*dy); dx /= len; dy /= len;
+        var sz = 14, px = -dy*sz*0.5, py = dx*sz*0.5;
+        ctx.fillStyle = p.color; ctx.globalAlpha = 0.7;
+        ctx.beginPath();
+        ctx.moveTo(p.ex, p.ey);
+        ctx.lineTo(p.ex - dx*sz + px, p.ey - dy*sz + py);
+        ctx.lineTo(p.ex - dx*sz - px, p.ey - dy*sz - py);
+        ctx.closePath(); ctx.fill(); ctx.globalAlpha = 1;
+      }
+
+      function drawNode(ctx, x, y, r, color, dashed, label, sub, glow) {
+        if (glow > 0) {
+          ctx.fillStyle = color; ctx.globalAlpha = 0.07 * glow;
+          ctx.beginPath(); ctx.arc(x, y, r*1.6, 0, Math.PI*2); ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+        ctx.fillStyle = color; ctx.globalAlpha = 0.08 + 0.05*glow;
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = color; ctx.lineWidth = 1.5;
+        if (dashed) ctx.setLineDash([4,3]);
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = color;
+        ctx.font = "700 20px " + mono;
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(label, x, y - 8);
+        if (sub) {
+          ctx.font = "400 14px " + mono; ctx.globalAlpha = 0.55;
+          ctx.fillText(sub, x, y + 14); ctx.globalAlpha = 1;
+        }
+      }
+
+      function roundRect(ctx, x, y, w, h, r) {
+        ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y);
+        ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r);
+        ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h);
+        ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r);
+        ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+      }
+
+      function drawScene(ctx, gh, ga) {
+        var w = W(), h = H(), L = layout(), P = loopPaths();
+        ctx.clearRect(0, 0, w, h);
+
+        /* Loop paths + arrowheads + labels */
+        for (var i = 0; i < P.length; i++) {
+          var p = P[i];
+          ctx.strokeStyle = p.color; ctx.globalAlpha = 0.35;
+          ctx.lineWidth = 2; ctx.setLineDash([8,4]);
+          ctx.beginPath();
+          ctx.moveTo(p.sx, p.sy);
+          ctx.bezierCurveTo(p.c1x, p.c1y, p.c2x, p.c2y, p.ex, p.ey);
+          ctx.stroke();
+          ctx.setLineDash([]); ctx.globalAlpha = 1;
+          drawArrow(ctx, p);
+          var mid = bezAt(p, 0.5);
+          ctx.fillStyle = p.color; ctx.globalAlpha = 0.5;
+          ctx.font = "600 15px " + mono;
+          ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          var offY = i === 0 ? -14 : 0;
+          var offX = i === 1 ? 18 : (i === 2 ? -18 : 0);
+          ctx.fillText(p.label, mid.x + offX, mid.y + offY);
+          ctx.globalAlpha = 1;
+        }
+
+        /* Nodes */
+        drawNode(ctx, L.hx, L.hy, L.r, HUMAN_C, false, "HUMAN", "reason \xb7 plan", gh||0);
+        drawNode(ctx, L.ax, L.ay, L.r, AI_C, true, "AI", "execute", ga||0);
+
+        /* Report document */
+        if (reportVer > 0) {
+          var rw = 82, nLines = reportVer * 3;
+          var rh = 24 + nLines * 8;
+          var rx = w*0.50 - rw/2, ry = h*0.60;
+
+          /* shadow */
+          ctx.fillStyle = "#e5e7eb"; ctx.globalAlpha = 0.4;
+          ctx.beginPath(); roundRect(ctx, rx+2, ry+2, rw, rh, 5); ctx.fill();
+
+          /* card */
+          ctx.fillStyle = "#fff"; ctx.globalAlpha = 1;
+          ctx.beginPath(); roundRect(ctx, rx, ry, rw, rh, 5); ctx.fill();
+          ctx.strokeStyle = "#d1d5db"; ctx.lineWidth = 1;
+          ctx.beginPath(); roundRect(ctx, rx, ry, rw, rh, 5); ctx.stroke();
+
+          /* label */
+          ctx.fillStyle = AI_C; ctx.globalAlpha = 0.55;
+          ctx.font = "600 11px " + mono; ctx.textAlign = "center";
+          ctx.fillText("REPORT v" + reportVer, w*0.50, ry - 7);
+          ctx.globalAlpha = 1;
+
+          /* content lines */
+          for (var l = 0; l < nLines; l++) {
+            var fresh = l >= (nLines - 3);
+            ctx.fillStyle = fresh ? HUMAN_C : "#9ca3af";
+            ctx.globalAlpha = fresh ? 0.45 : 0.25;
+            ctx.fillRect(rx+8, ry+10+l*8, (rw-16)*RLINE_W[l%RLINE_W.length], 3);
+          }
+          ctx.globalAlpha = 1;
+        }
+
+        /* Accumulated activity hints in margins */
+        drawAllHints(ctx);
+      }
+
+      /* Particle drawing helper */
+      function drawParticles(ctx, path, el, phaseStart, count, stagger, flowMs, color) {
+        for (var i = 0; i < count; i++) {
+          var lt = (el - phaseStart - i*stagger) / flowMs;
+          if (lt < 0 || lt > 1) continue;
+          var et = ease(lt);
+          for (var s = 0; s < 6; s++) {
+            var tt = et - (s/6)*0.12;
+            if (tt < 0) continue;
+            var tp = bezAt(path, tt);
+            ctx.globalAlpha = (1-s/6)*0.25;
+            ctx.beginPath();
+            ctx.arc(tp.x, tp.y, 4.5*(1-s/6*0.4), 0, Math.PI*2);
+            ctx.fillStyle = color; ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+          var pos = bezAt(path, et);
+          ctx.beginPath();
+          ctx.arc(pos.x, pos.y, 4.5, 0, Math.PI*2);
+          ctx.fillStyle = color; ctx.fill();
+        }
+      }
+
+      /* Initial draw */
+      drawScene(getCtx(), 0, 0);
+
+      /* Animation timing */
+      var PLAN_N = 3, EXEC_N = 3, REV_N = 2;
+      var FLOW_MS = 700, STAGGER = 70;
+      var phase1T = FLOW_MS + (PLAN_N-1)*STAGGER;
+      var GAP = 80;
+      var phase2S = phase1T + GAP;
+      var phase2T = FLOW_MS + (EXEC_N-1)*STAGGER;
+      var phase3S = phase2S + phase2T + GAP;
+      var phase3T = FLOW_MS + (REV_N-1)*STAGGER;
+      var totalT = phase3S + phase3T;
+
+      function buildHintSchedule(n) {
+        var b = (n - 1) % PLAN_HINTS.length;
+        return [
+          [phase1T * 0.25, PLAN_HINTS[b % PLAN_HINTS.length], "h"],
+          [phase1T * 0.70, PLAN_HINTS[(b+1) % PLAN_HINTS.length], "h"],
+          [phase2S + phase2T * 0.25, EXEC_HINTS[b % EXEC_HINTS.length], "a"],
+          [phase2S + phase2T * 0.70, EXEC_HINTS[(b+1) % EXEC_HINTS.length], "a"],
+          [phase3S + phase3T * 0.35, "check output\u2026", "h"],
+        ];
+      }
+
+      /* Run one cycle, call onDone when finished */
+      function runOneCycle(onDone) {
+        btn.disabled = true;
+        cycles++;
+        hintSchedule = buildHintSchedule(cycles);
+        hintFired = 0;
+        var w = W(), h = H(), P = loopPaths();
+        var t0 = null;
+
+        function frame(ts) {
+          if (!t0) t0 = ts;
+          var el = ts - t0;
+          var c = getCtx();
+
+          /* Node glow per phase */
+          var gh = 0, ga = 0;
+          if (el < phase1T)
+            gh = Math.sin(el/phase1T * Math.PI) * 0.8;
+          else if (el >= phase2S && el < phase2S + phase2T)
+            ga = Math.sin((el - phase2S)/phase2T * Math.PI) * 0.8;
+          else if (el >= phase3S)
+            gh = Math.sin((el - phase3S)/phase3T * Math.PI) * 0.4;
+
+          drawScene(c, gh, ga);
+
+          /* Phase 1: Human → AI  (plan) */
+          drawParticles(c, P[0], el, 0, PLAN_N, STAGGER, FLOW_MS, HUMAN_C);
+          /* Phase 2: AI → Report (execute) */
+          drawParticles(c, P[1], el, phase2S, EXEC_N, STAGGER, FLOW_MS, AI_C);
+          /* Phase 3: Report → Human (review) */
+          drawParticles(c, P[2], el, phase3S, REV_N, STAGGER, FLOW_MS, REVIEW_C);
+
+          c.globalAlpha = 1;
+
+          /* Fire scheduled hints — accumulate in margins */
+          while (hintFired < hintSchedule.length && el >= hintSchedule[hintFired][0]) {
+            var hs = hintSchedule[hintFired];
+            hintLog.push({ text: hs[1], side: hs[2], born: performance.now() });
+            hintFired++;
+            if (hintLog.length > 20) hintLog.splice(0, hintLog.length - 20);
+          }
+
+          if (el < totalT) {
+            requestAnimationFrame(frame);
+          } else {
+            /* Update report version */
+            reportVer = cycles;
+            drawScene(getCtx(), 0, 0);
+            ft.className = "panel-foot teal";
+            ft.textContent = "Cycle #" + cycles + " \u2014 Report v" + reportVer +
+              " produced. Loop complete.";
+            if (!autoPlaying) btn.disabled = false;
+            if (onDone) onDone();
+          }
+        }
+        requestAnimationFrame(frame);
+      }
+
+      /* Auto-play 3 cycles on load */
+      var AUTO_CYCLES = 3, AUTO_PAUSE = 900;
+      function autoPlay(n) {
+        autoPlaying = true;
+        btn.textContent = "Playing\u2026";
+        btn.disabled = true;
+        runOneCycle(function () {
+          if (n > 1) {
+            setTimeout(function () { autoPlay(n - 1); }, AUTO_PAUSE);
+          } else {
+            autoPlaying = false;
+            btn.disabled = false;
+            btn.textContent = "Run Cycle";
+          }
+        });
+      }
+      setTimeout(function () { autoPlay(AUTO_CYCLES); }, 600);
+
+      /* Manual trigger */
+      btn.addEventListener("click", function () {
+        if (!autoPlaying) runOneCycle(null);
+      });
+
+      document.getElementById("recipe-reset").addEventListener("click", function () {
+        if (autoPlaying) return;
+        cycles = 0;
+        reportVer = 0;
+        hintLog = [];
+        hintFired = 0;
+        var c = getCtx();
+        c.clearRect(0, 0, W(), H());
+        drawScene(c, 0, 0);
+        btn.textContent = "Run Cycle";
+        btn.disabled = false;
+        ft.textContent = "Human reasons, AI executes, report grows each cycle.";
+        ft.className = "panel-foot neutral";
+      });
+    })();
+
+    /* ══════════════════════════════════════════════
+       TOY 3: THE PROCESS — side-by-side, two loops
+       ══════════════════════════════════════════════ */
+    (function () {
+      var stage = document.getElementById("process-stage");
+      var btn = document.getElementById("process-btn");
+      var ft = document.getElementById("ft-process");
+      var running = false;
+
+      var TEAL = "#0d9488";
+      var GRAY = "#6b7280";
+      var AMBER = "#92400e";
+      var GREEN = "#16a34a";
+
+      function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+      function typeText(el, text, charMs, done) {
+        var i = 0;
+        function next() {
+          if (i < text.length) {
+            el.textContent += text[i]; i++;
+            setTimeout(next, charMs);
+          } else if (done) { done(); }
+        }
+        next();
+      }
+
+      /* Highlight / dim a plan section */
+      function glow(sec) { sec.style.background = "#f0fdfa"; sec.style.borderColor = "#99f6e4"; }
+      function dim(sec) { sec.style.background = ""; sec.style.borderColor = "transparent"; }
+
+      /* Small output card on right side */
+      function card(title, color) {
+        var w = document.createElement("div");
+        w.style.cssText = "border:1px solid #e5e7eb;border-radius:8px;background:#fff;margin-bottom:8px;overflow:hidden;opacity:0;transition:opacity 0.4s";
+        var h = document.createElement("div");
+        h.style.cssText = "padding:6px 10px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:6px";
+        h.innerHTML = '<span style="width:6px;height:6px;border-radius:50%;background:' + color + '"></span><span style="font-size:10px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:' + color + '">' + title + '</span>';
+        var b = document.createElement("div");
+        b.style.cssText = "padding:8px 10px;white-space:pre-wrap;color:#374151;font-size:11px;line-height:1.5;min-height:16px";
+        w.appendChild(h); w.appendChild(b);
+        return { wrap: w, body: b };
+      }
+
+      /* Status tag */
+      function tag(text, color) {
+        var s = document.createElement("div");
+        s.style.cssText = "font-size:10.5px;font-weight:600;letter-spacing:0.04em;color:" + color + ";opacity:0;transition:opacity 0.3s;margin-bottom:6px;padding:2px 0";
+        s.textContent = text;
+        return s;
+      }
+
+      /* Loop divider on right side */
+      function loopHeader(text) {
+        var d = document.createElement("div");
+        d.style.cssText = "font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:" + GRAY + ";margin:10px 0 6px;padding-bottom:4px;border-bottom:1px solid #e5e7eb;opacity:0;transition:opacity 0.3s";
+        d.textContent = text;
+        return d;
+      }
+
+      async function runProcess() {
+        if (running) return;
+        running = true;
+        btn.disabled = true;
+        btn.textContent = "Playing\u2026";
+        stage.innerHTML = "";
+        ft.className = "panel-foot neutral";
+        ft.textContent = "Setting up\u2026";
+
+        /* ── Side-by-side layout ── */
+        var grid = document.createElement("div");
+        grid.style.cssText = "display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px";
+        var leftCol = document.createElement("div");
+        var rightCol = document.createElement("div");
+        grid.appendChild(leftCol);
+        grid.appendChild(rightCol);
+        stage.appendChild(grid);
+
+        /* ── Build plan card on left ── */
+        var planWrap = document.createElement("div");
+        planWrap.style.cssText = "border:1px solid #e5e7eb;border-radius:8px;background:#fff;overflow:hidden;opacity:0;transition:opacity 0.4s";
+        var planHead = document.createElement("div");
+        planHead.style.cssText = "padding:7px 10px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:6px";
+        planHead.innerHTML = '<span style="width:7px;height:7px;border-radius:50%;background:' + TEAL + '"></span><span style="font-size:10.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:' + TEAL + '">main-plan.md</span>';
+        var planBody = document.createElement("div");
+        planBody.style.cssText = "padding:8px 10px;font-size:11px;line-height:1.5;color:#374151";
+
+        /* Three plan sections */
+        var secBefore = document.createElement("div");
+        secBefore.style.cssText = "padding:5px 7px;border-radius:5px;margin-bottom:5px;transition:background 0.4s,border-color 0.4s;border:1px solid transparent;white-space:pre-line";
+        secBefore.innerHTML = '<span style="font-weight:600">\u2705 Before Each Loop</span>\n<span style="color:#6b7280">- Version control \u2014 clean working tree\n- Script is idempotent\n- Raw data in 02-data/ unchanged</span>';
+
+        var secLoop = document.createElement("div");
+        secLoop.style.cssText = "padding:5px 7px;border-radius:5px;margin-bottom:5px;transition:background 0.4s,border-color 0.4s;border:1px solid transparent;white-space:pre-line";
+        var loopLabel = document.createElement("span");
+        loopLabel.style.fontWeight = "600";
+        loopLabel.textContent = "\ud83d\udd01 Instruction Loop";
+        var loopItems = document.createElement("div");
+        loopItems.style.cssText = "color:#6b7280;white-space:pre-line";
+        loopItems.textContent = "1. Load 02-data/raw/survey_responses.csv\n2. Filter to complete responses only\n3. Compute descriptive stats by group\n4. Run t-test (treatment vs control)\n5. Render summary \u2192 03-outputs/report.html";
+        secLoop.appendChild(loopLabel);
+        secLoop.appendChild(document.createTextNode("\n"));
+        secLoop.appendChild(loopItems);
+
+        var secAfter = document.createElement("div");
+        secAfter.style.cssText = "padding:5px 7px;border-radius:5px;transition:background 0.4s,border-color 0.4s;border:1px solid transparent;white-space:pre-line";
+        secAfter.innerHTML = '<span style="font-weight:600">\ud83d\udcdd After Each Loop</span>\n<span style="color:#6b7280">- Update activity log\n- Save version checkpoint</span>';
+
+        planBody.appendChild(secBefore);
+        planBody.appendChild(secLoop);
+        planBody.appendChild(secAfter);
+        planWrap.appendChild(planHead);
+        planWrap.appendChild(planBody);
+        leftCol.appendChild(planWrap);
+        await sleep(300);
+        planWrap.style.opacity = "1";
+        await sleep(500);
+
+        /* ════════════ LOOP 1 ════════════ */
+        var lh1 = loopHeader("Loop 1");
+        rightCol.appendChild(lh1);
+        await sleep(80);
+        lh1.style.opacity = "1";
+
+        /* Before Each Loop */
+        ft.textContent = "Loop 1 \u2014 Checking prerequisites\u2026";
+        glow(secBefore);
+        await sleep(700);
+        dim(secBefore);
+
+        /* Instruction Loop executes */
+        ft.textContent = "Loop 1 \u2014 AI executing instructions\u2026";
+        glow(secLoop);
+        var s1 = tag("\u25b6 AI executing\u2026", GRAY);
+        rightCol.appendChild(s1);
+        await sleep(80);
+        s1.style.opacity = "1";
+        await sleep(500);
+
+        var o1 = card("report.html", AMBER);
+        rightCol.appendChild(o1.wrap);
+        await sleep(80);
+        o1.wrap.style.opacity = "1";
+        var txt1 = "Survey Report\n\nN = 142 (89% complete)\n\nGroup        Mean   SD\nTreatment    74.2   8.1\nControl      71.8   7.9\n\nt(140) = 2.39, p = 0.018";
+        await new Promise(function(r) { typeText(o1.body, txt1, 16, r); });
+        s1.textContent = "\u2713 Output produced";
+        s1.style.color = GREEN;
+        await sleep(300);
+        dim(secLoop);
+
+        /* After Each Loop */
+        ft.textContent = "Loop 1 \u2014 Saving checkpoint\u2026";
+        glow(secAfter);
+        await sleep(500);
+        var c1 = tag("\u2713 Checkpoint saved", GREEN);
+        rightCol.appendChild(c1);
+        await sleep(80);
+        c1.style.opacity = "1";
+        await sleep(300);
+        dim(secAfter);
+
+        /* ════════════ REVISION ════════════ */
+        await sleep(700);
+        ft.textContent = "Author reviews output, adds a revision\u2026";
+        var rev = document.createElement("div");
+        rev.style.cssText = "margin-top:3px;padding:3px 6px;border-radius:4px;background:#fef3c7;color:#92400e;font-size:10px;font-weight:500;opacity:0;transition:opacity 0.5s";
+        rev.textContent = "\u270e Revision: add 95% CI and effect size";
+        secLoop.appendChild(rev);
+        await sleep(150);
+        rev.style.opacity = "1";
+        await sleep(1000);
+
+        /* ════════════ LOOP 2 ════════════ */
+        var lh2 = loopHeader("Loop 2 \u2014 with revision");
+        rightCol.appendChild(lh2);
+        await sleep(80);
+        lh2.style.opacity = "1";
+
+        ft.textContent = "Loop 2 \u2014 Checking prerequisites\u2026";
+        glow(secBefore);
+        await sleep(600);
+        dim(secBefore);
+
+        ft.textContent = "Loop 2 \u2014 AI re-executing with revision\u2026";
+        glow(secLoop);
+        var s2 = tag("\u25b6 AI re-executing\u2026", GRAY);
+        rightCol.appendChild(s2);
+        await sleep(80);
+        s2.style.opacity = "1";
+        await sleep(500);
+
+        var o2 = card("report.html (v2)", AMBER);
+        rightCol.appendChild(o2.wrap);
+        await sleep(80);
+        o2.wrap.style.opacity = "1";
+        var txt2 = "Survey Report v2\n\nN = 142 (89% complete)\n\nGroup        Mean   SD    95% CI\nTreatment    74.2   8.1   [72.1, 76.3]\nControl      71.8   7.9   [69.8, 73.8]\n\nt(140) = 2.39, p = 0.018\nCohen\u2019s d = 0.30 [0.05, 0.55]";
+        await new Promise(function(r) { typeText(o2.body, txt2, 14, r); });
+        s2.textContent = "\u2713 Output updated";
+        s2.style.color = GREEN;
+        await sleep(300);
+        dim(secLoop);
+
+        ft.textContent = "Loop 2 \u2014 Saving checkpoint\u2026";
+        glow(secAfter);
+        await sleep(500);
+        var c2 = tag("\u2713 Checkpoint saved", GREEN);
+        rightCol.appendChild(c2);
+        await sleep(80);
+        c2.style.opacity = "1";
+        await sleep(300);
+        dim(secAfter);
+
+        /* ── Done ── */
+        ft.className = "panel-foot teal";
+        ft.textContent = "Two loops complete \u2014 same plan, refined output. Every checkpoint is saved and retraceable.";
+        await sleep(600);
+        running = false;
+        btn.disabled = false;
+        btn.textContent = "Replay";
+      }
+
+      /* Auto-play on load */
+      setTimeout(runProcess, 1200);
+      btn.addEventListener("click", function() { if (!running) runProcess(); });
+
+      document.getElementById("process-reset").addEventListener("click", function () {
+        if (running) return;
+        stage.innerHTML = "";
+        btn.textContent = "Play";
+        btn.disabled = false;
+        ft.textContent = "Watch the plan execute step by step.";
+        ft.className = "panel-foot neutral";
+      });
+    })();
+
+    /* ══════════════════════════════════════════════════════════
+       Toy 4 — Anatomy of a Main Plan (split visual layout)
+       ══════════════════════════════════════════════════════════ */
+    (function () {
+      var planEl = document.getElementById("anatomy-plan");
+      var labelList = document.getElementById("anatomy-label-list");
+      var detailEl = document.getElementById("anatomy-detail");
+      var ft = document.getElementById("ft-anatomy");
+      var TEAL = "#0d9488";
+
+      var sections = [
+        { icon: "\ud83d\udd27", title: "First Time Setup", color: "#6366f1",
+          planLines: ["# IRL Basic Template", "", "\ud83d\udd27 First Time Setup", "Install Explainer Skill", "Install Quarto Skill"],
+          detail: "Run once when starting a new project. Install any skills or tools needed \u2014 after that, every loop starts from the same baseline." },
+        { icon: "\u2705", title: "Before Each Loop", color: "#0d9488",
+          planLines: ["\u2705 Before Each Loop", "\u2022 Script is idempotent", "\u2022 Version control: clean tree", "\u2022 Data hasn\u2019t changed"],
+          detail: "The safety checklist. Verify the working tree is clean, the script is idempotent, and nothing has shifted. Every loop starts from a known, stable state." },
+        { icon: "\ud83d\udd01", title: "Instruction Loop", color: "#d97706",
+          planLines: ["\ud83d\udd01 Instruction Loop", "1. Load survey data from 02-data/", "2. Filter by inclusion criteria", "3. Compute group statistics", "4. Run t-test, render report", "", "\u270e Revision: add confidence intervals"],
+          detail: "The core work. The author writes what to do \u2014 load data, run analyses, produce outputs. The AI follows step by step. New revisions appear here between loops." },
+        { icon: "\ud83d\udcdd", title: "After Each Loop", color: "#059669",
+          planLines: ["\ud83d\udcdd After Each Loop", "\u2022 Update activity log", "\u2022 Save version checkpoint", "\u2022 Give feedback to author"],
+          detail: "Close the loop. Update the activity log, save a version checkpoint, and write feedback. This creates a traceable record of every iteration." },
+        { icon: "\u26a1", title: "One-Time Instructions", color: "#7c3aed",
+          planLines: ["\u26a1 One-Time Instructions", "1. Re-download updated skill"],
+          detail: "Special tasks that only execute once \u2014 like re-downloading an updated tool or a one-off data migration. Not repeated in future loops." },
+        { icon: "\ud83d\udcac", title: "AI Feedback", color: "#64748b",
+          planLines: ["\ud83d\udcac AI Feedback", "What was done, decisions needed,", "next steps, idempotency check"],
+          detail: "Where the AI reports back. After each loop: what was done, decisions needed, and anything that might break idempotency. The author reads this before revising." },
+      ];
+
+      var active = -1;
+      var planBlocks = []; /* references to left-side section divs */
+
+      /* ---- build left side: visual plan document ---- */
+      function buildPlan() {
+        planEl.innerHTML = "";
+        /* document title accent line */
+        var accent = document.createElement("div");
+        accent.style.cssText = "width:36px;height:3px;background:" + TEAL + ";border-radius:2px;margin-bottom:10px";
+        planEl.appendChild(accent);
+
+        for (var i = 0; i < sections.length; i++) {
+          var s = sections[i];
+          var block = document.createElement("div");
+          block.style.cssText = "margin-bottom:8px;padding:6px 8px;border-radius:4px;border-left:3px solid transparent;transition:background 0.3s, border-color 0.3s;cursor:pointer";
+          block.setAttribute("data-idx", i);
+
+          for (var j = 0; j < s.planLines.length; j++) {
+            var line = document.createElement("div");
+            var txt = s.planLines[j];
+            if (txt === "") { line.style.height = "6px"; }
+            else if (j === 0 && txt.indexOf("#") !== 0) {
+              /* section header line */
+              line.style.cssText = "font-weight:700;font-size:11.5px;color:#111827;margin-bottom:1px";
+              line.textContent = txt;
+            } else if (txt.indexOf("#") === 0) {
+              line.style.cssText = "font-weight:700;font-size:13px;color:#111827;margin-bottom:2px";
+              line.textContent = txt.replace(/^#\s*/, "");
+            } else if (txt.indexOf("\u270e") === 0) {
+              line.style.cssText = "font-size:10.5px;color:#d97706;font-style:italic;margin-top:2px";
+              line.textContent = txt;
+            } else {
+              line.style.cssText = "font-size:10.5px;color:#6b7280";
+              line.textContent = txt;
+            }
+            block.appendChild(line);
+          }
+
+          (function(idx, el) {
+            el.addEventListener("click", function() { selectSection(idx); });
+            el.addEventListener("mouseenter", function() {
+              if (idx !== active) el.style.background = "#f9fafb";
+            });
+            el.addEventListener("mouseleave", function() {
+              if (idx !== active) el.style.background = "";
+            });
+          })(i, block);
+
+          planEl.appendChild(block);
+          planBlocks.push(block);
+        }
+      }
+
+      /* ---- build right side: clickable labels ---- */
+      function buildLabels() {
+        labelList.innerHTML = "";
+        for (var i = 0; i < sections.length; i++) {
+          var s = sections[i];
+          var lbl = document.createElement("div");
+          lbl.style.cssText = "display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:5px;cursor:pointer;transition:background 0.2s, box-shadow 0.2s;border:1px solid transparent";
+          lbl.setAttribute("data-idx", i);
+
+          var dot = document.createElement("span");
+          dot.style.cssText = "width:8px;height:8px;border-radius:50%;background:" + s.color + ";flex-shrink:0";
+
+          var name = document.createElement("span");
+          name.style.cssText = "font-size:12px;font-weight:500;color:#374151";
+          name.textContent = s.icon + " " + s.title;
+
+          lbl.appendChild(dot);
+          lbl.appendChild(name);
+
+          (function(idx, el) {
+            el.addEventListener("click", function() { selectSection(idx); });
+            el.addEventListener("mouseenter", function() {
+              if (idx !== active) el.style.background = "#f9fafb";
+            });
+            el.addEventListener("mouseleave", function() {
+              if (idx !== active) el.style.background = "";
+            });
+          })(i, lbl);
+
+          labelList.appendChild(lbl);
+        }
+      }
+
+      /* ---- selection logic ---- */
+      function selectSection(idx) {
+        if (active === idx) { active = -1; clearHighlight(); return; }
+        active = idx;
+        var s = sections[idx];
+
+        /* highlight plan block */
+        for (var i = 0; i < planBlocks.length; i++) {
+          if (i === idx) {
+            planBlocks[i].style.background = s.color + "0d"; /* very light tint */
+            planBlocks[i].style.borderLeftColor = s.color;
+          } else {
+            planBlocks[i].style.background = "";
+            planBlocks[i].style.borderLeftColor = "transparent";
+          }
+        }
+
+        /* highlight label */
+        var labels = labelList.children;
+        for (var i = 0; i < labels.length; i++) {
+          if (i === idx) {
+            labels[i].style.background = s.color + "0d";
+            labels[i].style.borderColor = s.color + "40";
+            labels[i].style.boxShadow = "0 1px 3px " + s.color + "18";
+          } else {
+            labels[i].style.background = "";
+            labels[i].style.borderColor = "transparent";
+            labels[i].style.boxShadow = "";
+          }
+        }
+
+        /* show detail */
+        detailEl.style.opacity = "0";
+        setTimeout(function() {
+          detailEl.textContent = s.detail;
+          detailEl.style.borderColor = s.color + "40";
+          detailEl.style.opacity = "1";
+        }, 80);
+
+        ft.textContent = s.icon + " " + s.title;
+        ft.className = "panel-foot teal";
+      }
+
+      function clearHighlight() {
+        for (var i = 0; i < planBlocks.length; i++) {
+          planBlocks[i].style.background = "";
+          planBlocks[i].style.borderLeftColor = "transparent";
+        }
+        var labels = labelList.children;
+        for (var i = 0; i < labels.length; i++) {
+          labels[i].style.background = "";
+          labels[i].style.borderColor = "transparent";
+          labels[i].style.boxShadow = "";
+        }
+        detailEl.style.opacity = "0";
+        setTimeout(function() {
+          detailEl.textContent = "Click a section to learn more.";
+          detailEl.style.borderColor = "#e5e7eb";
+          detailEl.style.opacity = "1";
+        }, 80);
+        ft.textContent = "Click a section to see its role in the loop.";
+        ft.className = "panel-foot neutral";
+      }
+
+      buildPlan();
+      buildLabels();
+
+      /* Reset: clear selection */
+      document.getElementById("anatomy-reset").addEventListener("click", function() {
+        clearHighlight();
+      });
+    })();
+
+    /* ══════════════════════════════════════════════════════════
+       Toy 5 — The Execution Loop (terminal animation)
+       ══════════════════════════════════════════════════════════ */
+    (function () {
+      var stage = document.getElementById("terminal-stage");
+      var btn = document.getElementById("terminal-btn");
+      var ft = document.getElementById("ft-terminal");
+      var running = false;
+      var PROMPT_C = "#89b4fa";
+      var CMD_C = "#cdd6f4";
+      var DIM_C = "#6c7086";
+      var GREEN = "#a6e3a1";
+      var AMBER = "#fab387";
+
+      function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+      function line(text, color, indent) {
+        var el = document.createElement("div");
+        el.style.cssText = "opacity:0;transition:opacity 0.3s;white-space:pre-wrap" + (indent ? ";padding-left:16px" : "");
+        el.style.color = color || CMD_C;
+        el.textContent = text;
+        stage.appendChild(el);
+        requestAnimationFrame(function() { el.style.opacity = "1"; });
+        return el;
+      }
+
+      function prompt(text) {
+        var el = document.createElement("div");
+        el.style.cssText = "opacity:0;transition:opacity 0.3s;white-space:pre-wrap";
+        var p = document.createElement("span");
+        p.style.color = PROMPT_C;
+        p.textContent = "$ ";
+        var c = document.createElement("span");
+        c.style.color = CMD_C;
+        c.textContent = text;
+        el.appendChild(p);
+        el.appendChild(c);
+        stage.appendChild(el);
+        requestAnimationFrame(function() { el.style.opacity = "1"; });
+        return el;
+      }
+
+      var loops = [
+        { rev: null,
+          steps: ["Reading main-plan.md\u2026", "No new revisions found.", "Executing instruction loop\u2026", "Loading survey data\u2026", "Running analysis\u2026", "Rendering report \u2192 03-outputs/report.html"],
+          result: "Loop 1 complete \u2014 report.html produced." },
+        { rev: "\u270e Author adds revision: \"add confidence intervals\"",
+          steps: ["Reading main-plan.md\u2026", "New revision detected!", "Executing instruction loop\u2026", "Reloading data\u2026", "Adding 95% CI to results\u2026", "Rendering report v2 \u2192 03-outputs/report.html"],
+          result: "Loop 2 complete \u2014 report updated with confidence intervals." },
+        { rev: "\u270e Author adds revision: \"include effect size\"",
+          steps: ["Reading main-plan.md\u2026", "New revision detected!", "Executing instruction loop\u2026", "Computing Cohen\u2019s d\u2026", "Rendering report v3 \u2192 03-outputs/report.html"],
+          result: "Loop 3 complete \u2014 report now includes effect size." },
+      ];
+
+      async function runTerminal() {
+        running = true;
+        btn.disabled = true;
+        btn.textContent = "Playing\u2026";
+        stage.innerHTML = "";
+        ft.textContent = "Watch the workflow loop.";
+        ft.className = "panel-foot neutral";
+
+        for (var i = 0; i < loops.length; i++) {
+          var lp = loops[i];
+
+          if (lp.rev) {
+            await sleep(600);
+            line("", DIM_C);
+            line(lp.rev, AMBER);
+            await sleep(800);
+          }
+
+          await sleep(i === 0 ? 400 : 500);
+          line("", DIM_C);
+          prompt("Review main-plan.md, check for revisions, and execute");
+          await sleep(600);
+
+          for (var j = 0; j < lp.steps.length; j++) {
+            await sleep(350);
+            var isRev = lp.steps[j].indexOf("revision") > -1;
+            line("  " + lp.steps[j], isRev ? AMBER : DIM_C);
+          }
+
+          await sleep(400);
+          line("\u2713 " + lp.result, GREEN);
+          ft.textContent = "Loop " + (i + 1) + " of " + loops.length;
+
+          /* auto-scroll stage */
+          stage.scrollTop = stage.scrollHeight;
+        }
+
+        await sleep(600);
+        line("", DIM_C);
+        line("Same command every time. The plan file drives everything.", CMD_C);
+        ft.className = "panel-foot teal";
+        ft.textContent = "Three loops complete \u2014 one command, iterative refinement.";
+        stage.scrollTop = stage.scrollHeight;
+
+        running = false;
+        btn.disabled = false;
+        btn.textContent = "Replay";
+      }
+
+      /* Auto-play on load */
+      setTimeout(runTerminal, 1800);
+      btn.addEventListener("click", function() { if (!running) runTerminal(); });
+
+      /* Reset: clear terminal */
+      document.getElementById("terminal-reset").addEventListener("click", function() {
+        if (running) return;
+        stage.innerHTML = "";
+        btn.textContent = "Play";
+        ft.textContent = "Watch the workflow loop.";
+        ft.className = "panel-foot neutral";
+      });
+    })();
+
+    /* ══════════════════════════════════════════════════════════
+       Toy 6 — The Workspace (interactive IDE layout)
+       ══════════════════════════════════════════════════════════ */
+    (function () {
+      var overlay = document.getElementById("ws-overlay");
+      var overlayTitle = document.getElementById("ws-overlay-title");
+      var overlayDesc = document.getElementById("ws-overlay-desc");
+      var ft = document.getElementById("ft-workspace");
+      var tourBtn = document.getElementById("workspace-tour-btn");
+      var touring = false;
+      var activeZone = null;
+
+      var zones = {
+        sidebar: {
+          title: "File Explorer",
+          desc: "Your project folder. Plans live in plans/, raw data in 02-data/, and outputs in 03-outputs/. Everything is a real file you can open, share, or put under version control. Nothing is hidden inside a chat transcript.",
+          color: "#cba6f7"
+        },
+        editor: {
+          title: "Plan Editor",
+          desc: "This is where you write your instructions. The main-plan.md file is the single control surface \u2014 you add tasks, revisions, and notes here. The AI reads this file at the start of every loop and follows it step by step.",
+          color: "#89b4fa"
+        },
+        preview: {
+          title: "Output Preview",
+          desc: "The report the AI produces, rendered live. Each loop updates it with real data \u2014 statistics, tables, figures. You can inspect the output directly, compare versions, and share it as a standalone file.",
+          color: "#a6e3a1"
+        },
+        terminal: {
+          title: "Terminal",
+          desc: "Where you trigger each loop. One command: \u201cReview main-plan.md, check for revisions, and execute.\u201d The AI picks up your latest changes and runs through the plan. You review, revise, repeat.",
+          color: "#f9e2af"
+        }
+      };
+
+      /* ---- Click handling ---- */
+      var zoneEls = document.querySelectorAll("[data-ws-zone]");
+      for (var i = 0; i < zoneEls.length; i++) {
+        (function(el) {
+          var key = el.getAttribute("data-ws-zone");
+          el.addEventListener("click", function() {
+            if (touring) return;
+            if (activeZone === key) { clearZone(); return; }
+            highlightZone(key);
+          });
+          el.addEventListener("mouseenter", function() {
+            if (touring || activeZone) return;
+            el.style.background = "rgba(255,255,255,0.03)";
+          });
+          el.addEventListener("mouseleave", function() {
+            if (touring || activeZone === key) return;
+            el.style.background = "";
+          });
+        })(zoneEls[i]);
+      }
+
+      function highlightZone(key) {
+        activeZone = key;
+        var z = zones[key];
+        for (var i = 0; i < zoneEls.length; i++) {
+          var k = zoneEls[i].getAttribute("data-ws-zone");
+          if (k === key) {
+            zoneEls[i].style.background = "rgba(255,255,255,0.05)";
+            zoneEls[i].style.boxShadow = "inset 0 0 0 1.5px " + z.color + "60";
+          } else {
+            zoneEls[i].style.background = "";
+            zoneEls[i].style.boxShadow = "";
+          }
+        }
+        overlayTitle.textContent = z.title;
+        overlayTitle.style.color = z.color;
+        overlayDesc.textContent = z.desc;
+        overlay.style.display = "block";
+        overlay.style.opacity = "0";
+        setTimeout(function() { overlay.style.transition = "opacity 0.3s"; overlay.style.opacity = "1"; }, 20);
+        ft.textContent = z.title;
+        ft.className = "panel-foot teal";
+      }
+
+      function clearZone() {
+        activeZone = null;
+        for (var i = 0; i < zoneEls.length; i++) {
+          zoneEls[i].style.background = "";
+          zoneEls[i].style.boxShadow = "";
+        }
+        overlay.style.opacity = "0";
+        setTimeout(function() { overlay.style.display = "none"; }, 300);
+        ft.textContent = "Click any area or take the tour.";
+        ft.className = "panel-foot neutral";
+      }
+
+      /* ---- Guided tour ---- */
+      var tourOrder = ["sidebar", "editor", "preview", "terminal"];
+      var tourStep = 0;
+
+      function runTour() {
+        if (touring) return;
+        touring = true;
+        tourBtn.textContent = "Touring\u2026";
+        tourBtn.disabled = true;
+        tourStep = 0;
+        stepTour();
+      }
+
+      function stepTour() {
+        if (tourStep >= tourOrder.length) {
+          /* finish */
+          setTimeout(function() {
+            clearZone();
+            touring = false;
+            tourBtn.textContent = "Tour";
+            tourBtn.disabled = false;
+          }, 2200);
+          return;
+        }
+        highlightZone(tourOrder[tourStep]);
+        tourStep++;
+        setTimeout(stepTour, 2800);
+      }
+
+      tourBtn.addEventListener("click", runTour);
+
+      /* Reset: clear zone highlight */
+      document.getElementById("workspace-reset").addEventListener("click", function() {
+        if (touring) return;
+        clearZone();
+      });
+    })();
+
+    /* ══════════════════════════════════════════════════════════
+       Toy 7 — One Pattern, Many Projects (morphing animation)
+       ══════════════════════════════════════════════════════════ */
+    (function () {
+      var btn = document.getElementById("morph-btn");
+      var ft = document.getElementById("ft-morph");
+      var badge = document.getElementById("morph-badge");
+      var setup = document.getElementById("morph-setup");
+      var lines = [
+        document.getElementById("morph-line1"),
+        document.getElementById("morph-line2"),
+        document.getElementById("morph-line3"),
+        document.getElementById("morph-line4")
+      ];
+      var output = document.getElementById("morph-output");
+      var running = false;
+
+      var projects = [
+        {
+          name: "Explainer Website",
+          badgeBg: "#dbeafe", badgeColor: "#1d4ed8",
+          setup: "Install Explainer Skill",
+          lines: [
+            "1. Write page content in plan",
+            "2. AI generates HTML + CSS",
+            "3. Preview in browser, revise",
+            "4. Publish final site"
+          ],
+          output: "\u2192 03-outputs/site/index.html",
+          footNote: "Project 1 of 3 \u2014 building a website"
+        },
+        {
+          name: "Data Analysis",
+          badgeBg: "#fef3c7", badgeColor: "#92400e",
+          setup: "Install Analysis Skills",
+          lines: [
+            "1. Load 02-data/survey.csv",
+            "2. Filter by inclusion criteria",
+            "3. Run t-test, compute effect size",
+            "4. Render report with figures"
+          ],
+          output: "\u2192 03-outputs/report.html",
+          footNote: "Project 2 of 3 \u2014 analyzing data"
+        },
+        {
+          name: "Literature Review",
+          badgeBg: "#ede9fe", badgeColor: "#5b21b6",
+          setup: "Install PubMed Skill, Document Skill",
+          lines: [
+            "1. Search PubMed for recent papers",
+            "2. Summarize top 20 abstracts",
+            "3. Identify themes and gaps",
+            "4. Draft review document"
+          ],
+          output: "\u2192 03-outputs/lit-review.docx",
+          footNote: "Project 3 of 3 \u2014 writing a review"
+        }
+      ];
+
+      function fadeOut(cb) {
+        var els = [badge, setup].concat(lines).concat([output]);
+        for (var i = 0; i < els.length; i++) els[i].style.opacity = "0";
+        setTimeout(cb, 500);
+      }
+
+      function fadeIn(p) {
+        badge.textContent = p.name;
+        badge.style.background = p.badgeBg;
+        badge.style.color = p.badgeColor;
+        setup.textContent = "\u2699 " + p.setup;
+        for (var i = 0; i < lines.length; i++) lines[i].textContent = p.lines[i];
+        output.textContent = p.output;
+        ft.textContent = p.footNote;
+
+        /* Stagger fade-in */
+        badge.style.opacity = "1";
+        setup.style.opacity = "1";
+        for (var i = 0; i < lines.length; i++) {
+          (function(el, delay) {
+            setTimeout(function() { el.style.opacity = "1"; }, delay);
+          })(lines[i], 120 + i * 150);
+        }
+        setTimeout(function() { output.style.opacity = "1"; }, 120 + lines.length * 150);
+      }
+
+      function showProject(idx, cb) {
+        fadeOut(function() {
+          fadeIn(projects[idx]);
+          setTimeout(cb, 2800);
+        });
+      }
+
+      function runMorph() {
+        if (running) return;
+        running = true;
+        btn.textContent = "Playing\u2026";
+        btn.disabled = true;
+        var step = 0;
+        function next() {
+          if (step >= projects.length) {
+            /* Hold on last, then reset */
+            setTimeout(function() {
+              running = false;
+              btn.textContent = "Replay";
+              btn.disabled = false;
+              ft.textContent = "Same structure. Different project.";
+              ft.className = "panel-foot neutral";
+            }, 1200);
+            return;
+          }
+          showProject(step, function() { step++; next(); });
+        }
+        next();
+      }
+
+      /* Show first project immediately */
+      fadeIn(projects[0]);
+      ft.textContent = projects[0].footNote;
+
+      /* Auto-play full cycle after delay */
+      setTimeout(function() {
+        fadeOut(function() {
+          fadeIn(projects[0]);
+          setTimeout(function() { showProject(1, function() { showProject(2, function() {
+            setTimeout(function() {
+              ft.textContent = "Same structure. Different project.";
+              ft.className = "panel-foot neutral";
+            }, 1200);
+          }); }); }, 2800);
+        });
+      }, 2400);
+
+      btn.addEventListener("click", runMorph);
+
+      document.getElementById("morph-reset").addEventListener("click", function () {
+        if (running) return;
+        [badge, setup, output].concat(lines).forEach(function (el) {
+          el.style.opacity = "0"; el.textContent = "";
+        });
+        badge.style.background = ""; badge.style.color = "";
+        ft.textContent = "Same structure. Different project.";
+        ft.className = "panel-foot neutral";
+      });
+    })();
+
+    /* ══════════════════════════════════════════════════════════
+       Toy 8 — The Review Loop (trust-building iteration)
+       ══════════════════════════════════════════════════════════ */
+    (function () {
+      var cv = document.getElementById("cv-review");
+      var conv = document.getElementById("review-conv");
+      var bar = document.getElementById("review-bar");
+      var pct = document.getElementById("review-pct");
+      var btn = document.getElementById("review-btn");
+      var ftL = document.getElementById("ft-review-left");
+      var ftR = document.getElementById("ft-review");
+      var running = false;
+
+      var TEAL = "#0d9488";
+      var AMBER_HEX = "#d97706";
+      var AMBER_DARK = "#92400e";
+      var GREEN = "#16a34a";
+
+      /* ── Canvas setup ── */
+      var dpr = window.devicePixelRatio || 1;
+      function fit() {
+        var r = cv.parentElement.getBoundingClientRect();
+        cv.width = r.width * dpr; cv.height = r.height * dpr;
+      }
+      fit(); window.addEventListener("resize", function () { fit(); drawStatic(lastRound); });
+
+      function C() { return cv.getContext("2d"); }
+      function W() { return cv.width; }
+      function H() { return cv.height; }
+
+      /* ── Layout: two nodes (YOU / AI) with a circular arrow loop ── */
+      var lastRound = -1;
+
+      function nodePos() {
+        var w = W(), h = H(), s = dpr;
+        var cx = w / 2, cy = h * 0.38;
+        var spread = Math.min(w * 0.28, 120 * s);
+        return {
+          you: { x: cx - spread, y: cy },
+          ai:  { x: cx + spread, y: cy },
+          cx: cx, cy: cy, spread: spread, s: s
+        };
+      }
+
+      function drawNode(c, x, y, radius, label, color, glow) {
+        var s = dpr;
+        c.save();
+        if (glow) {
+          c.shadowColor = color;
+          c.shadowBlur = 18 * s;
+        }
+        c.beginPath();
+        c.arc(x, y, radius, 0, Math.PI * 2);
+        c.fillStyle = color + "18";
+        c.fill();
+        c.lineWidth = 2.2 * s;
+        c.strokeStyle = color;
+        c.stroke();
+        c.restore();
+        c.font = "600 " + (13 * s) + "px " + getComputedStyle(document.body).fontFamily;
+        c.textAlign = "center";
+        c.textBaseline = "middle";
+        c.fillStyle = color;
+        c.fillText(label, x, y);
+      }
+
+      function drawArrow(c, x1, y1, x2, y2, color, opacity, progress) {
+        var s = dpr;
+        /* Curved path between nodes */
+        var mx = (x1 + x2) / 2;
+        var my = Math.min(y1, y2) - 40 * s;
+        c.save();
+        c.globalAlpha = opacity;
+        c.strokeStyle = color;
+        c.lineWidth = 2 * s;
+        c.setLineDash([]);
+        c.beginPath();
+        c.moveTo(x1, y1);
+        c.quadraticCurveTo(mx, my, x2, y2);
+        c.stroke();
+
+        /* Arrowhead at endpoint */
+        var t = 0.98;
+        var px = (1-t)*(1-t)*x1 + 2*(1-t)*t*mx + t*t*x2;
+        var py = (1-t)*(1-t)*y1 + 2*(1-t)*t*my + t*t*y2;
+        var angle = Math.atan2(y2 - py, x2 - px);
+        var hs = 10 * s;
+        c.beginPath();
+        c.moveTo(x2, y2);
+        c.lineTo(x2 - hs * Math.cos(angle - 0.35), y2 - hs * Math.sin(angle - 0.35));
+        c.lineTo(x2 - hs * Math.cos(angle + 0.35), y2 - hs * Math.sin(angle + 0.35));
+        c.closePath();
+        c.fillStyle = color;
+        c.fill();
+        c.restore();
+
+        /* Traveling particle */
+        if (typeof progress === "number" && progress >= 0) {
+          var pt = progress;
+          var ppx = (1-pt)*(1-pt)*x1 + 2*(1-pt)*pt*mx + pt*pt*x2;
+          var ppy = (1-pt)*(1-pt)*y1 + 2*(1-pt)*pt*my + pt*pt*y2;
+          c.beginPath();
+          c.arc(ppx, ppy, 4 * s, 0, Math.PI * 2);
+          c.fillStyle = color;
+          c.fill();
+        }
+      }
+
+      function drawReturnArrow(c, x1, y1, x2, y2, color, opacity, progress) {
+        var s = dpr;
+        var mx = (x1 + x2) / 2;
+        var my = Math.max(y1, y2) + 40 * s;
+        c.save();
+        c.globalAlpha = opacity;
+        c.strokeStyle = color;
+        c.lineWidth = 2 * s;
+        c.setLineDash([6 * s, 4 * s]);
+        c.beginPath();
+        c.moveTo(x1, y1);
+        c.quadraticCurveTo(mx, my, x2, y2);
+        c.stroke();
+        c.setLineDash([]);
+
+        var t = 0.98;
+        var px = (1-t)*(1-t)*x1 + 2*(1-t)*t*mx + t*t*x2;
+        var py = (1-t)*(1-t)*y1 + 2*(1-t)*t*my + t*t*y2;
+        var angle = Math.atan2(y2 - py, x2 - px);
+        var hs = 10 * s;
+        c.beginPath();
+        c.moveTo(x2, y2);
+        c.lineTo(x2 - hs * Math.cos(angle - 0.35), y2 - hs * Math.sin(angle - 0.35));
+        c.lineTo(x2 - hs * Math.cos(angle + 0.35), y2 - hs * Math.sin(angle + 0.35));
+        c.closePath();
+        c.fillStyle = color;
+        c.fill();
+        c.restore();
+
+        if (typeof progress === "number" && progress >= 0) {
+          var pt = progress;
+          var ppx = (1-pt)*(1-pt)*x1 + 2*(1-pt)*pt*mx + pt*pt*y2;
+          var ppy = (1-pt)*(1-pt)*y1 + 2*(1-pt)*pt*my + pt*pt*y2;
+          c.beginPath();
+          c.arc(ppx, ppy, 4 * s, 0, Math.PI * 2);
+          c.fillStyle = color;
+          c.fill();
+        }
+      }
+
+      /* Confidence ring drawn around a center point */
+      function drawConfRing(c, cx, cy, pctVal, color) {
+        var s = dpr;
+        var r = Math.min(W(), H()) * 0.14;
+        var startAngle = -Math.PI / 2;
+        var endAngle = startAngle + (Math.PI * 2 * pctVal / 100);
+
+        /* Track */
+        c.beginPath();
+        c.arc(cx, cy, r, 0, Math.PI * 2);
+        c.lineWidth = 6 * s;
+        c.strokeStyle = "#f3f4f6";
+        c.stroke();
+
+        /* Fill arc */
+        if (pctVal > 0) {
+          c.beginPath();
+          c.arc(cx, cy, r, startAngle, endAngle);
+          c.lineWidth = 6 * s;
+          c.strokeStyle = color;
+          c.lineCap = "round";
+          c.stroke();
+          c.lineCap = "butt";
+        }
+
+        /* Center text */
+        c.font = "700 " + (18 * s) + "px " + getComputedStyle(document.body).fontFamily;
+        c.textAlign = "center";
+        c.textBaseline = "middle";
+        c.fillStyle = color;
+        c.fillText(pctVal + "%", cx, cy);
+
+        /* Label below */
+        c.font = (9 * s) + "px " + getComputedStyle(document.body).fontFamily;
+        c.fillStyle = "#9ca3af";
+        c.fillText("CONFIDENCE", cx, cy + r + 16 * s);
+      }
+
+      /* Round indicators */
+      function drawRoundDots(c, round) {
+        var s = dpr;
+        var cx = W() / 2;
+        var y = H() - 22 * s;
+        for (var i = 0; i < 3; i++) {
+          c.beginPath();
+          c.arc(cx + (i - 1) * 18 * s, y, 4 * s, 0, Math.PI * 2);
+          c.fillStyle = i <= round ? TEAL : "#e5e7eb";
+          c.fill();
+        }
+        c.font = (9 * s) + "px " + getComputedStyle(document.body).fontFamily;
+        c.textAlign = "center";
+        c.fillStyle = "#9ca3af";
+        c.fillText("ROUND " + (round + 1) + " OF 3", cx, y - 12 * s);
+      }
+
+      function confColor(val) {
+        if (val >= 80) return GREEN;
+        if (val >= 50) return TEAL;
+        return AMBER_HEX;
+      }
+
+      function drawStatic(round) {
+        var c = C();
+        c.clearRect(0, 0, W(), H());
+        var p = nodePos();
+        var rad = 30 * p.s;
+
+        var youGlow = false, aiGlow = false;
+        if (round >= 0) {
+          drawArrow(c, p.you.x + rad, p.you.y, p.ai.x - rad, p.ai.y, TEAL, 0.3, -1);
+          drawReturnArrow(c, p.ai.x - rad, p.ai.y, p.you.x + rad, p.you.y, AMBER_HEX, 0.25, -1);
+        }
+
+        drawNode(c, p.you.x, p.you.y, rad, "YOU", TEAL, youGlow);
+        drawNode(c, p.ai.x, p.ai.y, rad, "AI", "#6366f1", aiGlow);
+
+        /* Confidence ring at bottom center */
+        var confVal = round < 0 ? 0 : rounds[Math.min(round, rounds.length - 1)].confidence;
+        drawConfRing(c, p.cx, H() * 0.72, confVal, confColor(confVal));
+
+        if (round >= 0) drawRoundDots(c, Math.min(round, 2));
+      }
+
+      /* ── Animation phases per round ── */
+      function ease(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
+
+      function animatePhase(drawFn, ms) {
+        return new Promise(function (resolve) {
+          var start = null;
+          function frame(ts) {
+            if (!start) start = ts;
+            var t = Math.min((ts - start) / ms, 1);
+            drawFn(ease(t));
+            if (t < 1) requestAnimationFrame(frame);
+            else resolve();
+          }
+          requestAnimationFrame(frame);
+        });
+      }
+
+      function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+      /* ── Conversation (right side) ── */
+      var rounds = [
+        {
+          reasoning: "Summarize survey responses by treatment arm with p-values.",
+          output: "Summary table: means per group, t-test p = 0.034.",
+          issue: "That\u2019s one-tailed. My protocol specifies two-tailed.",
+          clarify: "Rerun with two-tailed t-test and add CIs.",
+          confidence: 35,
+          footNote: "Round 1 \u2014 caught a statistical error."
+        },
+        {
+          reasoning: "Two-tailed test with 95% CI. Verify sample sizes match inclusion criteria.",
+          output: "Two-tailed p = 0.048, 95% CI [0.12, 4.87]. N = 42/group.",
+          issue: "N should be 38/group \u2014 4 excluded in last cleaning step.",
+          clarify: "Re-filter with updated exclusion list.",
+          confidence: 60,
+          footNote: "Round 2 \u2014 caught a data filtering issue."
+        },
+        {
+          reasoning: "Updated exclusions, two-tailed, 95% CI, add Cohen\u2019s d.",
+          output: "N = 38/group. p = 0.041, CI [0.08, 4.52], d = 0.47.",
+          issue: null,
+          clarify: null,
+          confidence: 95,
+          footNote: "Round 3 \u2014 output trusted."
+        }
+      ];
+
+      function bubble(text, who, color) {
+        var d = document.createElement("div");
+        var isYou = who === "you";
+        d.style.cssText = "padding:6px 10px;border-radius:7px;max-width:92%;opacity:0;transition:opacity 0.4s;font-size:11.5px;line-height:1.45;" +
+          (isYou
+            ? "align-self:flex-start;background:#f0fdfa;border:1px solid #99f6e4"
+            : "align-self:flex-end;background:#f8fafc;border:1px solid #e2e8f0");
+        var label = document.createElement("div");
+        label.style.cssText = "font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:" + color + ";margin-bottom:2px";
+        label.textContent = isYou ? "YOU" : "AI";
+        var body = document.createElement("div");
+        body.style.color = "#374151";
+        body.textContent = text;
+        d.appendChild(label);
+        d.appendChild(body);
+        conv.appendChild(d);
+        void d.offsetHeight;
+        d.style.opacity = "1";
+        /* Auto-scroll */
+        d.parentElement.parentElement.scrollTop = d.parentElement.parentElement.scrollHeight;
+        return d;
+      }
+
+      function issueTag(text) {
+        var d = document.createElement("div");
+        d.style.cssText = "padding:4px 8px;border-radius:5px;background:#fef3c7;border:1px solid #fcd34d;font-size:10.5px;color:" + AMBER_DARK + ";align-self:flex-start;opacity:0;transition:opacity 0.4s";
+        d.innerHTML = "\u26a0 " + text;
+        conv.appendChild(d);
+        void d.offsetHeight;
+        d.style.opacity = "1";
+        return d;
+      }
+
+      function setConfidence(val) {
+        bar.style.width = val + "%";
+        pct.textContent = val + "%";
+        bar.style.background = confColor(val);
+      }
+
+      /* ── Main review sequence ── */
+      async function runReview() {
+        if (running) return;
+        running = true;
+        btn.disabled = true;
+        btn.textContent = "Playing\u2026";
+        conv.innerHTML = "";
+        setConfidence(0);
+        lastRound = -1;
+        drawStatic(-1);
+        ftL.className = "panel-foot neutral";
+        ftL.textContent = "Starting review cycle\u2026";
+        ftR.className = "panel-foot neutral";
+        ftR.textContent = "Watch the conversation unfold.";
+
+        for (var i = 0; i < rounds.length; i++) {
+          var r = rounds[i];
+          lastRound = i;
+          await sleep(500);
+
+          /* Phase 1: YOU sends reasoning → animate particle YOU→AI */
+          bubble(r.reasoning, "you", TEAL);
+          await animatePhase(function (t) {
+            var c = C(); c.clearRect(0, 0, W(), H());
+            var p = nodePos(); var rad = 30 * p.s;
+            drawArrow(c, p.you.x + rad, p.you.y, p.ai.x - rad, p.ai.y, TEAL, 0.5, t);
+            if (i > 0) drawReturnArrow(c, p.ai.x - rad, p.ai.y, p.you.x + rad, p.you.y, AMBER_HEX, 0.2, -1);
+            drawNode(c, p.you.x, p.you.y, rad, "YOU", TEAL, true);
+            drawNode(c, p.ai.x, p.ai.y, rad, "AI", "#6366f1", false);
+            var cv = i > 0 ? rounds[i-1].confidence : 0;
+            drawConfRing(c, p.cx, H() * 0.72, cv, confColor(cv));
+            drawRoundDots(c, i);
+          }, 700);
+
+          await sleep(400);
+
+          /* Phase 2: AI responds → animate particle AI→YOU */
+          bubble(r.output, "ai", "#6366f1");
+          ftR.textContent = r.footNote;
+          await animatePhase(function (t) {
+            var c = C(); c.clearRect(0, 0, W(), H());
+            var p = nodePos(); var rad = 30 * p.s;
+            drawArrow(c, p.you.x + rad, p.you.y, p.ai.x - rad, p.ai.y, TEAL, 0.3, -1);
+            drawReturnArrow(c, p.ai.x - rad, p.ai.y, p.you.x + rad, p.you.y, AMBER_HEX, 0.45, t);
+            drawNode(c, p.you.x, p.you.y, rad, "YOU", TEAL, false);
+            drawNode(c, p.ai.x, p.ai.y, rad, "AI", "#6366f1", true);
+            var cv = i > 0 ? rounds[i-1].confidence : 0;
+            drawConfRing(c, p.cx, H() * 0.72, cv, confColor(cv));
+            drawRoundDots(c, i);
+          }, 700);
+
+          await sleep(400);
+
+          if (r.issue) {
+            issueTag(r.issue);
+            await sleep(600);
+            bubble(r.clarify, "you", TEAL);
+            await sleep(400);
+          }
+
+          /* Phase 3: Confidence rises with animation */
+          var prevConf = i > 0 ? rounds[i-1].confidence : 0;
+          var targetConf = r.confidence;
+          await animatePhase(function (t) {
+            var c = C(); c.clearRect(0, 0, W(), H());
+            var p = nodePos(); var rad = 30 * p.s;
+            drawArrow(c, p.you.x + rad, p.you.y, p.ai.x - rad, p.ai.y, TEAL, 0.3, -1);
+            drawReturnArrow(c, p.ai.x - rad, p.ai.y, p.you.x + rad, p.you.y, AMBER_HEX, 0.25, -1);
+            drawNode(c, p.you.x, p.you.y, rad, "YOU", TEAL, false);
+            drawNode(c, p.ai.x, p.ai.y, rad, "AI", "#6366f1", false);
+            var cv = Math.round(prevConf + (targetConf - prevConf) * t);
+            drawConfRing(c, p.cx, H() * 0.72, cv, confColor(cv));
+            drawRoundDots(c, i);
+          }, 600);
+
+          setConfidence(r.confidence);
+          await sleep(300);
+
+          if (i < rounds.length - 1) {
+            var hr = document.createElement("div");
+            hr.style.cssText = "border-top:1px dashed #e5e7eb;margin:3px 0;opacity:0;transition:opacity 0.3s";
+            conv.appendChild(hr);
+            void hr.offsetHeight;
+            hr.style.opacity = "1";
+            await sleep(200);
+          }
+        }
+
+        await sleep(400);
+        ftL.className = "panel-foot teal";
+        ftL.textContent = "Three rounds. Two errors caught. Output trusted.";
+        ftR.className = "panel-foot teal";
+        ftR.textContent = "Your expertise drove every correction.";
+        running = false;
+        btn.disabled = false;
+        btn.textContent = "Replay";
+      }
+
+      /* Auto-play on load */
+      drawStatic(-1);
+      setTimeout(runReview, 1400);
+      btn.addEventListener("click", function () { if (!running) runReview(); });
+
+      document.getElementById("review-reset").addEventListener("click", function () {
+        if (running) return;
+        conv.innerHTML = "";
+        setConfidence(0);
+        lastRound = -1;
+        drawStatic(-1);
+        btn.textContent = "Play";
+        btn.disabled = false;
+        ftL.textContent = "Your expertise drives every correction.";
+        ftL.className = "panel-foot neutral";
+        ftR.textContent = "Mistakes are expected. The loop catches them.";
+        ftR.className = "panel-foot neutral";
+      });
+    })();
+    </script>
   </body>
 </html>

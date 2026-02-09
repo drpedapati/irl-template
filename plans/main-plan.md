@@ -106,6 +106,11 @@ I think the Getting started can be two things - you can start with a text plan f
 
 New Task: Now make the final combined webpage based on the outline. Copy the outline into a new file first and then copy over sections to avoid any attrition or regression. Then go back and refine.
 
+Revision: 
+    - Prose tone and flow across all 13 sections
+    - Check need more/less content
+    - integrate the actual toys from toys.html
+
 ### One-Time Instructions — Tasks that should only execute once
 
 <!-- 👤 AUTHOR AREA: Add one-time tasks below -->
