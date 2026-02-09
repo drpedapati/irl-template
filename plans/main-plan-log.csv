@@ -58,3 +58,4 @@ date,change_summary,git_hash
 2026-02-08,Revised Toy 9 markdown explanation and added lead-in prose to all 9 toys; redeployed,4d8a8d0
 2026-02-09,Added literature review tutorial page (PubMed + DOCX) with parameterized IDE walkthrough toy,3612297
 2026-02-09,Revised lit-review tutorial: real template structure and PubMed/DOCX skills and unified command; verified live,f185795
+2026-02-09,Added tutorial links to draft.html (topbar + Section 9 + bottom CTA); redeployed,61fb0ff
