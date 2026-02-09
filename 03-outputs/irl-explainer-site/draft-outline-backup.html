@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Work You Can Retrace — Draft Outline</title>
+    <style>
+      :root {
+        --bg: #ffffff;
+        --ink: #111827;
+        --muted: #4b5563;
+        --subtle: #6b7280;
+        --border: #e5e7eb;
+        --sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, #ffffff 0%, #fbfbfb 70%, #ffffff 100%);
+        color: var(--ink);
+        font-family: var(--sans);
+        line-height: 1.7;
+      }
+      .topbar {
+        position: sticky; top: 0; z-index: 50;
+        background: rgba(255,255,255,0.82);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border);
+      }
+      .topbar-inner {
+        max-width: 700px; margin: 0 auto;
+        padding: 12px 18px;
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .brand {
+        display: inline-flex; align-items: center; gap: 10px;
+        font-weight: 650; color: var(--ink); text-decoration: none;
+      }
+      .brand svg { width: 14px; height: 14px; display: block; }
+      .topbar a.util {
+        font-family: var(--mono); font-size: 12px;
+        color: var(--subtle); text-decoration: none;
+      }
+      .wrap { max-width: 700px; margin: 0 auto; padding: 28px 18px 80px; }
+
+      header { padding: 26px 0 22px; border-bottom: 1px solid var(--border); }
+      .title-block { text-align: center; padding-bottom: 20px; }
+      .kicker {
+        font-family: var(--mono); font-size: 12px;
+        letter-spacing: 0.08em; text-transform: uppercase;
+        color: var(--subtle); margin-bottom: 10px;
+      }
+      h1 {
+        font-size: clamp(34px, 4.2vw, 48px);
+        line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 8px;
+      }
+      .subtitle {
+        font-family: var(--mono); font-size: 14px;
+        letter-spacing: 0.04em; color: var(--subtle); margin: 0 0 10px;
+      }
+      .byline {
+        font-family: var(--mono); font-size: 12.5px;
+        color: var(--subtle); margin: -2px 0 14px;
+      }
+      .lede { color: var(--muted); font-size: 17px; margin: 12px 0; }
+      .lede:first-of-type { margin-top: 0; }
+
+      section {
+        padding-top: 22px; margin-top: 22px;
+        border-top: 1px solid var(--border);
+      }
+      h2 {
+        font-size: 24px; line-height: 1.25; letter-spacing: -0.01em;
+        margin: 0 0 10px; padding-bottom: 6px;
+        border-bottom: 1px solid var(--border);
+      }
+      .subhead { color: var(--muted); margin: 0 0 10px; }
+      .aside {
+        border-left: 3px solid var(--border);
+        padding-left: 14px; margin: 16px 0; color: var(--muted);
+      }
+
+      .toy-placeholder {
+        border: 2px dashed var(--border);
+        border-radius: 10px;
+        padding: 18px 16px;
+        margin: 18px 0;
+        background: #fafafa;
+        text-align: center;
+      }
+      .toy-placeholder .toy-name {
+        font-weight: 700; font-size: 14px; margin-bottom: 4px;
+      }
+      .toy-placeholder .toy-desc {
+        font-size: 13px; color: var(--subtle);
+      }
+
+      .content-note {
+        font-size: 14px;
+        color: var(--muted);
+        font-style: italic;
+        margin: 8px 0;
+      }
+
+      .source-tag {
+        display: inline-block;
+        font-family: var(--mono);
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 6px;
+        vertical-align: middle;
+      }
+      .from-index {
+        background: #dbeafe; color: #1d4ed8;
+      }
+      .from-toys {
+        background: #fef3c7; color: #92400e;
+      }
+      .new-content {
+        background: #dcfce7; color: #166534;
+      }
+
+      footer {
+        margin-top: 28px; padding-top: 18px;
+        border-top: 1px solid var(--border);
+        color: var(--subtle); font-size: 13px;
+      }
+
+      .legend {
+        display: flex; gap: 16px; flex-wrap: wrap;
+        margin: 14px 0 0;
+        font-size: 12px; color: var(--subtle);
+      }
+      .legend span { display: inline-flex; align-items: center; gap: 4px; }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="#">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
+            <circle cx="8" cy="8" r="2" fill="currentColor"></circle>
+          </svg>
+          IRL Explainer
+        </a>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--subtle);background:#fef3c7;padding:2px 8px;border-radius:4px">DRAFT OUTLINE</span>
+      </div>
+    </header>
+    <div class="wrap">
+
+      <!-- ═══════════════════════════════════════════════
+           HEADER / LEDE
+           ═══════════════════════════════════════════════ -->
+      <header>
+        <div class="title-block">
+          <div class="kicker">A practical way to use AI &mdash; no vendor lock-in</div>
+          <h1>AI Work You Can Retrace</h1>
+          <div class="subtitle">Idempotent Research Loop</div>
+          <div class="byline">Ernest Pedapati, MD</div>
+        </div>
+
+        <p class="content-note">
+          Opening paragraphs &mdash; reframed as empowerment hook:
+          <span class="source-tag from-index">index.html</span>
+          <span class="source-tag new-content">revised framing</span>
+        </p>
+        <p class="aside" style="font-size:13px">
+          <strong>The hook (new framing):</strong> You want to use AI to get real work done.
+          Not a demo, not a party trick &mdash; actual projects you can build on.
+          But most AI workflows disappear into chat transcripts, and the tools
+          change every few months. What if there were a way to work with AI that
+          doesn't depend on any particular product and produces work you can
+          actually keep?<br><br>
+          1. The problem &mdash; AI work evaporates into chat transcripts<br>
+          2. The analogy &mdash; cooking from memory vs. cooking from a recipe<br>
+          3. IRL defined &mdash; a recipe for AI work; not tied to any commercial product; works with any AI assistant<br>
+          4. Your expertise drives it &mdash; this isn't about AI features or coding; it's about your judgment, your reasoning, and critically reviewing the output (like managing any capable assistant)<br>
+          5. The design &mdash; humans reason, AI executes, the plan file sits in the middle<br>
+          6. The meta-skill &mdash; learn this one pattern and you can build anything: reports, analyses, websites, literature reviews
+        </p>
+      </header>
+
+      <main>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 1: Why Learn This
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>1. Why Learn This
+            <span class="source-tag new-content">new</span>
+            <span class="source-tag from-toys">Toy 7</span>
+          </h2>
+          <p class="subhead">
+            One pattern that works for any AI-assisted project. No vendor lock-in. Just files.
+          </p>
+          <p class="content-note">
+            The empowerment hook. Most people want to use AI but feel stuck: tools
+            keep changing, results vanish into chat, and every platform wants you
+            locked in. IRL is different &mdash; it's a plain-text pattern that works
+            with any AI assistant (Claude, ChatGPT, Copilot, local models, whatever
+            comes next). You learn one workflow and can use it to build a website,
+            run a data analysis, write a literature review, or produce any other
+            project. The plan file is yours. The outputs are yours. Nothing is
+            trapped inside a proprietary system.
+          </p>
+          <div class="toy-placeholder">
+            <div class="toy-name">Toy 7: One Pattern, Many Projects</div>
+            <div class="toy-desc">
+              Morphing animation showing the same plan structure with three different
+              use cases (website, data analysis, literature review). Drives home:
+              learn once, build anything.
+            </div>
+          </div>
+          <p class="content-note" style="margin-top:12px">
+            <em>Rationale for leading with Toy 7:</em> The reader's first question is
+            "why should I care?" Show the payoff immediately &mdash; one pattern,
+            many projects &mdash; before explaining how it works.
+          </p>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 2: Your Expertise, Not the AI's
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>2. Your Expertise, Not the AI's
+            <span class="source-tag new-content">new</span>
+            <span class="source-tag from-toys">Toy 8</span>
+          </h2>
+          <p class="subhead">
+            This isn't about AI features or code. It's about your reasoning,
+            your judgment, and your critical review of the output.
+          </p>
+          <p class="content-note">
+            Address the elephant in the room: "But AI makes mistakes." Yes &mdash;
+            so do human assistants. The difference isn't whether mistakes happen,
+            it's whether you have a system for catching them. IRL puts <em>you</em>
+            in the driver's seat. You write out your reasoning in the plan. The AI
+            produces a draft. You review the output critically &mdash; not the
+            AI's process, but the actual files it produced. If something is wrong,
+            you loop back: ask for clarification, run a verification, restate your
+            reasoning more precisely, and iterate until the output earns your trust.
+            <br><br>
+            This is no different from managing a capable human assistant. You
+            wouldn't hand someone a vague instruction and blindly accept the
+            result. You'd review, redirect, refine. IRL just gives that loop a
+            stable structure so nothing falls through the cracks.
+            <br><br>
+            Key emphasis: this is about <strong>your domain expertise</strong>, not
+            AI features. The AI doesn't need to be perfect. It needs to be
+            directable. And you need a system for reviewing what it produces.
+          </p>
+          <div class="toy-placeholder">
+            <div class="toy-name">Toy 8: The Review Loop (NEW)</div>
+            <div class="toy-desc">
+              Animated visualization of the trust-building cycle: you state
+              reasoning &rarr; AI produces output &rarr; you review critically
+              &rarr; spot an issue &rarr; clarify/redirect &rarr; AI revises
+              &rarr; you verify &rarr; trust grows. Shows 3 iterations where
+              output quality improves and a "confidence" indicator rises. The
+              point: mistakes are expected, the loop catches them.
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 3: Same Recipe, Same Result
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>3. Same Recipe, Same Result
+            <span class="source-tag from-index">index.html &sect;5</span>
+            <span class="source-tag from-toys">Toy 1</span>
+          </h2>
+          <p class="subhead">
+            The core concept in plain language: run it again, get the same thing.
+          </p>
+          <p class="content-note">
+            Prose explaining "idempotent" for non-technical readers. Same recipe,
+            same ingredients, same dish. Rerunning a step should produce the same
+            output. Adapted from the idempotency section of index.html. Now that
+            the reader knows <em>why</em> they should care (Section 1), this
+            explains the foundational concept that makes it all work.
+          </p>
+          <div class="toy-placeholder">
+            <div class="toy-name">Toy 1: Idempotent vs. Non-Idempotent</div>
+            <div class="toy-desc">
+              Side-by-side constellation animation. Teal side always settles into the
+              same shape; amber side drifts and accumulates dots each run. Visual,
+              immediate, no jargon.
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 3: The Human-AI Loop
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>4. The Human-AI Loop
+            <span class="source-tag from-index">index.html &sect;1&ndash;2</span>
+            <span class="source-tag from-toys">Toy 2</span>
+          </h2>
+          <p class="subhead">
+            You reason and plan. The AI executes. A report grows.
+          </p>
+          <p class="content-note">
+            Combine "What IRL Is" and "The Core Loop" from index.html into a
+            single narrative. Emphasize the division of labor: humans decide what
+            matters, AI processes data and follows instructions. The plan file sits
+            in the middle as the shared contract. Not tied to any specific AI
+            product &mdash; the plan is a plain text file any assistant can read.
+          </p>
+          <div class="toy-placeholder">
+            <div class="toy-name">Toy 2: The Loop</div>
+            <div class="toy-desc">
+              Canvas animation showing HUMAN &harr; AI &rarr; REPORT triangle.
+              Particles flow along plan/execute/review paths. Report card grows
+              each cycle. Activity hints accumulate in margins.
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 3: Watching It Work
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>5. Watching It Work
+            <span class="source-tag from-index">index.html &sect;3</span>
+            <span class="source-tag from-toys">Toy 3</span>
+          </h2>
+          <p class="subhead">
+            A concrete walkthrough: the plan executes, outputs appear, a revision adds detail.
+          </p>
+          <p class="content-note">
+            Draw from "A Single Run (Sequence)" in index.html. Show what one
+            iteration actually feels like &mdash; plan highlights a step, AI
+            executes, output appears, checkpoint is saved. Then show a second loop
+            with a revision ("add confidence intervals") to demonstrate iteration.
+          </p>
+          <div class="toy-placeholder">
+            <div class="toy-name">Toy 3: The Process</div>
+            <div class="toy-desc">
+              Side-by-side DOM animation. Plan on the left (Before / Instruction /
+              After Each Loop sections highlight in sequence). Outputs accumulate on
+              the right. Two loops with a revision between them showing iterative
+              refinement.
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 4: Inside the Plan
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>6. Inside the Plan
+            <span class="source-tag from-index">index.html &sect;1</span>
+            <span class="source-tag from-toys">Toy 4</span>
+          </h2>
+          <p class="subhead">
+            What the plan file actually looks like. Click each section to learn what it does.
+          </p>
+          <p class="content-note">
+            Prose introducing the plan file as the "control surface." Explain each
+            structural section: First-Time Setup, Before Each Loop, Instruction
+            Loop, After Each Loop, One-Time Instructions, Formatting Guidelines.
+            Keep it concrete &mdash; this is the thing the reader will actually write.
+          </p>
+          <div class="toy-placeholder">
+            <div class="toy-name">Toy 4: Anatomy of a Plan</div>
+            <div class="toy-desc">
+              Split layout: plan document on the left with realistic content,
+              clickable section labels with colored dots on the right. Click a
+              section to highlight both sides and see a description.
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 5: Running the Plan
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>7. Running the Plan
+            <span class="source-tag new-content">new</span>
+            <span class="source-tag from-toys">Toy 5</span>
+          </h2>
+          <p class="subhead">
+            One command, run over and over. That's the whole routine.
+          </p>
+          <p class="content-note">
+            Brief prose on how you actually execute: open a terminal-based AI
+            assistant, give it the same instruction each time ("Review
+            main-plan.md, check for any revisions, and execute"). The AI reads
+            the plan, does the work, produces outputs. You review and commit.
+            Simplicity is the point.
+          </p>
+          <div class="toy-placeholder">
+            <div class="toy-name">Toy 5: The Execution Loop</div>
+            <div class="toy-desc">
+              Dark terminal animation. Three loops of the same command with
+              revisions appearing between loops. Shows the rhythmic pattern of
+              execute &rarr; review &rarr; revise &rarr; execute.
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 6: Your Workspace
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>8. Your Workspace
+            <span class="source-tag new-content">new</span>
+            <span class="source-tag from-toys">Toy 6</span>
+          </h2>
+          <p class="subhead">
+            What the tools actually look like when you're working.
+          </p>
+          <p class="content-note">
+            Brief prose orienting the reader to a typical setup: a code editor
+            with the plan open, a preview pane showing the output, a terminal
+            at the bottom where the AI runs, and a file sidebar showing the
+            project structure. No specific tool required &mdash; this works in
+            VS Code, Cursor, a plain text editor + terminal, etc.
+          </p>
+          <div class="toy-placeholder">
+            <div class="toy-name">Toy 6: The Workspace</div>
+            <div class="toy-desc">
+              Interactive mock IDE layout. Four clickable zones (file explorer,
+              plan editor, output preview, terminal) with overlay descriptions.
+              Guided Tour button walks through each zone automatically.
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 7: One Pattern, Many Projects
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>9. Extending with Skills
+            <span class="source-tag new-content">new</span>
+          </h2>
+          <p class="subhead">
+            Add capabilities without changing the pattern. Skills are plug-in
+            instructions for different domains.
+          </p>
+          <p class="content-note">
+            Deeper dive into the "skills" concept introduced in Section 1.
+            Skills are installable sets of instructions that customize the plan
+            for specific domains (PubMed search, data analysis, document generation,
+            scientific posters). The key insight: you never change <em>how</em> you
+            work, you just change <em>what</em> the Instruction Loop says. This is
+            why IRL isn't tied to any commercial product &mdash; the skills are
+            plain text, the plan is plain text, and any AI assistant can read them.
+          </p>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 9: Project Structure
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>10. Project Structure
+            <span class="source-tag from-index">index.html &sect;2</span>
+          </h2>
+          <p class="subhead">
+            Where files live and why the layout matters.
+          </p>
+          <p class="content-note">
+            Adapted from "Project Anatomy" in index.html. Explain the folder
+            convention (main-plan.md, 02-data/raw and derived, 03-outputs, 04-logs)
+            and why separation matters: raw data is sacred, derived data is
+            disposable, outputs are the things you show people. Include the
+            filesystem diagram (Mermaid or code block).
+          </p>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 9: Keeping It Reproducible
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>11. Keeping It Reproducible
+            <span class="source-tag from-index">index.html &sect;4&ndash;5</span>
+          </h2>
+          <p class="subhead">
+            Practical habits for idempotency: stable paths, pinned versions, no hidden time.
+          </p>
+          <p class="content-note">
+            Deeper dive on the practical side of idempotency. Combine material from
+            "Idempotency (The Boring Part)" and "Review, Commit, Repeat." Cover
+            stable filenames, avoiding timestamps in output names, pinning
+            dependencies, the review checklist, and the power of an empty diff
+            on rerun. This is the "how to not break it" section.
+          </p>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 12: Getting Started — Plain Text
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>12. Getting Started: The Plain-Text Way
+            <span class="source-tag from-index">index.html &sect;6</span>
+            <span class="source-tag new-content">new</span>
+          </h2>
+          <p class="subhead">
+            All you need is a text file and a terminal-based AI assistant.
+          </p>
+          <p class="content-note">
+            The lowest-barrier path to IRL. You don't need to install anything
+            special. Create a folder, write a <code>main-plan.md</code> by hand
+            (or copy the template), open your terminal AI (Claude Code, Cursor,
+            Copilot Chat, etc.), and give it one instruction: "Review main-plan.md,
+            check for any revisions, and execute." That's it. The plan file is
+            plain text &mdash; any AI assistant can read it. You review the output,
+            add a revision to the plan, and run again. This path emphasizes that
+            IRL is a <em>pattern</em>, not a product. You can start in under five minutes.
+          </p>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 13: Getting Started — IRL CLI
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>13. Getting Started: The IRL App
+            <span class="source-tag new-content">new</span>
+          </h2>
+          <p class="subhead">
+            A lightweight CLI that automates the scaffolding.
+          </p>
+          <p class="content-note">
+            For users who want a faster setup, introduce the <code>irl</code> Go CLI.
+            One command creates a properly structured project with auto-naming
+            (YYMMDD-slug), the right folder layout (01-plans, 02-data, 03-outputs,
+            04-logs), a ready-to-edit main-plan.md, and optional template support.
+            Show the command: <code>irl init "My analysis project"</code>. Explain
+            that this is a convenience layer &mdash; it produces the same plain-text
+            structure from Section 12, just faster. Include install instructions
+            (Homebrew tap) and link to the GitHub repo. The app is open source and
+            optional &mdash; everything it creates is files you own.
+          </p>
+        </section>
+
+      </main>
+
+      <footer>
+        <strong>Outline for review &mdash; 13 sections.</strong> Toys are listed as placeholders &mdash; not yet integrated.
+        <div class="legend">
+          <span><span class="source-tag from-index" style="margin:0">index.html</span> existing prose</span>
+          <span><span class="source-tag from-toys" style="margin:0">Toy N</span> interactive toy</span>
+          <span><span class="source-tag new-content" style="margin:0">new</span> new content needed</span>
+        </div>
+      </footer>
+
+    </div>
+  </body>
+</html>

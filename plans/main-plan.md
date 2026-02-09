@@ -104,6 +104,8 @@ Next: Good work on the toy. Let's get back to refining the combined outlines.
 
 I think the Getting started can be two things - you can start with a text plan file and have your terminal AI run it. You can also introduce the IRL go app.
 
+New Task: Now make the final combined webpage based on the outline. Copy the outline into a new file first and then copy over sections to avoid any attrition or regression. Then go back and refine.
+
 ### One-Time Instructions — Tasks that should only execute once
 
 <!-- 👤 AUTHOR AREA: Add one-time tasks below -->

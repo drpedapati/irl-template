@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>AI Work You Can Retrace — Draft Outline</title>
+    <title>AI Work You Can Retrace — Idempotent Research Loop</title>
     <style>
       :root {
         --bg: #ffffff;
@@ -45,6 +45,7 @@
         font-family: var(--mono); font-size: 12px;
         color: var(--subtle); text-decoration: none;
       }
+      .topbar a.util:hover { color: var(--ink); text-decoration: none; }
       .wrap { max-width: 700px; margin: 0 auto; padding: 28px 18px 80px; }
 
       header { padding: 26px 0 22px; border-bottom: 1px solid var(--border); }
@@ -99,30 +100,29 @@
         font-size: 13px; color: var(--subtle);
       }
 
-      .content-note {
-        font-size: 14px;
-        color: var(--muted);
-        font-style: italic;
-        margin: 8px 0;
+      pre {
+        margin: 14px 0;
+        padding: 12px 12px;
+        border-radius: 10px;
+        background: #0b1020;
+        color: #e5e7eb;
+        overflow: auto;
+        font-family: var(--mono);
+        font-size: 12.5px;
+        line-height: 1.55;
+        border: 1px solid rgba(17, 24, 39, 0.25);
       }
 
-      .source-tag {
-        display: inline-block;
+      code {
         font-family: var(--mono);
-        font-size: 10px;
-        padding: 2px 6px;
-        border-radius: 4px;
-        margin-left: 6px;
-        vertical-align: middle;
       }
-      .from-index {
-        background: #dbeafe; color: #1d4ed8;
-      }
-      .from-toys {
-        background: #fef3c7; color: #92400e;
-      }
-      .new-content {
-        background: #dcfce7; color: #166534;
+
+      .inline-code {
+        background: #f3f4f6;
+        padding: 0.1rem 0.25rem;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        font-size: 0.92em;
       }
 
       footer {
@@ -130,13 +130,6 @@
         border-top: 1px solid var(--border);
         color: var(--subtle); font-size: 13px;
       }
-
-      .legend {
-        display: flex; gap: 16px; flex-wrap: wrap;
-        margin: 14px 0 0;
-        font-size: 12px; color: var(--subtle);
-      }
-      .legend span { display: inline-flex; align-items: center; gap: 4px; }
     </style>
   </head>
   <body>
@@ -149,7 +142,14 @@
           </svg>
           IRL Explainer
         </a>
-        <span style="font-family:var(--mono);font-size:11px;color:var(--subtle);background:#fef3c7;padding:2px 8px;border-radius:4px">DRAFT OUTLINE</span>
+        <a
+          class="util"
+          href="https://github.com/drpedapati/irl-template"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View Source
+        </a>
       </div>
     </header>
     <div class="wrap">
@@ -165,24 +165,63 @@
           <div class="byline">Ernest Pedapati, MD</div>
         </div>
 
-        <p class="content-note">
-          Opening paragraphs &mdash; reframed as empowerment hook:
-          <span class="source-tag from-index">index.html</span>
-          <span class="source-tag new-content">revised framing</span>
+        <p class="lede">
+          You want to use AI to get real work done. Not a demo, not a party
+          trick &mdash; actual projects you can build on, share with
+          colleagues, and return to months later. But most AI tools want you
+          locked into their platform, and the landscape shifts every few
+          months. What if you could learn one way of working with AI that
+          doesn't depend on any particular product and produces work you
+          actually own?
         </p>
-        <p class="aside" style="font-size:13px">
-          <strong>The hook (new framing):</strong> You want to use AI to get real work done.
-          Not a demo, not a party trick &mdash; actual projects you can build on.
-          But most AI workflows disappear into chat transcripts, and the tools
-          change every few months. What if there were a way to work with AI that
-          doesn't depend on any particular product and produces work you can
-          actually keep?<br><br>
-          1. The problem &mdash; AI work evaporates into chat transcripts<br>
-          2. The analogy &mdash; cooking from memory vs. cooking from a recipe<br>
-          3. IRL defined &mdash; a recipe for AI work; not tied to any commercial product; works with any AI assistant<br>
-          4. Your expertise drives it &mdash; this isn't about AI features or coding; it's about your judgment, your reasoning, and critically reviewing the output (like managing any capable assistant)<br>
-          5. The design &mdash; humans reason, AI executes, the plan file sits in the middle<br>
-          6. The meta-skill &mdash; learn this one pattern and you can build anything: reports, analyses, websites, literature reviews
+
+        <p class="lede">
+          Here is the problem most people run into: you do something
+          genuinely useful with an AI assistant, it works, you feel
+          productive &mdash; and then the whole thing evaporates into a chat
+          transcript nobody will ever read again. A week later you can't
+          answer basic questions. What inputs did you use? What assumptions
+          did you make? If the result is wrong, where exactly did it go
+          wrong?
+        </p>
+
+        <p class="lede">
+          Think about the difference between cooking from memory and cooking
+          from a recipe. From memory, you might make something great, but
+          you can't teach it to someone else, you can't reliably make it
+          again, and if something goes wrong you're just guessing at what
+          changed. A recipe externalizes the knowledge. You can trace
+          problems, share it with others, and build on it deliberately.
+        </p>
+
+        <p class="lede">
+          IRL is a recipe for AI-assisted work. It isn't tied to any
+          commercial product &mdash; it works with any AI assistant,
+          whether that's Claude, ChatGPT, Copilot, a local model, or
+          whatever comes next. You write a plan file that spells out your
+          inputs, assumptions, and what the output should look like. The AI
+          follows the plan and produces files you can actually inspect: a
+          report, a dataset, a diagram. "Idempotent" just means: same
+          recipe, same ingredients, same dish.
+        </p>
+
+        <p class="lede">
+          The design plays to what each side is good at. You decide what
+          matters, judge quality, and notice when something is off. The AI
+          processes data, generates drafts, and follows instructions without
+          getting tired. Your expertise drives the work &mdash; this isn't
+          about AI features or knowing how to write code. It's about your
+          judgment, your reasoning, and critically reviewing the output,
+          like managing any capable assistant.
+        </p>
+
+        <p class="lede">
+          This is worth learning because it's the thing that builds all the
+          other things. A report, a data analysis, a literature review, a
+          website, a grant draft &mdash; they're all just different
+          instructions in the same kind of plan. Learn the pattern once and
+          you have a way to manage any AI-assisted project that needs to be
+          traceable, revisable, and yours.
         </p>
       </header>
 
@@ -192,23 +231,38 @@
              SECTION 1: Why Learn This
              ═══════════════════════════════════════════════ -->
         <section>
-          <h2>1. Why Learn This
-            <span class="source-tag new-content">new</span>
-            <span class="source-tag from-toys">Toy 7</span>
-          </h2>
+          <h2>1. Why Learn This</h2>
           <p class="subhead">
             One pattern that works for any AI-assisted project. No vendor lock-in. Just files.
           </p>
-          <p class="content-note">
-            The empowerment hook. Most people want to use AI but feel stuck: tools
-            keep changing, results vanish into chat, and every platform wants you
-            locked in. IRL is different &mdash; it's a plain-text pattern that works
-            with any AI assistant (Claude, ChatGPT, Copilot, local models, whatever
-            comes next). You learn one workflow and can use it to build a website,
-            run a data analysis, write a literature review, or produce any other
-            project. The plan file is yours. The outputs are yours. Nothing is
-            trapped inside a proprietary system.
+
+          <p>
+            Most people who want to use AI productively feel stuck. The tools
+            keep changing, results vanish into chat windows, and every
+            platform wants you locked in. You invest time learning one
+            product's interface, and six months later it's been replaced by
+            the next thing. Meanwhile, the actual work you produced is
+            trapped inside someone else's system.
           </p>
+
+          <p>
+            IRL is different. It's a plain-text pattern, not a product. The
+            plan file you write is just a text document &mdash; any AI
+            assistant can read it. The outputs are files on your computer
+            that you own. Nothing is stored inside a proprietary platform.
+            If you switch AI providers tomorrow, the pattern still works
+            exactly the same way.
+          </p>
+
+          <p>
+            The payoff is that you learn one workflow and can use it to build
+            almost anything: a website, a data analysis, a literature
+            review, an internal report, a conference poster. The structure
+            stays the same; only the instructions change. Instead of
+            learning a new tool for every type of project, you learn one way
+            of thinking and apply it everywhere.
+          </p>
+
           <div class="toy-placeholder">
             <div class="toy-name">Toy 7: One Pattern, Many Projects</div>
             <div class="toy-desc">
@@ -217,53 +271,56 @@
               learn once, build anything.
             </div>
           </div>
-          <p class="content-note" style="margin-top:12px">
-            <em>Rationale for leading with Toy 7:</em> The reader's first question is
-            "why should I care?" Show the payoff immediately &mdash; one pattern,
-            many projects &mdash; before explaining how it works.
-          </p>
         </section>
 
         <!-- ═══════════════════════════════════════════════
              SECTION 2: Your Expertise, Not the AI's
              ═══════════════════════════════════════════════ -->
         <section>
-          <h2>2. Your Expertise, Not the AI's
-            <span class="source-tag new-content">new</span>
-            <span class="source-tag from-toys">Toy 8</span>
-          </h2>
+          <h2>2. Your Expertise, Not the AI's</h2>
           <p class="subhead">
             This isn't about AI features or code. It's about your reasoning,
             your judgment, and your critical review of the output.
           </p>
-          <p class="content-note">
-            Address the elephant in the room: "But AI makes mistakes." Yes &mdash;
-            so do human assistants. The difference isn't whether mistakes happen,
-            it's whether you have a system for catching them. IRL puts <em>you</em>
-            in the driver's seat. You write out your reasoning in the plan. The AI
-            produces a draft. You review the output critically &mdash; not the
-            AI's process, but the actual files it produced. If something is wrong,
-            you loop back: ask for clarification, run a verification, restate your
-            reasoning more precisely, and iterate until the output earns your trust.
-            <br><br>
+
+          <p>
+            The elephant in the room: AI makes mistakes. But so do human
+            assistants, and so do we. The difference isn't whether mistakes
+            happen &mdash; it's whether you have a system for catching them.
+            IRL puts you in the driver's seat. You write out your reasoning
+            in the plan. The AI produces a draft. Then you review the
+            actual output critically &mdash; not the AI's process, but the
+            files it produced. If something is wrong, you loop back: clarify
+            your instructions, ask for a different approach, and run again
+            until the output earns your trust.
+          </p>
+
+          <p>
             This is no different from managing a capable human assistant. You
             wouldn't hand someone a vague instruction and blindly accept the
-            result. You'd review, redirect, refine. IRL just gives that loop a
-            stable structure so nothing falls through the cracks.
-            <br><br>
-            Key emphasis: this is about <strong>your domain expertise</strong>, not
-            AI features. The AI doesn't need to be perfect. It needs to be
-            directable. And you need a system for reviewing what it produces.
+            result. You'd review the work, redirect where needed, and
+            refine until it meets your standards. IRL gives that natural
+            feedback loop a stable structure so nothing falls through the
+            cracks.
           </p>
+
+          <p>
+            The key point: this is about your domain expertise, not AI
+            features. You don't need to understand how the AI works
+            internally. You need to know your subject well enough to
+            evaluate what it produces. The AI doesn't need to be perfect. It
+            needs to be directable. And you need a system for reviewing what
+            comes back.
+          </p>
+
           <div class="toy-placeholder">
-            <div class="toy-name">Toy 8: The Review Loop (NEW)</div>
+            <div class="toy-name">Toy 8: The Review Loop</div>
             <div class="toy-desc">
               Animated visualization of the trust-building cycle: you state
               reasoning &rarr; AI produces output &rarr; you review critically
               &rarr; spot an issue &rarr; clarify/redirect &rarr; AI revises
               &rarr; you verify &rarr; trust grows. Shows 3 iterations where
-              output quality improves and a "confidence" indicator rises. The
-              point: mistakes are expected, the loop catches them.
+              output quality improves and a "confidence" indicator rises.
             </div>
           </div>
         </section>
@@ -272,20 +329,40 @@
              SECTION 3: Same Recipe, Same Result
              ═══════════════════════════════════════════════ -->
         <section>
-          <h2>3. Same Recipe, Same Result
-            <span class="source-tag from-index">index.html &sect;5</span>
-            <span class="source-tag from-toys">Toy 1</span>
-          </h2>
+          <h2>3. Same Recipe, Same Result</h2>
           <p class="subhead">
             The core concept in plain language: run it again, get the same thing.
           </p>
-          <p class="content-note">
-            Prose explaining "idempotent" for non-technical readers. Same recipe,
-            same ingredients, same dish. Rerunning a step should produce the same
-            output. Adapted from the idempotency section of index.html. Now that
-            the reader knows <em>why</em> they should care (Section 1), this
-            explains the foundational concept that makes it all work.
+
+          <p>
+            The word "idempotent" sounds technical, but the idea is simple.
+            If you follow the same recipe with the same ingredients, you
+            should get the same dish. That's the foundation IRL is built on.
+            When you run a step in your plan, it should produce the same
+            output every time, as long as the inputs haven't changed. No
+            surprises, no mystery differences.
           </p>
+
+          <p>
+            Why does this matter? Because the fastest way to lose trust in
+            your work is to run the same step twice and get different results.
+            If you can't explain what changed, you can't trust the output.
+            Idempotency gives you confidence: if you rerun something and
+            nothing is different, you know the foundation is solid. If
+            something did change, you know exactly where to look because
+            only the parts you deliberately modified should be different.
+          </p>
+
+          <p>
+            In practice, this means a few simple habits: give your output
+            files stable names (not names with today's date stamped on them),
+            spell out where inputs come from, and avoid steps that depend on
+            "whatever the latest version is" without pinning what that means.
+            These are small disciplines, but they're the difference between
+            work you can build on and work that slowly drifts out from under
+            you.
+          </p>
+
           <div class="toy-placeholder">
             <div class="toy-name">Toy 1: Idempotent vs. Non-Idempotent</div>
             <div class="toy-desc">
@@ -297,23 +374,51 @@
         </section>
 
         <!-- ═══════════════════════════════════════════════
-             SECTION 3: The Human-AI Loop
+             SECTION 4: The Human-AI Loop
              ═══════════════════════════════════════════════ -->
         <section>
-          <h2>4. The Human-AI Loop
-            <span class="source-tag from-index">index.html &sect;1&ndash;2</span>
-            <span class="source-tag from-toys">Toy 2</span>
-          </h2>
+          <h2>4. The Human-AI Loop</h2>
           <p class="subhead">
             You reason and plan. The AI executes. A report grows.
           </p>
-          <p class="content-note">
-            Combine "What IRL Is" and "The Core Loop" from index.html into a
-            single narrative. Emphasize the division of labor: humans decide what
-            matters, AI processes data and follows instructions. The plan file sits
-            in the middle as the shared contract. Not tied to any specific AI
-            product &mdash; the plan is a plain text file any assistant can read.
+
+          <p>
+            The first move is small but important: instead of keeping "what
+            we're trying to do" inside a chat thread, you keep it in a file.
+            That file is your control surface &mdash; the plan. It's where
+            you state your objectives, your inputs, what the output should
+            look like, and what "done" means. When something needs to change,
+            you edit the plan, not your memory of a conversation.
           </p>
+
+          <p>
+            The loop itself is deliberately repetitive. You edit the plan,
+            the AI executes the instructions, it produces files you can
+            inspect, you review what it made, save a checkpoint, and repeat.
+            If any of those steps is missing, the whole thing tends to
+            collapse back into "chat with an AI until it feels done."
+            Notice what isn't in the loop: "remember." IRL assumes memory is
+            unreliable. The plan file replaces memory as the source of
+            truth, and the outputs replace "trust me" explanations as
+            evidence.
+          </p>
+
+          <p>
+            The division of labor is clear. You bring the judgment: what
+            matters, what's correct, what to do next. The AI brings the
+            labor: processing data, generating drafts, following
+            instructions without getting tired. The plan file sits between
+            you as a shared contract. It isn't tied to any specific AI
+            product &mdash; it's plain text that any assistant can read.
+          </p>
+
+          <p class="aside">
+            A practical rule of thumb: keep each run short enough that you
+            can rerun it without dread. If a run takes thirty seconds to a
+            few minutes, you'll iterate freely. If it takes half an hour,
+            you'll avoid reruns, and that's where mistakes hide.
+          </p>
+
           <div class="toy-placeholder">
             <div class="toy-name">Toy 2: The Loop</div>
             <div class="toy-desc">
@@ -325,22 +430,45 @@
         </section>
 
         <!-- ═══════════════════════════════════════════════
-             SECTION 3: Watching It Work
+             SECTION 5: Watching It Work
              ═══════════════════════════════════════════════ -->
         <section>
-          <h2>5. Watching It Work
-            <span class="source-tag from-index">index.html &sect;3</span>
-            <span class="source-tag from-toys">Toy 3</span>
-          </h2>
+          <h2>5. Watching It Work</h2>
           <p class="subhead">
             A concrete walkthrough: the plan executes, outputs appear, a revision adds detail.
           </p>
-          <p class="content-note">
-            Draw from "A Single Run (Sequence)" in index.html. Show what one
-            iteration actually feels like &mdash; plan highlights a step, AI
-            executes, output appears, checkpoint is saved. Then show a second loop
-            with a revision ("add confidence intervals") to demonstrate iteration.
+
+          <p>
+            Here's what a single run actually feels like. You open the plan,
+            which spells out what the AI should do: read these inputs,
+            produce these outputs, put them in these locations. You tell
+            the AI to execute. It reads the plan, processes the inputs, and
+            writes the results to the files you specified. You look at what
+            it produced. If everything is right, you save a checkpoint. If
+            something needs adjustment, you note the revision in the plan
+            and run again.
           </p>
+
+          <p>
+            The second run is where it gets interesting. Say the first pass
+            produced a summary table, but you want confidence intervals
+            added. You write that revision into the plan: "add 95%
+            confidence intervals to the summary table." You run again. The
+            AI reads the updated plan, sees the new instruction, and
+            produces a revised output. You review just the parts that
+            changed. The rest should be untouched &mdash; and if it is,
+            you know the foundation is stable.
+          </p>
+
+          <p>
+            A good run is boring: it changes the files you expected,
+            produces the artifacts you asked for, and leaves everything else
+            alone. The boring part is the point. Once runs are predictable,
+            collaboration becomes easier &mdash; colleagues can trust the
+            structure, review what changed, and rerun steps without fear of
+            breaking something.
+          </p>
+
           <div class="toy-placeholder">
             <div class="toy-name">Toy 3: The Process</div>
             <div class="toy-desc">
@@ -353,22 +481,43 @@
         </section>
 
         <!-- ═══════════════════════════════════════════════
-             SECTION 4: Inside the Plan
+             SECTION 6: Inside the Plan
              ═══════════════════════════════════════════════ -->
         <section>
-          <h2>6. Inside the Plan
-            <span class="source-tag from-index">index.html &sect;1</span>
-            <span class="source-tag from-toys">Toy 4</span>
-          </h2>
+          <h2>6. Inside the Plan</h2>
           <p class="subhead">
             What the plan file actually looks like. Click each section to learn what it does.
           </p>
-          <p class="content-note">
-            Prose introducing the plan file as the "control surface." Explain each
-            structural section: First-Time Setup, Before Each Loop, Instruction
-            Loop, After Each Loop, One-Time Instructions, Formatting Guidelines.
-            Keep it concrete &mdash; this is the thing the reader will actually write.
+
+          <p>
+            The plan file is the centerpiece of every IRL project. It's a
+            plain text document &mdash; you can open it in any editor &mdash;
+            divided into a few clear sections. Think of it as a contract
+            between you and the AI: you state what you want, and the AI
+            follows the instructions to produce it.
           </p>
+
+          <p>
+            The structure is designed so the AI knows what to do without
+            being told twice. A <strong>First-Time Setup</strong> section
+            handles one-time preparation, like creating folders or
+            downloading reference data. A <strong>Before Each Loop</strong>
+            section covers pre-flight checks that should happen every run.
+            The <strong>Instruction Loop</strong> is the heart of the plan
+            &mdash; the actual tasks the AI executes, in order. An
+            <strong>After Each Loop</strong> section handles cleanup and
+            logging. And <strong>Formatting Guidelines</strong> keep the
+            outputs consistent.
+          </p>
+
+          <p>
+            The important thing is that this is the one place where your
+            intent lives. When you want to change what the project does, you
+            edit this file. When you want to understand what the project did,
+            you read this file. When a colleague wants to reproduce your
+            work, they start with this file. Everything flows from the plan.
+          </p>
+
           <div class="toy-placeholder">
             <div class="toy-name">Toy 4: Anatomy of a Plan</div>
             <div class="toy-desc">
@@ -380,23 +529,41 @@
         </section>
 
         <!-- ═══════════════════════════════════════════════
-             SECTION 5: Running the Plan
+             SECTION 7: Running the Plan
              ═══════════════════════════════════════════════ -->
         <section>
-          <h2>7. Running the Plan
-            <span class="source-tag new-content">new</span>
-            <span class="source-tag from-toys">Toy 5</span>
-          </h2>
+          <h2>7. Running the Plan</h2>
           <p class="subhead">
             One command, run over and over. That's the whole routine.
           </p>
-          <p class="content-note">
-            Brief prose on how you actually execute: open a terminal-based AI
-            assistant, give it the same instruction each time ("Review
-            main-plan.md, check for any revisions, and execute"). The AI reads
-            the plan, does the work, produces outputs. You review and commit.
-            Simplicity is the point.
+
+          <p>
+            Executing the plan is intentionally simple. You open a
+            terminal-based AI assistant and give it the same instruction
+            every time: "Review main-plan.md, check for any revisions, and
+            execute." The AI reads the plan, sees what needs to be done, and
+            does the work. It produces the outputs you specified, updates the
+            activity log, and stops.
           </p>
+
+          <p>
+            The repetition is the point. You don't need to re-explain the
+            project each time. You don't need to remember where you left
+            off. The plan file holds all of that context. Each run, the AI
+            reads it fresh, checks what's changed since last time, and
+            executes accordingly. If you added a revision &mdash; "add a
+            conclusions section to the report" &mdash; it picks that up and
+            acts on it.
+          </p>
+
+          <p>
+            After the AI finishes, you review what it produced. If the
+            output looks right, you save a checkpoint. If something needs
+            adjustment, you edit the plan and run again. The rhythm becomes
+            second nature: run, review, revise, run. Each cycle, the project
+            gets a little more complete.
+          </p>
+
           <div class="toy-placeholder">
             <div class="toy-name">Toy 5: The Execution Loop</div>
             <div class="toy-desc">
@@ -408,23 +575,41 @@
         </section>
 
         <!-- ═══════════════════════════════════════════════
-             SECTION 6: Your Workspace
+             SECTION 8: Your Workspace
              ═══════════════════════════════════════════════ -->
         <section>
-          <h2>8. Your Workspace
-            <span class="source-tag new-content">new</span>
-            <span class="source-tag from-toys">Toy 6</span>
-          </h2>
+          <h2>8. Your Workspace</h2>
           <p class="subhead">
             What the tools actually look like when you're working.
           </p>
-          <p class="content-note">
-            Brief prose orienting the reader to a typical setup: a code editor
-            with the plan open, a preview pane showing the output, a terminal
-            at the bottom where the AI runs, and a file sidebar showing the
-            project structure. No specific tool required &mdash; this works in
-            VS Code, Cursor, a plain text editor + terminal, etc.
+
+          <p>
+            When you sit down to work on an IRL project, you'll typically
+            have a few things open. A text editor with the plan file, so
+            you can read and revise your instructions. A preview pane or
+            browser tab showing the output, so you can see what the AI
+            produced. A terminal at the bottom where you run the AI
+            assistant. And a file sidebar showing the project folder, so
+            you can see what files exist and what's changed.
           </p>
+
+          <p>
+            No specific tool is required. This setup works in VS Code,
+            Cursor, a plain text editor alongside a terminal window, or any
+            combination you're comfortable with. The plan file is plain
+            text, the outputs are regular files, and the AI assistant runs
+            in the terminal. If you can edit a document and run a command,
+            you have everything you need.
+          </p>
+
+          <p>
+            The workspace mirrors the loop itself: plan on one side, output
+            on the other, with the AI running between them. Once you've
+            seen it, the layout becomes intuitive. You write in the plan,
+            run the assistant, and watch the output appear or update in the
+            preview. Review, revise, repeat.
+          </p>
+
           <div class="toy-placeholder">
             <div class="toy-name">Toy 6: The Workspace</div>
             <div class="toy-desc">
@@ -436,62 +621,141 @@
         </section>
 
         <!-- ═══════════════════════════════════════════════
-             SECTION 7: One Pattern, Many Projects
+             SECTION 9: Extending with Skills
              ═══════════════════════════════════════════════ -->
         <section>
-          <h2>9. Extending with Skills
-            <span class="source-tag new-content">new</span>
-          </h2>
+          <h2>9. Extending with Skills</h2>
           <p class="subhead">
             Add capabilities without changing the pattern. Skills are plug-in
             instructions for different domains.
           </p>
-          <p class="content-note">
-            Deeper dive into the "skills" concept introduced in Section 1.
-            Skills are installable sets of instructions that customize the plan
-            for specific domains (PubMed search, data analysis, document generation,
-            scientific posters). The key insight: you never change <em>how</em> you
-            work, you just change <em>what</em> the Instruction Loop says. This is
-            why IRL isn't tied to any commercial product &mdash; the skills are
-            plain text, the plan is plain text, and any AI assistant can read them.
+
+          <p>
+            Once you're comfortable with the basic loop, you can extend it
+            with skills. A skill is simply a set of instructions that
+            customizes the plan for a specific kind of work &mdash; searching
+            medical literature, analyzing datasets, generating formatted
+            documents, or building scientific posters. Skills plug into the
+            plan file like recipes within a recipe.
+          </p>
+
+          <p>
+            The key insight is that you never change how you work, only what
+            the instructions say. A literature review skill might tell the
+            AI how to search databases, extract key findings, and organize
+            them into a structured summary. A data analysis skill might
+            specify how to clean input files, run calculations, and produce
+            figures. The loop is the same either way: run, review, revise.
+          </p>
+
+          <p>
+            And because skills are just plain text, they aren't tied to any
+            commercial product. You can share them with colleagues, adapt
+            them for your specific needs, or write your own from scratch.
+            They're instructions, not software. If you can describe what you
+            want done, you can turn it into a skill.
           </p>
         </section>
 
         <!-- ═══════════════════════════════════════════════
-             SECTION 9: Project Structure
+             SECTION 10: Project Structure
              ═══════════════════════════════════════════════ -->
         <section>
-          <h2>10. Project Structure
-            <span class="source-tag from-index">index.html &sect;2</span>
-          </h2>
+          <h2>10. Project Structure</h2>
           <p class="subhead">
             Where files live and why the layout matters.
           </p>
-          <p class="content-note">
-            Adapted from "Project Anatomy" in index.html. Explain the folder
-            convention (main-plan.md, 02-data/raw and derived, 03-outputs, 04-logs)
-            and why separation matters: raw data is sacred, derived data is
-            disposable, outputs are the things you show people. Include the
-            filesystem diagram (Mermaid or code block).
+
+          <p>
+            If you've ever inherited a project folder full of files named
+            something like
+            <span class="inline-code">final_v7_REAL_FINAL2.xlsx</span>, you
+            already understand why a simple structure helps. IRL projects
+            follow a clear convention: inputs and processed data are kept
+            separate, outputs are the things you show people, and logs
+            record what happened during each run.
+          </p>
+
+          <p>
+            The separation between raw data and processed data is doing real
+            work. Raw data is sacred &mdash; it should never be modified.
+            Processed data is disposable: if it gets corrupted, you should
+            be able to delete it and regenerate it by rerunning the plan
+            from your raw inputs. Outputs are a different category entirely.
+            They're the finished artifacts: a report, a figure, a table, a
+            website. Outputs should have stable names so you can always find
+            and compare them.
+          </p>
+
+          <p>
+            The plan file sits at the top level as the entry point to the
+            whole project. When someone opens the folder, the plan tells
+            them what this project is, what it does, and how to run it.
+            Everything else follows from there.
+          </p>
+
+          <pre><code>my-project/
+&#9500;&#9472;&#9472; main-plan.md
+&#9500;&#9472;&#9472; 02-data/
+&#9474;   &#9500;&#9472;&#9472; raw/
+&#9474;   &#9492;&#9472;&#9472; derived/
+&#9500;&#9472;&#9472; 03-outputs/
+&#9492;&#9472;&#9472; 04-logs/</code></pre>
+
+          <p class="aside">
+            If your data is too large to include in the project folder, you
+            can still keep the contract: store the data elsewhere, record
+            its location and a description in the plan, and make the steps
+            to access it explicit. The structure is a convention, not a
+            constraint.
           </p>
         </section>
 
         <!-- ═══════════════════════════════════════════════
-             SECTION 9: Keeping It Reproducible
+             SECTION 11: Keeping It Reproducible
              ═══════════════════════════════════════════════ -->
         <section>
-          <h2>11. Keeping It Reproducible
-            <span class="source-tag from-index">index.html &sect;4&ndash;5</span>
-          </h2>
+          <h2>11. Keeping It Reproducible</h2>
           <p class="subhead">
-            Practical habits for idempotency: stable paths, pinned versions, no hidden time.
+            Practical habits for reproducibility: stable paths, pinned versions, no hidden assumptions.
           </p>
-          <p class="content-note">
-            Deeper dive on the practical side of idempotency. Combine material from
-            "Idempotency (The Boring Part)" and "Review, Commit, Repeat." Cover
-            stable filenames, avoiding timestamps in output names, pinning
-            dependencies, the review checklist, and the power of an empty diff
-            on rerun. This is the "how to not break it" section.
+
+          <p>
+            Reproducibility sounds like an abstract principle, but in
+            practice it comes down to a few concrete habits. Give your
+            output files stable names &mdash; avoid stamping today's date
+            into the filename unless you specifically want a historical
+            snapshot. Use explicit paths for inputs and outputs so the AI
+            always reads from and writes to the same locations. And if a
+            step depends on an external resource, pin the version so that
+            "latest" today doesn't silently become something different next
+            month.
+          </p>
+
+          <p>
+            The review step is where reproducibility is tested. After the AI
+            finishes a run, you look at what changed. Did it touch the files
+            you expected? Did it accidentally modify something unrelated?
+            Are there new outputs that shouldn't be there? The most
+            important question is simple: does this change actually support
+            the plan's goal, or did the AI just produce activity?
+          </p>
+
+          <p>
+            Here is the strongest signal that your project is reproducible:
+            if you run the same step again without changing anything, nothing
+            should be different. The same inputs, the same plan, the same
+            output. When a rerun produces no changes, you know the
+            foundation is solid. And that means you can build on it with
+            confidence, hand it to a colleague, or return to it months later
+            and pick up exactly where you left off.
+          </p>
+
+          <p class="aside">
+            If you can't make a step perfectly reproducible, the fallback is
+            explicit: note what varies and why in the plan. The goal isn't
+            perfection &mdash; it's transparency. A documented assumption is
+            always better than a hidden one.
           </p>
         </section>
 
@@ -499,22 +763,45 @@
              SECTION 12: Getting Started — Plain Text
              ═══════════════════════════════════════════════ -->
         <section>
-          <h2>12. Getting Started: The Plain-Text Way
-            <span class="source-tag from-index">index.html &sect;6</span>
-            <span class="source-tag new-content">new</span>
-          </h2>
+          <h2>12. Getting Started: The Plain-Text Way</h2>
           <p class="subhead">
             All you need is a text file and a terminal-based AI assistant.
           </p>
-          <p class="content-note">
-            The lowest-barrier path to IRL. You don't need to install anything
-            special. Create a folder, write a <code>main-plan.md</code> by hand
-            (or copy the template), open your terminal AI (Claude Code, Cursor,
-            Copilot Chat, etc.), and give it one instruction: "Review main-plan.md,
-            check for any revisions, and execute." That's it. The plan file is
-            plain text &mdash; any AI assistant can read it. You review the output,
-            add a revision to the plan, and run again. This path emphasizes that
-            IRL is a <em>pattern</em>, not a product. You can start in under five minutes.
+
+          <p>
+            The fastest way to start is also the simplest. Create a new
+            folder for your project. Inside it, create a plain text file
+            called <span class="inline-code">main-plan.md</span>. Open it
+            and write down what you want to accomplish: your objective, your
+            inputs, what the output should look like, and how you'll know
+            it's done. You don't need a special template &mdash; even a few
+            clear sentences will work.
+          </p>
+
+          <p>
+            Then open a terminal-based AI assistant &mdash; Claude Code,
+            Cursor, Copilot, or any tool that can read files and follow
+            instructions. Give it one instruction: "Review main-plan.md,
+            check for any revisions, and execute." The AI reads your plan,
+            does the work, and produces the files you asked for. You review
+            the output. If something needs adjusting, add a revision to
+            the plan and run again.
+          </p>
+
+          <p>
+            That's the entire workflow. No installation, no configuration,
+            no account to set up. The plan file is yours, the outputs are
+            yours, and the pattern works with whatever AI assistant you
+            have access to. You can be running your first project in under
+            five minutes.
+          </p>
+
+          <p class="aside">
+            IRL is a pattern, not a product. Starting with plain text
+            reinforces that. Once you're comfortable with the loop, you can
+            add structure gradually &mdash; separate folders for data and
+            outputs, a log file, version control. But none of that is
+            required to begin.
           </p>
         </section>
 
@@ -522,34 +809,50 @@
              SECTION 13: Getting Started — IRL CLI
              ═══════════════════════════════════════════════ -->
         <section>
-          <h2>13. Getting Started: The IRL App
-            <span class="source-tag new-content">new</span>
-          </h2>
+          <h2>13. Getting Started: The IRL App</h2>
           <p class="subhead">
-            A lightweight CLI that automates the scaffolding.
+            A lightweight app that sets up the project structure for you.
           </p>
-          <p class="content-note">
-            For users who want a faster setup, introduce the <code>irl</code> Go CLI.
-            One command creates a properly structured project with auto-naming
-            (YYMMDD-slug), the right folder layout (01-plans, 02-data, 03-outputs,
-            04-logs), a ready-to-edit main-plan.md, and optional template support.
-            Show the command: <code>irl init "My analysis project"</code>. Explain
-            that this is a convenience layer &mdash; it produces the same plain-text
-            structure from Section 12, just faster. Include install instructions
-            (Homebrew tap) and link to the GitHub repo. The app is open source and
-            optional &mdash; everything it creates is files you own.
+
+          <p>
+            If you'd rather skip the manual setup, the IRL app creates a
+            properly structured project in one step. Give it a short
+            description of your project, and it builds the folder layout
+            automatically: a plan file ready for editing, separate
+            directories for data, outputs, and logs, and a date-stamped
+            project name so your work is organized from the start.
+          </p>
+
+          <p>
+            The app also supports templates. If you're doing a literature
+            review, a data analysis, or building a website, you can start
+            from a pre-written plan that already has the right structure
+            for that kind of project. Templates are just starting points
+            &mdash; you'll customize the plan to fit your specific goals,
+            but they save you from writing the boilerplate sections from
+            scratch.
+          </p>
+
+          <p>
+            It's important to understand what the app is and isn't. It's a
+            convenience layer that produces the same plain-text structure
+            from Section 12, just faster. Everything it creates is files you
+            own &mdash; plain text, in folders on your computer. The app is
+            open source and entirely optional. If you prefer to set things
+            up by hand, that works just as well.
+          </p>
+
+          <p class="aside">
+            The IRL app is available on GitHub. Installation is a single
+            command, and the project it creates works immediately with any
+            terminal-based AI assistant.
           </p>
         </section>
 
       </main>
 
       <footer>
-        <strong>Outline for review &mdash; 13 sections.</strong> Toys are listed as placeholders &mdash; not yet integrated.
-        <div class="legend">
-          <span><span class="source-tag from-index" style="margin:0">index.html</span> existing prose</span>
-          <span><span class="source-tag from-toys" style="margin:0">Toy N</span> interactive toy</span>
-          <span><span class="source-tag new-content" style="margin:0">new</span> new content needed</span>
-        </div>
+        Built with IRL &mdash; a document-centric workflow for AI-assisted work.
       </footer>
 
     </div>
