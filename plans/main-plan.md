@@ -135,6 +135,9 @@ https://github.com/drpedapati/fmrplean/issues/62
 
 please turn docfleet repo private and make sure no secrets are commited
 
+revision: clean up text no em dashes or clichees
+
+copy and insert tastefully into first few paragraphs /Users/ernie/Downloads/irl_framework_recipe.png
 
 ### One-Time Instructions — Tasks that should only execute once
 
