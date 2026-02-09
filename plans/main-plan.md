@@ -111,6 +111,11 @@ Revision:
     - Check need more/less content
     - integrate the actual toys from toys.html
 
+New Task:
+Review /Users/ernie/Documents/GitHub/docfleet 
+I want to move the final documentation page here
+Please write out a plan in markdown on integration plan
+
 ### One-Time Instructions — Tasks that should only execute once
 
 <!-- 👤 AUTHOR AREA: Add one-time tasks below -->
