@@ -51,3 +51,4 @@ date,change_summary,git_hash
 2026-02-08,Reviewed docfleet repo and wrote integration plan for deploying IRL explainer site,c663e22
 2026-02-08,Configured docfleet deployment for www.irloop.org: site files + nginx + Kamal config,8c72072
 2026-02-08,Surveyed hel2 landscape and fixed deploy config: ssl off + amd64 arch + healthcheck,3946c35
+2026-02-08,Deployed docfleet to hel2: www.irloop.org live via kamal-proxy; docfleet repo now private,62c4c78
