@@ -94,6 +94,7 @@ instead make a list of the toys
 think about the most reasonable outline and order
 then make the page with an outline only with some brief descriptions. I will review this first.
 
+revision: Don't you think for the combined document that people really need a hook and learning how to use IRL to build all the things? It's not the technique, it's that people want to use AI, but here is a way to use it, learn it, not tied to a particular commericial product.
 
 ### One-Time Instructions — Tasks that should only execute once
 
