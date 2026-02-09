@@ -116,6 +116,13 @@ Review /Users/ernie/Documents/GitHub/docfleet
 I want to move the final documentation page here
 Please write out a plan in markdown on integration plan
 
+Next for deployment:
+hostname - www.irloop.org
+no toys page needed 
+hel2 is in ssh config (that's the ip)
+just fyi hel2 has kamal proxy on 8080 and cloudflare tunnel terminates there
+itis an amd64 server
+
 ### One-Time Instructions — Tasks that should only execute once
 
 <!-- 👤 AUTHOR AREA: Add one-time tasks below -->
