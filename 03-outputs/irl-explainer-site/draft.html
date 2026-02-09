@@ -496,30 +496,55 @@
         </section>
 
         <!-- ═══════════════════════════════════════════════
-             SECTION 10: Getting Started
+             SECTION 12: Getting Started — Plain Text
              ═══════════════════════════════════════════════ -->
         <section>
-          <h2>12. Getting Started
+          <h2>12. Getting Started: The Plain-Text Way
             <span class="source-tag from-index">index.html &sect;6</span>
             <span class="source-tag new-content">new</span>
           </h2>
           <p class="subhead">
-            Concrete next steps to try IRL yourself.
+            All you need is a text file and a terminal-based AI assistant.
           </p>
           <p class="content-note">
-            Adapted from "Practical Commands" in index.html but reframed as a
-            getting-started guide. Include: how to create a project (irl init or
-            template repo), the one command you repeat, the review habit (never
-            commit without reading the diff), and links to the template repo.
-            Keep it short and actionable &mdash; the reader should be able to
-            start within minutes.
+            The lowest-barrier path to IRL. You don't need to install anything
+            special. Create a folder, write a <code>main-plan.md</code> by hand
+            (or copy the template), open your terminal AI (Claude Code, Cursor,
+            Copilot Chat, etc.), and give it one instruction: "Review main-plan.md,
+            check for any revisions, and execute." That's it. The plan file is
+            plain text &mdash; any AI assistant can read it. You review the output,
+            add a revision to the plan, and run again. This path emphasizes that
+            IRL is a <em>pattern</em>, not a product. You can start in under five minutes.
+          </p>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION 13: Getting Started — IRL CLI
+             ═══════════════════════════════════════════════ -->
+        <section>
+          <h2>13. Getting Started: The IRL App
+            <span class="source-tag new-content">new</span>
+          </h2>
+          <p class="subhead">
+            A lightweight CLI that automates the scaffolding.
+          </p>
+          <p class="content-note">
+            For users who want a faster setup, introduce the <code>irl</code> Go CLI.
+            One command creates a properly structured project with auto-naming
+            (YYMMDD-slug), the right folder layout (01-plans, 02-data, 03-outputs,
+            04-logs), a ready-to-edit main-plan.md, and optional template support.
+            Show the command: <code>irl init "My analysis project"</code>. Explain
+            that this is a convenience layer &mdash; it produces the same plain-text
+            structure from Section 12, just faster. Include install instructions
+            (Homebrew tap) and link to the GitHub repo. The app is open source and
+            optional &mdash; everything it creates is files you own.
           </p>
         </section>
 
       </main>
 
       <footer>
-        <strong>Outline for review.</strong> Toys are listed as placeholders &mdash; not yet integrated.
+        <strong>Outline for review &mdash; 13 sections.</strong> Toys are listed as placeholders &mdash; not yet integrated.
         <div class="legend">
           <span><span class="source-tag from-index" style="margin:0">index.html</span> existing prose</span>
           <span><span class="source-tag from-toys" style="margin:0">Toy N</span> interactive toy</span>

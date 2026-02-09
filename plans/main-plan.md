@@ -102,6 +102,8 @@ Revision: Toy. Almost perfect but like the other toys i like to have a right and
 
 Next: Good work on the toy. Let's get back to refining the combined outlines.
 
+I think the Getting started can be two things - you can start with a text plan file and have your terminal AI run it. You can also introduce the IRL go app.
+
 ### One-Time Instructions — Tasks that should only execute once
 
 <!-- 👤 AUTHOR AREA: Add one-time tasks below -->
