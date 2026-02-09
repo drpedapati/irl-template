@@ -96,6 +96,8 @@ then make the page with an outline only with some brief descriptions. I will rev
 
 revision: Don't you think for the combined document that people really need a hook and learning how to use IRL to build all the things? It's not the technique, it's that people want to use AI, but here is a way to use it, learn it, not tied to a particular commericial product.
 
+revision: should emphasize early that since this isn't about the "features" of the AI or the software or coding, this is about your expertise, judgement, and reasoning and the goal is to review the outputs. No different than if you were to have a human assistant. The key loop is writing out reasoning and critical review of the outputs. Could you integrate this into the outline but also draft in the toys a new toy that can capture this well. People get concerned about AI making mistakes, but the key like human assistant make mistakes, the key is runderstanding your reasoning and reviewing the outputs, then looping back and asking for clarification, running verification, restating your reasoning, and lopping over an dover till you trust and like the output.
+
 ### One-Time Instructions — Tasks that should only execute once
 
 <!-- 👤 AUTHOR AREA: Add one-time tasks below -->

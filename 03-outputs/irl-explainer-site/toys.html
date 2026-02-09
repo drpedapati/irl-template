@@ -465,6 +465,41 @@
         Learn the pattern once, use it everywhere.
       </p>
 
+      <h2>The Review Loop</h2>
+      <p class="intro">
+        AI makes mistakes &mdash; so do human assistants. The difference is
+        whether you have a system for catching them. You state your reasoning,
+        review the output, spot issues, clarify, and iterate until you trust
+        the result. Watch three rounds of refinement.
+      </p>
+
+      <div class="panel" style="max-width:100%" id="review-panel">
+        <div class="panel-head">
+          <span class="panel-label" style="color:var(--subtle)">You &harr; AI &rarr; Trusted Output</span>
+          <button class="run-btn" id="review-reset" type="button">Reset</button>
+          <button class="run-btn" id="review-btn" type="button">Play</button>
+        </div>
+        <div id="review-stage" style="padding:18px;min-height:260px;border-top:1px solid var(--border);overflow:hidden;font-size:13px;line-height:1.55;position:relative">
+          <!-- Confidence bar -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+            <span style="font-family:var(--mono);font-size:11px;color:var(--subtle);white-space:nowrap">Your confidence:</span>
+            <div style="flex:1;height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden">
+              <div id="review-bar" style="height:100%;width:0%;background:#0d9488;border-radius:4px;transition:width 0.8s ease"></div>
+            </div>
+            <span id="review-pct" style="font-family:var(--mono);font-size:11px;color:var(--subtle);min-width:32px;text-align:right">0%</span>
+          </div>
+          <!-- Conversation area -->
+          <div id="review-conv" style="display:flex;flex-direction:column;gap:10px"></div>
+        </div>
+        <div class="panel-foot neutral" id="ft-review">Mistakes are expected. The loop catches them.</div>
+      </div>
+
+      <p class="aside">
+        The goal isn&rsquo;t a perfect AI. It&rsquo;s a system where your
+        expertise drives the process and every output earns your trust through
+        review. No different than managing any capable assistant.
+      </p>
+
       <footer><a href="index.html">Back to the explainer</a></footer>
     </div>
 
@@ -1883,6 +1918,164 @@
         });
         badge.style.background = ""; badge.style.color = "";
         ft.textContent = "Same structure. Different project.";
+        ft.className = "panel-foot neutral";
+      });
+    })();
+
+    /* ══════════════════════════════════════════════════════════
+       Toy 8 — The Review Loop (trust-building iteration)
+       ══════════════════════════════════════════════════════════ */
+    (function () {
+      var conv = document.getElementById("review-conv");
+      var bar = document.getElementById("review-bar");
+      var pct = document.getElementById("review-pct");
+      var btn = document.getElementById("review-btn");
+      var ft = document.getElementById("ft-review");
+      var running = false;
+
+      var TEAL = "#0d9488";
+      var AMBER = "#92400e";
+      var BLUE = "#1d4ed8";
+
+      var rounds = [
+        {
+          reasoning: "I need a summary of survey responses grouped by treatment arm with p-values.",
+          output: "Here\u2019s a summary table with means for each group and a t-test result: p = 0.034.",
+          issue: "Wait \u2014 that\u2019s a one-tailed test. My protocol specifies two-tailed.",
+          clarify: "Rerun using two-tailed t-test. Also add confidence intervals.",
+          confidence: 35,
+          footNote: "Round 1 \u2014 caught a statistical error. Clarifying\u2026"
+        },
+        {
+          reasoning: "Two-tailed test with 95% CI. Also verify the sample sizes match my inclusion criteria.",
+          output: "Two-tailed t-test: p = 0.048, 95% CI [0.12, 4.87]. N = 42 per group after filtering.",
+          issue: "N should be 38 per group \u2014 4 participants were excluded in the last data cleaning step.",
+          clarify: "Re-filter using the updated exclusion list in 02-data/raw/exclusions_v2.csv.",
+          confidence: 60,
+          footNote: "Round 2 \u2014 caught a data filtering issue. Getting closer\u2026"
+        },
+        {
+          reasoning: "Use exclusions_v2.csv, two-tailed test, 95% CI, and add effect size (Cohen\u2019s d).",
+          output: "N = 38/group. Two-tailed p = 0.041, 95% CI [0.08, 4.52], Cohen\u2019s d = 0.47 (medium).",
+          issue: null,
+          clarify: null,
+          confidence: 95,
+          footNote: "Round 3 \u2014 output matches your expectations. Trusted."
+        }
+      ];
+
+      function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+      function bubble(text, who, color) {
+        var d = document.createElement("div");
+        var isYou = who === "you";
+        d.style.cssText = "padding:8px 12px;border-radius:8px;max-width:88%;opacity:0;transition:opacity 0.4s;" +
+          (isYou
+            ? "align-self:flex-start;background:#f0fdfa;border:1px solid #99f6e4"
+            : "align-self:flex-end;background:#f8fafc;border:1px solid #e2e8f0");
+        var label = document.createElement("div");
+        label.style.cssText = "font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:" + color + ";margin-bottom:3px";
+        label.textContent = isYou ? "YOU" : "AI";
+        var body = document.createElement("div");
+        body.style.cssText = "font-size:12.5px;color:#374151;line-height:1.5";
+        body.textContent = text;
+        d.appendChild(label);
+        d.appendChild(body);
+        conv.appendChild(d);
+        void d.offsetHeight;
+        d.style.opacity = "1";
+        return d;
+      }
+
+      function issueTag(text) {
+        var d = document.createElement("div");
+        d.style.cssText = "padding:6px 10px;border-radius:6px;background:#fef3c7;border:1px solid #fcd34d;font-size:11.5px;color:" + AMBER + ";align-self:flex-start;opacity:0;transition:opacity 0.4s";
+        d.innerHTML = "\u26a0\ufe0f " + text;
+        conv.appendChild(d);
+        void d.offsetHeight;
+        d.style.opacity = "1";
+        return d;
+      }
+
+      function setConfidence(val) {
+        bar.style.width = val + "%";
+        pct.textContent = val + "%";
+        if (val >= 80) {
+          bar.style.background = "#16a34a";
+        } else if (val >= 50) {
+          bar.style.background = TEAL;
+        } else {
+          bar.style.background = "#f59e0b";
+        }
+      }
+
+      async function runReview() {
+        if (running) return;
+        running = true;
+        btn.disabled = true;
+        btn.textContent = "Playing\u2026";
+        conv.innerHTML = "";
+        setConfidence(0);
+        ft.className = "panel-foot neutral";
+        ft.textContent = "Starting review cycle\u2026";
+
+        for (var i = 0; i < rounds.length; i++) {
+          var r = rounds[i];
+          await sleep(600);
+
+          /* Your reasoning */
+          bubble(r.reasoning, "you", TEAL);
+          await sleep(800);
+
+          /* AI output */
+          bubble(r.output, "ai", BLUE);
+          ft.textContent = r.footNote;
+          await sleep(1000);
+
+          if (r.issue) {
+            /* You spot an issue */
+            issueTag(r.issue);
+            await sleep(800);
+
+            /* You clarify */
+            bubble(r.clarify, "you", TEAL);
+            await sleep(600);
+          }
+
+          /* Confidence rises */
+          setConfidence(r.confidence);
+          await sleep(400);
+
+          /* Divider between rounds (except last) */
+          if (i < rounds.length - 1) {
+            var hr = document.createElement("div");
+            hr.style.cssText = "border-top:1px dashed #e5e7eb;margin:4px 0;opacity:0;transition:opacity 0.3s";
+            conv.appendChild(hr);
+            void hr.offsetHeight;
+            hr.style.opacity = "1";
+            await sleep(300);
+          }
+        }
+
+        await sleep(400);
+        ft.className = "panel-foot teal";
+        ft.textContent = "Three rounds \u2014 two errors caught, output trusted. Your expertise drove every correction.";
+        running = false;
+        btn.disabled = false;
+        btn.textContent = "Replay";
+      }
+
+      /* Auto-play on load */
+      setTimeout(runReview, 1400);
+      btn.addEventListener("click", function () { if (!running) runReview(); });
+
+      document.getElementById("review-reset").addEventListener("click", function () {
+        if (running) return;
+        conv.innerHTML = "";
+        setConfidence(0);
+        btn.textContent = "Play";
+        btn.disabled = false;
+        ft.textContent = "Mistakes are expected. The loop catches them.";
         ft.className = "panel-foot neutral";
       });
     })();
