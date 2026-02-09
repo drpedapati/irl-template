@@ -125,6 +125,17 @@ itis an amd64 server
 please check status of kamal, containers, and www.irloop.org on hel2 so we can understand the landscape before pushing it. I agree with turning off ssl. 
 i think currently there is a kamal container for the irloop (using mintify docs) that I want to retire and replace with this site.
 
+reponse:
+do an op service token check
+pre connect test
+I removed the existing kamal app the old docs container is removed so www.irloop.org is now free. 
+
+read this to fix the 1password issue
+https://github.com/drpedapati/fmrplean/issues/62
+
+please turn docfleet repo private and make sure no secrets are commited
+
+
 ### One-Time Instructions — Tasks that should only execute once
 
 <!-- 👤 AUTHOR AREA: Add one-time tasks below -->
