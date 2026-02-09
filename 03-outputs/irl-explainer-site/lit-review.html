@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>IRL Example: Literature Review (PubMed + DOCX)</title>
+    <meta
+      name="description"
+      content="A progressive, beginner-friendly walkthrough of using IRL to run a literature review workflow with PubMed search and DOCX output."
+    />
+    <style>
+      :root {
+        --bg: #ffffff;
+        --ink: #111827;
+        --muted: #4b5563;
+        --subtle: #6b7280;
+        --border: #e5e7eb;
+        --teal: #0d9488;
+        --teal-light: #ccfbf1;
+        --amber: #d97706;
+        --amber-light: #fef3c7;
+        --link: #2563eb;
+        --sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, #ffffff 0%, #fbfbfb 70%, #ffffff 100%);
+        color: var(--ink);
+        font-family: var(--sans);
+        line-height: 1.7;
+      }
+
+      a {
+        color: var(--link);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      a:hover { text-decoration: none; }
+      a:focus-visible, button:focus-visible {
+        outline: 2px solid #111827;
+        outline-offset: 2px;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(255,255,255,0.82);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border);
+      }
+      .topbar-inner {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 12px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 650;
+        color: var(--ink);
+        text-decoration: none;
+        letter-spacing: -0.01em;
+      }
+      .brand:hover { text-decoration: none; }
+      .brand svg { width: 14px; height: 14px; display: block; }
+      .util {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--subtle);
+        text-decoration: none;
+      }
+      .util:hover { color: var(--ink); text-decoration: none; }
+
+      .wrap { max-width: 980px; margin: 0 auto; padding: 26px 18px 80px; }
+
+      header {
+        padding: 16px 0 22px;
+        border-bottom: 1px solid var(--border);
+      }
+      .title-block { text-align: center; padding-bottom: 14px; }
+      .kicker {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--subtle);
+        margin-bottom: 10px;
+      }
+      h1 {
+        font-size: clamp(30px, 3.8vw, 44px);
+        line-height: 1.12;
+        letter-spacing: -0.02em;
+        margin: 0 0 8px;
+      }
+      .subtitle {
+        font-family: var(--mono);
+        font-size: 13.5px;
+        letter-spacing: 0.04em;
+        color: var(--subtle);
+        margin: 0 0 10px;
+      }
+      .lede { color: var(--muted); font-size: 16.5px; margin: 12px 0; }
+      .lede:first-of-type { margin-top: 0; }
+
+      section {
+        padding-top: 22px;
+        margin-top: 22px;
+        border-top: 1px solid var(--border);
+      }
+      h2 {
+        font-size: 22px;
+        line-height: 1.25;
+        letter-spacing: -0.01em;
+        margin: 0 0 10px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid var(--border);
+      }
+      .subhead { color: var(--muted); margin: 0 0 10px; }
+      .aside {
+        border-left: 3px solid var(--border);
+        padding-left: 14px;
+        margin: 16px 0;
+        color: var(--muted);
+      }
+
+      pre {
+        margin: 14px 0;
+        padding: 12px 12px;
+        border-radius: 12px;
+        background: #0b1020;
+        color: #e5e7eb;
+        overflow: auto;
+        font-family: var(--mono);
+        font-size: 12.5px;
+        line-height: 1.6;
+        border: 1px solid rgba(17, 24, 39, 0.25);
+      }
+      code { font-family: var(--mono); }
+      .inline-code {
+        background: #f3f4f6;
+        padding: 0.1rem 0.25rem;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        font-size: 0.92em;
+      }
+
+      /* Parameterized IDE toy (VS Code-like frame). */
+      .ide {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        background: #ffffff;
+      }
+      .ide-bar {
+        height: 40px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(249, 250, 251, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 12px;
+      }
+      .ide-title {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--subtle);
+      }
+      .ide-controls {
+        display: inline-flex;
+        gap: 6px;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(17, 24, 39, 0.18);
+        background: #ffffff;
+      }
+      .ide-body {
+        display: grid;
+        grid-template-columns: 240px 1fr;
+        grid-template-rows: 1fr 170px;
+        grid-template-areas:
+          "files editor"
+          "term term";
+        min-height: 520px;
+      }
+      @media (max-width: 860px) {
+        .ide-body {
+          grid-template-columns: 1fr;
+          grid-template-rows: auto auto 190px;
+          grid-template-areas:
+            "files"
+            "editor"
+            "term";
+        }
+      }
+      .pane {
+        position: relative;
+        background: #ffffff;
+      }
+      .pane + .pane { border-left: 1px solid var(--border); }
+      @media (max-width: 860px) { .pane + .pane { border-left: 0; border-top: 1px solid var(--border); } }
+
+      .pane-head {
+        padding: 10px 12px 8px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        background: #fbfbfb;
+      }
+      .pane-label {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--subtle);
+      }
+      .pane-body {
+        padding: 10px 12px;
+        font-family: var(--mono);
+        font-size: 12.2px;
+        line-height: 1.55;
+        color: #0f172a;
+      }
+      .files { grid-area: files; }
+      .editor { grid-area: editor; }
+      .term { grid-area: term; border-top: 1px solid var(--border); }
+
+      .file {
+        padding: 6px 8px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: baseline;
+      }
+      .file .name { color: #0f172a; }
+      .file .hint { color: var(--subtle); font-size: 11px; }
+      .file.active {
+        background: rgba(13, 148, 136, 0.10);
+        border: 1px solid rgba(13, 148, 136, 0.28);
+      }
+      .term pre {
+        margin: 0;
+        border: 0;
+        border-radius: 0;
+      }
+
+      .hl {
+        outline: 2px solid rgba(217, 119, 6, 0.55);
+        outline-offset: -2px;
+        box-shadow: 0 0 0 6px rgba(217, 119, 6, 0.10);
+      }
+
+      .toy-controls {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+      button {
+        font-family: var(--mono);
+        font-size: 12px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: #ffffff;
+        cursor: pointer;
+      }
+      button:hover { background: #f9fafb; }
+      button:disabled { cursor: not-allowed; opacity: 0.5; }
+      .toy-step {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--subtle);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="./draft.html" aria-label="Back to IRL explainer draft">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
+            <circle cx="8" cy="8" r="2" fill="currentColor"></circle>
+          </svg>
+          IRL Examples
+        </a>
+        <div style="display:flex;align-items:center;gap:14px">
+          <a class="util" href="./draft.html">Explainer</a>
+          <a class="util" href="./toys.html">Toys</a>
+        </div>
+      </div>
+    </header>
+
+    <div class="wrap">
+      <header>
+        <div class="title-block">
+          <div class="kicker">Example walkthrough</div>
+          <h1>A Literature Review You Can Re-run</h1>
+          <div class="subtitle">Idempotent Research Loop + PubMed + DOCX</div>
+        </div>
+        <p class="lede">
+          This page is a concrete example of IRL for a task most clinicians and
+          researchers recognize: doing a literature review and producing a
+          shareable document. The point is not a specific AI product. The point
+          is the loop: write the plan, run it, review the outputs, repeat.
+        </p>
+      </header>
+
+      <main>
+        <section id="start">
+          <h2>Start With The Basic Template</h2>
+          <p class="subhead">
+            Non-technical version: this is a recipe. It says what you are trying
+            to make, what ingredients you will use, and what “done” looks like.
+          </p>
+          <pre><code># main-plan.md (excerpt)
+
+## ✅ Before Each Loop
+- Keep steps rerunnable (idempotent)
+- Save outputs to stable paths (easy to review changes)
+
+## 🔁 Instruction Loop
+1. Search PubMed for: ("atrial fibrillation" AND "ablation") AND 2020:2026[dp]
+2. Export citations to 02-data/derived/papers.csv
+3. Draft 03-outputs/lit-review.md with:
+   - Summary of evidence
+   - Key trials + limitations
+4. Generate 03-outputs/lit-review.docx from the markdown
+5. Review the docx, revise the plan, rerun</code></pre>
+          <p class="aside">
+            “Idempotent” here means: if you rerun the same step, you do not get
+            mystery differences. You either get the same output, or you get an
+            intentional change because you changed the plan.
+          </p>
+        </section>
+
+        <section id="terminal">
+          <h2>Run It From A Terminal AI</h2>
+          <p class="subhead">
+            For beginners: you can do IRL with nothing more than a plan file and
+            a terminal-based AI assistant. You run a short command over and over:
+            “review the plan, check for revisions, and execute.”
+          </p>
+          <pre><code># example loop (conceptual)
+ai run --plan 01-plans/main-plan.md
+
+# then review outputs
+open 03-outputs/lit-review.docx</code></pre>
+          <p>
+            The “skills” part is what lets the assistant do real work:
+            a PubMed skill to search and export citations, and a DOCX skill to
+            generate a document you can share. You still do the important part:
+            decide what question you care about, and judge the output.
+          </p>
+        </section>
+
+        <section id="ide">
+          <h2>The IDE Toy (Parameterized Walkthrough)</h2>
+          <p class="subhead">
+            This is a mock VS Code workspace. It’s a teaching scaffold. The same
+            toy can be reused across tutorials by swapping the step list.
+          </p>
+
+          <div class="ide" id="ide-toy">
+            <div class="ide-bar">
+              <div class="ide-controls" aria-hidden="true">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              </div>
+              <div class="ide-title">irl-project — literature review</div>
+              <div class="ide-title" style="opacity:0.7">Preview</div>
+            </div>
+            <div class="ide-body">
+              <div class="pane files" data-pane="files">
+                <div class="pane-head">
+                  <div class="pane-label">Files</div>
+                </div>
+                <div class="pane-body" id="ide-files">
+                  <div class="file active" data-file="01-plans/main-plan.md">
+                    <span class="name">01-plans/main-plan.md</span><span class="hint">plan</span>
+                  </div>
+                  <div class="file" data-file="02-data/derived/papers.csv">
+                    <span class="name">02-data/derived/papers.csv</span><span class="hint">citations</span>
+                  </div>
+                  <div class="file" data-file="03-outputs/lit-review.md">
+                    <span class="name">03-outputs/lit-review.md</span><span class="hint">draft</span>
+                  </div>
+                  <div class="file" data-file="03-outputs/lit-review.docx">
+                    <span class="name">03-outputs/lit-review.docx</span><span class="hint">deliverable</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pane editor" data-pane="editor">
+                <div class="pane-head">
+                  <div class="pane-label">Editor</div>
+                  <div class="pane-label" style="color:var(--subtle)">main-plan.md</div>
+                </div>
+                <div class="pane-body" id="ide-editor">
+                  <div style="color:var(--subtle);font-size:11px;margin-bottom:8px">
+                    Excerpt
+                  </div>
+                  <div>
+                    1. Search PubMed for atrial fibrillation ablation (2020-2026)<br />
+                    2. Export citations to <span class="inline-code">papers.csv</span><br />
+                    3. Draft <span class="inline-code">lit-review.md</span><br />
+                    4. Generate <span class="inline-code">lit-review.docx</span><br />
+                    5. Review output and iterate
+                  </div>
+                </div>
+              </div>
+
+              <div class="pane term" data-pane="term">
+                <div class="pane-head">
+                  <div class="pane-label">Terminal</div>
+                  <div class="pane-label" style="color:var(--subtle)">AI</div>
+                </div>
+                <pre id="ide-term"><code>$ ai run --plan 01-plans/main-plan.md
+… reading plan …
+… searching PubMed …
+… writing 02-data/derived/papers.csv …
+… drafting 03-outputs/lit-review.md …
+… generating 03-outputs/lit-review.docx …
+Done.</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="toy-controls">
+            <button id="ide-play" type="button">Play</button>
+            <button id="ide-reset" type="button">Reset</button>
+            <div class="toy-step" id="ide-step">Step 1/6</div>
+          </div>
+
+          <p class="aside">
+            In the final tutorial, we can reuse this same IDE toy and update the
+            step list for other tasks (website build, data analysis, poster, etc).
+          </p>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      (function () {
+        const root = document.getElementById("ide-toy");
+        if (!root) return;
+
+        const playBtn = document.getElementById("ide-play");
+        const resetBtn = document.getElementById("ide-reset");
+        const stepLabel = document.getElementById("ide-step");
+
+        const panes = {
+          files: root.querySelector('[data-pane="files"]'),
+          editor: root.querySelector('[data-pane="editor"]'),
+          term: root.querySelector('[data-pane="term"]'),
+        };
+        const files = Array.from(root.querySelectorAll("[data-file]"));
+
+        const steps = [
+          {
+            label: "Read the plan",
+            focusPane: "editor",
+            activeFile: "01-plans/main-plan.md",
+            term: "$ ai run --plan 01-plans/main-plan.md\\n… reading plan …",
+          },
+          {
+            label: "Search PubMed",
+            focusPane: "term",
+            term: "$ pubmed.search \"afib ablation\" --years 2020..2026\\n… 128 results …\\n… filtering …",
+          },
+          {
+            label: "Export citations",
+            focusPane: "files",
+            activeFile: "02-data/derived/papers.csv",
+            term: "$ pubmed.export --format csv --out 02-data/derived/papers.csv\\nWrote 128 rows.",
+          },
+          {
+            label: "Draft markdown",
+            focusPane: "files",
+            activeFile: "03-outputs/lit-review.md",
+            term: "$ ai draft --in 02-data/derived/papers.csv --out 03-outputs/lit-review.md\\nWrote draft.",
+          },
+          {
+            label: "Generate DOCX",
+            focusPane: "files",
+            activeFile: "03-outputs/lit-review.docx",
+            term: "$ docx.render 03-outputs/lit-review.md --out 03-outputs/lit-review.docx\\nRendered.",
+          },
+          {
+            label: "Review and iterate",
+            focusPane: "editor",
+            activeFile: "01-plans/main-plan.md",
+            term: "$ open 03-outputs/lit-review.docx\\n(Review. Update plan. Rerun.)",
+          },
+        ];
+
+        let running = false;
+        let idx = 0;
+
+        function clearHighlights() {
+          Object.values(panes).forEach((p) => p && p.classList.remove("hl"));
+          files.forEach((f) => f.classList.remove("active"));
+        }
+
+        function applyStep(i) {
+          const s = steps[i];
+          if (!s) return;
+          clearHighlights();
+          if (s.focusPane && panes[s.focusPane]) panes[s.focusPane].classList.add("hl");
+          if (s.activeFile) {
+            const el = root.querySelector('[data-file="' + s.activeFile + '"]');
+            if (el) el.classList.add("active");
+          }
+          const term = document.getElementById("ide-term");
+          if (term && s.term) term.textContent = s.term;
+          if (stepLabel) stepLabel.textContent = "Step " + (i + 1) + "/" + steps.length + ": " + s.label;
+        }
+
+        function reset() {
+          idx = 0;
+          applyStep(0);
+        }
+
+        async function play() {
+          if (running) return;
+          running = true;
+          playBtn.disabled = true;
+          for (let i = 0; i < steps.length; i++) {
+            idx = i;
+            applyStep(i);
+            await new Promise((r) => setTimeout(r, 1200));
+          }
+          playBtn.disabled = false;
+          running = false;
+        }
+
+        if (resetBtn) resetBtn.addEventListener("click", reset);
+        if (playBtn) playBtn.addEventListener("click", play);
+
+        reset();
+      })();
+    </script>
+  </body>
+</html>
+

@@ -145,6 +145,8 @@ Revision: Modify the new plain text #9 to briefly comment that the funny charact
 
 New Task: Found a critical point: there is no lead-in prose or friendly invitation to what each toy is for. It just plops the toy in the middle of the text. Please systematically address this for each toy.
 
+New Task: I want a new page (you can copy the current draft.html as a template). replace content with an example task of a literature review using the pubmed skill and docx skill. I want progressive teaching starting with the basic template. Build it for the new user both to using an AI and terminal interfaces. TO do this possible, you need a new parameterized toy that is the IDE framework (vs code mockup that you built) and you can use it with animation through out the tutorial to walk people through. If you need to test real outputs you can do that.
+
 ### One-Time Instructions — Tasks that should only execute once
 
 <!-- 👤 AUTHOR AREA: Add one-time tasks below -->
