@@ -54,6 +54,7 @@ type Model struct {
 	configView      views.ConfigModel
 	editorsView     views.EditorsModel
 	helpView        views.HelpModel
+	adoptView       views.AdoptModel
 
 	// Loading state
 	loading bool
@@ -99,6 +100,7 @@ func New(version string) Model {
 		initView:           views.NewInitModel(),
 		configView:         views.NewConfigModel(),
 		helpView:           views.NewHelpModel(),
+		adoptView:          views.NewAdoptModel(),
 		spinner:            s,
 		checkingForUpdates: true, // Will check on init
 	}
@@ -115,6 +117,7 @@ func New(version string) Model {
 	m.initView.SetSize(appWidth, appHeight-7)
 	m.configView.SetSize(appWidth, appHeight-7)
 	m.helpView.SetSize(appWidth-2, appHeight-7) // -2 for left margin
+	m.adoptView.SetSize(appWidth, appHeight-7)
 
 	return m
 }
@@ -223,6 +226,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m.updatePersonalize(msg)
 		case ViewHelp:
 			return m.updateHelp(msg)
+		case ViewAdopt:
+			return m.updateAdopt(msg)
 		}
 
 	case spinner.TickMsg:
@@ -315,6 +320,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case views.InitProjectCreatedMsg:
 		m.initView, _ = m.initView.Update(msg)
 
+	case views.AdoptProjectMsg:
+		m.adoptView, _ = m.adoptView.Update(msg)
+
+	case views.AdoptTemplatesLoadedMsg:
+		m.adoptView, _ = m.adoptView.Update(msg)
+
 	case views.BackToMenuMsg:
 		m.view = ViewMenu
 		m.statusBar.SetKeys(m.getMenuKeys())
@@ -339,6 +350,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.templatesView, cmd = m.templatesView.Update(msg)
 			return m, cmd
 		}
+		if m.view == ViewAdopt {
+			var cmd tea.Cmd
+			m.adoptView, cmd = m.adoptView.Update(msg)
+			return m, cmd
+		}
 
 	}
 
@@ -358,6 +374,10 @@ func (m Model) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.selectView(m.menu.Select())
 	case "n":
 		if v, ok := m.menu.SelectByKey("n"); ok {
+			return m.selectView(v)
+		}
+	case "a":
+		if v, ok := m.menu.SelectByKey("a"); ok {
 			return m.selectView(v)
 		}
 	case "t":
@@ -464,6 +484,11 @@ func (m Model) selectView(v ViewType) (tea.Model, tea.Cmd) {
 		m.statusBar.SetKeys(ViewKeys())
 		m.helpView = views.NewHelpModel()
 		m.helpView.SetSize(appWidth-2, appHeight-7)
+	case ViewAdopt:
+		m.view = v
+		m.statusBar.SetKeys(InitViewKeys())
+		m.adoptView = views.NewAdoptModel()
+		m.adoptView.SetSize(appWidth, appHeight-7)
 	default:
 		m.view = v
 	}
@@ -663,6 +688,30 @@ func (m Model) updateInit(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
+func (m Model) updateAdopt(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "esc", "left":
+		if m.adoptView.CanGoBack() {
+			var cmd tea.Cmd
+			m.adoptView, cmd = m.adoptView.Update(msg)
+			return m, cmd
+		}
+		m.view = ViewMenu
+		m.statusBar.SetKeys(m.getMenuKeys())
+		return m, nil
+	}
+
+	var cmd tea.Cmd
+	m.adoptView, cmd = m.adoptView.Update(msg)
+
+	if m.adoptView.Done() {
+		m.view = ViewMenu
+		m.statusBar.SetKeys(m.getMenuKeys())
+	}
+
+	return m, cmd
+}
+
 func (m Model) updateConfig(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "q":
@@ -813,6 +862,8 @@ func (m Model) View() string {
 		viewTitle = "Profile"
 	case ViewHelp:
 		viewTitle = "Help"
+	case ViewAdopt:
+		viewTitle = "Adopt Folder"
 	}
 
 	// Show view title on left, datetime on right
@@ -870,6 +921,8 @@ func (m Model) View() string {
 		content = m.personalizeView.View()
 	case ViewHelp:
 		content = m.helpView.View()
+	case ViewAdopt:
+		content = m.adoptView.View()
 	}
 
 	// Truncate or pad content to fixed height (top-justified)

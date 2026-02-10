@@ -66,6 +66,7 @@ func printRootHelp() {
 	fmt.Println()
 	fmt.Printf("%s\n", theme.Faint("Commands:"))
 	fmt.Printf("  %s        Create a new IRL project\n", theme.Cmd("init"))
+	fmt.Printf("  %s       Adopt an existing folder as a project\n", theme.Cmd("adopt"))
 	fmt.Println()
 	fmt.Printf("%s\n", theme.Faint("Info:"))
 	fmt.Printf("  %s   List available templates\n", theme.Cmd("templates"))

@@ -32,6 +32,7 @@ const (
 	ViewDocs        // Opens browser to www.irloop.org
 	ViewUpdate      // Updates templates from GitHub
 	ViewHelp        // Help/tutorial view
+	ViewAdopt       // Adopt existing folder
 )
 
 // Menu represents the main menu
@@ -47,6 +48,7 @@ func NewMenu() Menu {
 	return Menu{
 		items: []MenuItem{
 			{Title: "New project", Desc: "Create a new IRL project", Key: "n", ViewType: ViewInit},
+			{Title: "Adopt folder", Desc: "Bring an existing folder into IRL", Key: "a", ViewType: ViewAdopt},
 			{Title: "Projects", Desc: "Browse existing IRL projects", Key: "p", ViewType: ViewProjects},
 			{Title: "Folder", Desc: "Set default project folder", Key: "f", ViewType: ViewFolder},
 			{Title: "Templates", Desc: "Browse and manage templates", Key: "t", ViewType: ViewTemplates, SeparatorAfter: true},
