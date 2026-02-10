@@ -59,3 +59,5 @@ date,change_summary,git_hash
 2026-02-09,Added literature review tutorial page (PubMed + DOCX) with parameterized IDE walkthrough toy,3612297
 2026-02-09,Revised lit-review tutorial: real template structure and PubMed/DOCX skills and unified command; verified live,f185795
 2026-02-09,Added tutorial links to draft.html (topbar + Section 9 + bottom CTA); redeployed,61fb0ff
+2026-02-10,Added irl adopt CLI command and TUI wizard; released v0.5.13; updated Homebrew,b040330
+2026-02-10,Added date sort toggle (s key) to folder browsers in init/adopt/folder views,cbac3c5
