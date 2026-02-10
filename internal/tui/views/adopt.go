@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
@@ -37,9 +38,10 @@ type AdoptModel struct {
 
 	// Browse state (same pattern as init.go)
 	browseDir     string
-	browseFolders []string
+	browseFolders []browseEntry
 	browseCursor  int
 	browseScroll  int
+	browseSortBy  string // "name-asc" or "date-desc"
 
 	// Template state
 	templates   []templates.Template
@@ -150,7 +152,7 @@ func (m AdoptModel) Update(msg tea.Msg) (AdoptModel, tea.Cmd) {
 }
 
 func (m *AdoptModel) loadFolders() {
-	m.browseFolders = []string{}
+	m.browseFolders = []browseEntry{}
 	m.browseCursor = 0
 	m.browseScroll = 0
 
@@ -161,10 +163,27 @@ func (m *AdoptModel) loadFolders() {
 
 	for _, e := range entries {
 		if e.IsDir() && !strings.HasPrefix(e.Name(), ".") {
-			m.browseFolders = append(m.browseFolders, e.Name())
+			modTime := time.Time{}
+			if info, err := e.Info(); err == nil {
+				modTime = info.ModTime()
+			}
+			m.browseFolders = append(m.browseFolders, browseEntry{Name: e.Name(), ModTime: modTime})
 		}
 	}
-	sort.Strings(m.browseFolders)
+	m.applyBrowseSort()
+}
+
+func (m *AdoptModel) applyBrowseSort() {
+	switch m.browseSortBy {
+	case "date-desc":
+		sort.Slice(m.browseFolders, func(i, j int) bool {
+			return m.browseFolders[i].ModTime.After(m.browseFolders[j].ModTime)
+		})
+	default: // "name-asc"
+		sort.Slice(m.browseFolders, func(i, j int) bool {
+			return strings.ToLower(m.browseFolders[i].Name) < strings.ToLower(m.browseFolders[j].Name)
+		})
+	}
 }
 
 func (m AdoptModel) updateBrowse(msg tea.KeyMsg) (AdoptModel, tea.Cmd) {
@@ -183,10 +202,20 @@ func (m AdoptModel) updateBrowse(msg tea.KeyMsg) (AdoptModel, tea.Cmd) {
 				m.browseScroll = m.browseCursor - adoptBrowseVisibleItems + 1
 			}
 		}
+	case "s":
+		// Toggle sort
+		if m.browseSortBy == "date-desc" {
+			m.browseSortBy = "name-asc"
+		} else {
+			m.browseSortBy = "date-desc"
+		}
+		m.applyBrowseSort()
+		m.browseCursor = 0
+		m.browseScroll = 0
 	case "right":
 		// Enter selected folder
 		if len(m.browseFolders) > 0 && m.browseCursor < len(m.browseFolders) {
-			m.browseDir = filepath.Join(m.browseDir, m.browseFolders[m.browseCursor])
+			m.browseDir = filepath.Join(m.browseDir, m.browseFolders[m.browseCursor].Name)
 			m.loadFolders()
 		}
 	case "left":
@@ -199,7 +228,7 @@ func (m AdoptModel) updateBrowse(msg tea.KeyMsg) (AdoptModel, tea.Cmd) {
 	case "enter":
 		// Select current folder as source
 		if len(m.browseFolders) > 0 && m.browseCursor < len(m.browseFolders) {
-			m.sourcePath = filepath.Join(m.browseDir, m.browseFolders[m.browseCursor])
+			m.sourcePath = filepath.Join(m.browseDir, m.browseFolders[m.browseCursor].Name)
 		} else {
 			// If empty folder list, select current directory
 			m.sourcePath = m.browseDir
@@ -367,7 +396,7 @@ func (m AdoptModel) viewBrowse() string {
 		}
 
 		for i := m.browseScroll; i < end; i++ {
-			folder := m.browseFolders[i]
+			entry := m.browseFolders[i]
 			cursor := cursorOff
 			style := itemStyle
 
@@ -376,7 +405,7 @@ func (m AdoptModel) viewBrowse() string {
 				style = selectedStyle
 			}
 
-			b.WriteString("  " + cursor + " " + style.Render(folder+"/"))
+			b.WriteString("  " + cursor + " " + style.Render(entry.Name+"/"))
 			b.WriteString("\n")
 		}
 
@@ -388,8 +417,14 @@ func (m AdoptModel) viewBrowse() string {
 		}
 	}
 
+	// Sort indicator
+	sortLabel := "A-Z"
+	if m.browseSortBy == "date-desc" {
+		sortLabel = "newest"
+	}
+
 	b.WriteString("\n")
-	b.WriteString(hintStyle.Render(keyStyle.Render("←") + " up  " + keyStyle.Render("→") + " open  " + keyStyle.Render("Enter") + " adopt"))
+	b.WriteString(hintStyle.Render(keyStyle.Render("←") + " up  " + keyStyle.Render("→") + " open  " + keyStyle.Render("Enter") + " adopt  " + keyStyle.Render("s") + ":" + sortLabel))
 	b.WriteString("\n")
 
 	return b.String()

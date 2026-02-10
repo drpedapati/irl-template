@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -18,9 +19,10 @@ type FolderModel struct {
 	width       int
 	height      int
 	currentDir  string
-	folders     []string // All folders
-	filtered    []string // Filtered folders
-	cursor      int      // 0 = "Use this folder", 1+ = filtered subfolders
+	folders     []browseEntry // All folders
+	filtered    []browseEntry // Filtered folders
+	sortBy      string        // "name-asc" or "date-desc"
+	cursor      int           // 0 = "Use this folder", 1+ = filtered subfolders
 	scroll      int
 	saved       bool
 	wantsBack   bool // True when user presses back while on "Use this folder"
@@ -65,7 +67,7 @@ func (m *FolderModel) SetSize(width, height int) {
 }
 
 func (m *FolderModel) loadFolders() {
-	m.folders = []string{}
+	m.folders = []browseEntry{}
 	m.scroll = 0
 
 	entries, err := os.ReadDir(m.currentDir)
@@ -76,13 +78,13 @@ func (m *FolderModel) loadFolders() {
 
 	for _, e := range entries {
 		if e.IsDir() && !strings.HasPrefix(e.Name(), ".") {
-			m.folders = append(m.folders, e.Name())
+			modTime := time.Time{}
+			if info, err := e.Info(); err == nil {
+				modTime = info.ModTime()
+			}
+			m.folders = append(m.folders, browseEntry{Name: e.Name(), ModTime: modTime})
 		}
 	}
-	// Case-insensitive alphabetical sort
-	sort.Slice(m.folders, func(i, j int) bool {
-		return strings.ToLower(m.folders[i]) < strings.ToLower(m.folders[j])
-	})
 
 	m.applyFilter()
 }
@@ -92,16 +94,30 @@ func (m *FolderModel) applyFilter() {
 	if query == "" {
 		m.filtered = m.folders
 	} else {
-		m.filtered = []string{}
+		m.filtered = []browseEntry{}
 		for _, f := range m.folders {
-			if strings.Contains(strings.ToLower(f), query) {
+			if strings.Contains(strings.ToLower(f.Name), query) {
 				m.filtered = append(m.filtered, f)
 			}
 		}
 	}
+	m.applyFolderSort()
 	// Reset cursor to "Use this folder" when filter changes
 	m.cursor = 0
 	m.scroll = 0
+}
+
+func (m *FolderModel) applyFolderSort() {
+	switch m.sortBy {
+	case "date-desc":
+		sort.Slice(m.filtered, func(i, j int) bool {
+			return m.filtered[i].ModTime.After(m.filtered[j].ModTime)
+		})
+	default: // "name-asc"
+		sort.Slice(m.filtered, func(i, j int) bool {
+			return strings.ToLower(m.filtered[i].Name) < strings.ToLower(m.filtered[j].Name)
+		})
+	}
 }
 
 // totalItems returns the total number of selectable items (1 for "use this" + filtered subfolders or 1 for "go up")
@@ -175,7 +191,7 @@ func (m FolderModel) Update(msg tea.Msg) (FolderModel, tea.Cmd) {
 				// Enter the selected subfolder
 				folderIdx := m.cursor - 1
 				if folderIdx < len(m.filtered) {
-					m.currentDir = filepath.Join(m.currentDir, m.filtered[folderIdx])
+					m.currentDir = filepath.Join(m.currentDir, m.filtered[folderIdx].Name)
 					m.filterInput.SetValue("") // Clear filter when entering folder
 					m.loadFolders()
 					// Stay in folder list area
@@ -205,6 +221,19 @@ func (m FolderModel) Update(msg tea.Msg) (FolderModel, tea.Cmd) {
 					}
 				}
 			}
+			return m, nil
+		case "s":
+			// Toggle sort
+			if m.sortBy == "date-desc" {
+				m.sortBy = "name-asc"
+			} else {
+				m.sortBy = "date-desc"
+			}
+			m.applyFolderSort()
+			if m.cursor > 0 {
+				m.cursor = 1
+			}
+			m.scroll = 0
 			return m, nil
 		case "esc":
 			// Two-stage: clear filter first, then signal back
@@ -280,7 +309,11 @@ func (m FolderModel) View() string {
 	filterView := m.filterInput.View()
 	filterCount := ""
 	if len(m.folders) > 0 {
-		filterCount = hintStyle.Render(" (" + itoa(len(m.filtered)) + "/" + itoa(len(m.folders)) + ")")
+		sortLabel := "A-Z"
+		if m.sortBy == "date-desc" {
+			sortLabel = "newest"
+		}
+		filterCount = hintStyle.Render(" (" + itoa(len(m.filtered)) + "/" + itoa(len(m.folders)) + ")  s:" + sortLabel)
 	}
 
 	// "Use this folder" button
@@ -304,7 +337,7 @@ func (m FolderModel) View() string {
 		}
 
 		for i := m.scroll; i < endIdx; i++ {
-			folder := m.filtered[i]
+			entry := m.filtered[i]
 			cursor = cursorOff
 			style = normalStyle
 
@@ -313,7 +346,7 @@ func (m FolderModel) View() string {
 				style = selectedStyle
 			}
 
-			b.WriteString("  " + cursor + " " + style.Render(folder+"/"))
+			b.WriteString("  " + cursor + " " + style.Render(entry.Name+"/"))
 			b.WriteString("\n")
 		}
 
