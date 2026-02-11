@@ -32,7 +32,11 @@ Revisions to outline:
   move to physicians who get most out of AI are those understand the usefulness as a process tool; strengths and weaknesses; understanding hybrid cognition where human excel and AI excel.
   add an elegant toy to brutally illustrate hybrid cogntion
   revision: scroll box is cutting off "Fast. Thorough. Confident. Wrong." design is akward
-  revision: I think physicians would respond better if this was more explicitly structured to say this is going to teach you or we are going to learn, etc. using best practice for this type of style. 
+  revision: I think physicians would respond better if this was more explicitly structured to say this is going to teach you or we are going to learn, etc. using best practice for this type of style. Rewrite prose as well. Focus on conciseness and density.
+  Let's make this an isolated page, standalone, not tied to the IRL pages
+  We should have flipable pages with a breadcrumbs
+  This less on is AI Basics for Physicians
+  Clean it up so each section is bite sized. Prose and interactive exercise.
 
 ### One-Time Instructions — Tasks that should only execute once
 
