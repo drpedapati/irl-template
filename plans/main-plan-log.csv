@@ -67,3 +67,4 @@ date,change_summary,git_hash
 2026-02-11,Consolidated 3 lede paragraphs into single paragraph per outline revision,1535884
 2026-02-11,Split lede; added hybrid cognition paragraph per outline revision,706990e
 2026-02-11,Added hybrid cognition toy (AI alone vs AI + physician) to ai-basics,caedaae
+2026-02-11,Redesigned toys as numbered exercises with fixed height and auto-repeat,07c520f

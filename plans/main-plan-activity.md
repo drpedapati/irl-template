@@ -68,3 +68,4 @@
 - 2026-02-11 (1535884): Consolidated 3 lede paragraphs into single paragraph per outline revision; synced to ai-basics.html.
 - 2026-02-11 (706990e): Split lede into two paragraphs per outline revision; added hybrid cognition paragraph (process tool, strengths/weaknesses, human judgment + AI speed); synced to ai-basics.html.
 - 2026-02-11 (caedaae): Added Toy 2 (Hybrid Cognition) to ai-basics.html after lede; literature review scenario showing AI alone reaching wrong conclusion vs AI + physician catching population mismatch; auto-plays with verdicts; updated outline.
+- 2026-02-11 (07c520f): Redesigned both toys as numbered exercises with `.exercise` wrapper, intro instructions, takeaway sentences, fixed 340px panel height, slower pace (1600ms/2000ms), auto-repeat after 6s, Replay buttons; updated outline.
