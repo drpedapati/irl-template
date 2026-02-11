@@ -61,3 +61,4 @@ date,change_summary,git_hash
 2026-02-09,Added tutorial links to draft.html (topbar + Section 9 + bottom CTA); redeployed,61fb0ff
 2026-02-10,Added irl adopt CLI command and TUI wizard; released v0.5.13; updated Homebrew,b040330
 2026-02-10,Added date sort toggle (s key) to folder browsers in init/adopt/folder views,cbac3c5
+2026-02-11,Created AI Basics for Physicians page with app-vs-skill toy; added topbar link,37589e4
