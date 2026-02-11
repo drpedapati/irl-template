@@ -71,3 +71,4 @@ date,change_summary,git_hash
 2026-02-11,Fixed exercise panel height to min-height 420px; removed scroll box,def6966
 2026-02-11,Dropped shadow outline workflow; direct HTML editing,22d5dce
 2026-02-11,Added educational structure: learning objectives and section transitions,9d33ac4
+2026-02-11,Rewrote all prose for conciseness and density,522b54c
