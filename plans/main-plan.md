@@ -1,13 +1,16 @@
 # IRL Basic Template
 
 🔧 First Time Setup — Run once when starting a new project
+
 <!-- 👤 AUTHOR AREA: Define setup steps below -->
 
-
 ### Common Skill Library — Pre-installed tools available to all projects
+
 <!-- Uncomment to use -->
+
 Install Quarto Skill: https://github.com/posit-dev/skills/tree/main/quarto/authoring
 Install Explainer Skill: https://github.com/henrybloomingdale/explainer-site-skill
+
 <!-- Install Word DOCX Skill: https://github.com/anthropics/skills/tree/main/skills/docx -->
 
 ## ✅ Before Each Loop — Checklist to run before every iteration
@@ -22,7 +25,7 @@ Install Explainer Skill: https://github.com/henrybloomingdale/explainer-site-ski
 
 <!-- 👤 AUTHOR AREA: Define each loop's work below -->
 
-1. Install skills 
+1. Install skills
 2. learn about IRL
 3. use the explainer skill to draft a site explaining IRL
 
@@ -56,21 +59,21 @@ The design plays to what each side is good at. Humans decide what matters, judge
 
 revision: I don't know the right way of saying it, but I want to basically emphasize that this is worth learning because you're learning the thing that builds all the other things.
 
-New Task: 
+New Task:
 I want to experiment with design a bit. Make a separate page where I can build and isolate some toys. I want to create a toy that generlaly explains the concept of idempotent. Show contrast with a non-idempotent.
 revision: see example. I love these beautiful visual animations. what you have done is very concrete, and not elegant and taking advantage of the technology.
 i think both sides need some nice animations. Maybe a subtle touch of color. Really think about how to communicate idempotency for non technical users. maybe takeup less vertical space.
 2. next toy: explain paragraph "IRL is a recipe for AI-assisted work" elegant, intutive animation.
     revision: can we demonstrate the principal of the human as reasoning and planning and the AI being the execution layer. but the thing that is missing is the loop part.
-    revision: Not bad. I think you can make more effective use of space and make the figure more dense. words and labels are too small. I wonder if it can play on a loop a few times so the user doesn't have to keep clicking. for this they can just see how it works. 
+    revision: Not bad. I think you can make more effective use of space and make the figure more dense. words and labels are too small. I wonder if it can play on a loop a few times so the user doesn't have to keep clicking. for this they can just see how it works.
     revision: better. Still words plan etc. are too small. I worry about the proportions. I don't think non-technical users understand what artifacts are. needs better caption. I gave you access to the chrome skill so you can now directly observe and iteriate! use it.
     Revision, can you make the arrows more prominent? They're kind of dotted and hard to see.
-    The more I think about it, instead of files, maybe it's better to show that it's a report that's being generated or some kind of single output that's carefully being crafted. I don't know the right way of doing it. 
+    The more I think about it, instead of files, maybe it's better to show that it's a report that's being generated or some kind of single output that's carefully being crafted. I don't know the right way of doing it.
     I really like this next revision. What I'm thinking is very subtly, if the human and AI had whatever they're doing, like instructions pop in, fade out, pop in, fade out. It would kind of show the activity over time of how that report is being created directly from the actual instructions.
-    It's too fast. I also want the instructions in the ample space around the objects. Maybe accumulating overtime. nice fade in etc. 
+    It's too fast. I also want the instructions in the ample space around the objects. Maybe accumulating overtime. nice fade in etc.
 
     Let's make a new toy. In this case, I'd like to have a simplified version of the main plan, just the critical details to communicate the main idea in an animation to the reader. It would be nice to have real output. To kind of show the process. Of course, simplify.
-    Revision, base it on the actual IRL Basic Template. 
+    Revision, base it on the actual IRL Basic Template.
     Revision: we're almost there. There's a couple things I want to change. One is that for the actual template, there should be the before each loop, the instruction loop, and then after each loop. That's important to explain the process. I also think it would be better if you showed it side by side instead of vertically so we can see the main plan being executed and then the outputs in real time. I think also doing two or three loops to show what can happen over time, including a revision part, would be good. Kind of like you're seeing me do right now. I think the git diff is not essential. It'd be hard for non-technical users to understand that. I do like the checkpoint save part though.
     Revision really close, but when I'm looking at the actual plan itself, it has to pass muster if data scientists were to read this. So maybe make sure that it's actually realistic. It just says produce O3 outputs report. HTML, it doesn't make a lot of sense. I think you can add a little bit more detail there. Given that the loop column is longer than the main plan column, you probably have a little bit of room in the main plan.
 
@@ -106,29 +109,29 @@ I think the Getting started can be two things - you can start with a text plan f
 
 New Task: Now make the final combined webpage based on the outline. Copy the outline into a new file first and then copy over sections to avoid any attrition or regression. Then go back and refine.
 
-Revision: 
+Revision:
     - Prose tone and flow across all 13 sections
     - Check need more/less content
     - integrate the actual toys from toys.html
 
 New Task:
-Review /Users/ernie/Documents/GitHub/docfleet 
+Review /Users/ernie/Documents/GitHub/docfleet
 I want to move the final documentation page here
 Please write out a plan in markdown on integration plan
 
 Next for deployment:
 hostname - www.irloop.org
-no toys page needed 
+no toys page needed
 hel2 is in ssh config (that's the ip)
 just fyi hel2 has kamal proxy on 8080 and cloudflare tunnel terminates there
 itis an amd64 server
-please check status of kamal, containers, and www.irloop.org on hel2 so we can understand the landscape before pushing it. I agree with turning off ssl. 
+please check status of kamal, containers, and www.irloop.org on hel2 so we can understand the landscape before pushing it. I agree with turning off ssl.
 i think currently there is a kamal container for the irloop (using mintify docs) that I want to retire and replace with this site.
 
 reponse:
 do an op service token check
 pre connect test
-I removed the existing kamal app the old docs container is removed so www.irloop.org is now free. 
+I removed the existing kamal app the old docs container is removed so www.irloop.org is now free.
 
 read this to fix the 1password issue
 https://github.com/drpedapati/fmrplean/issues/62
@@ -151,17 +154,17 @@ revision: base it on the real basic template and add the pubmed and docx skill. 
 revision: The lit-review tutorial is solid but could benefit from a link in draft.html
    (the main explainer page) to help readers discover it.
 
+New Task: Create New Page, same style. Title AI Basics for Physicians. Initial paragraph discusses not selling a product but teaching AI as a tool independent of a commercial system. Thinking of AI like a new stethoscope, developing indivisual process skills, not as a app. First toy will be a contrast between app based AI and AI that are personal professional skills.
+
 ### One-Time Instructions — Tasks that should only execute once
 
 <!-- 👤 AUTHOR AREA: Add one-time tasks below -->
-1. again explainer skill has been updated and should be redownloaded, header update
 
+1. again explainer skill has been updated and should be redownloaded, header update
 
 ### Formatting Guidelines — Rules for output style and structure
 
 <!-- 👤 AUTHOR AREA: Add formatting rules below -->
-
-
 
 ---
 
@@ -169,53 +172,62 @@ revision: The lit-review tutorial is solid but could benefit from a link in draf
 
 > Uncomment your preferred options below.
 
-- **Update activity log**  
-  - Use timestamps **only** when sequencing or causality matters  
+- **Update activity log**
+
+  - Use timestamps **only** when sequencing or causality matters
   - In `plans/main-plan-activity.md`, write 1–2 lines describing:
-    - What you did  
-    - Timestamp  
-    - Git hash  
+    - What you did
+    - Timestamp
+    - Git hash
+
   <!-- Optional CSV logging -->
+
   <!--
   - In `plans/main-plan-activity.csv`, add 1 row:
     - What you did
     - Timestamp
     - Git hash
   -->
-
-- **Update plan log**: Update `plans/main-plan-log.csv`  
-
+- **Update plan log**: Update `plans/main-plan-log.csv`
 - **Version control**: Commit intended changes only + main-plan.md; verify no ignored or unintended files staged.
-
 - **Give feedback to the AUTHOR** — concise and actionable:
-  1. What was done, decisions needed, next steps  
-  2. Identify anything breaking idempotency, or obsolete/outdated instructions  
-  3. Identify critical reasoning errors   
+
+  1. What was done, decisions needed, next steps
+  2. Identify anything breaking idempotency, or obsolete/outdated instructions
+  3. Identify critical reasoning errors
 
 ## AI Feedback
+
 <!-- AI Edits AREA -->
 
-
 ## 📚 Skill Library — Optional community skills to install per project
+
 <!-- Uncomment to use -->
 
 <!-- Install Posters -->
+
 <!-- https://github.com/K-Dense-AI/claude-scientific-skills/tree/main/scientific-skills/pptx-posters -->
 
 <!-- Install Scientific Writing Skill -->
+
 <!-- https://github.com/K-Dense-AI/claude-scientific-skills/tree/main/scientific-skills/scientific-writing -->
 
 <!-- Install BioRx Search -->
+
 <!-- https://github.com/K-Dense-AI/claude-scientific-skills/tree/main/scientific-skills/biorxiv-database -->
 
 <!-- Install PubMed Search -->
+
 <!-- https://github.com/K-Dense-AI/claude-scientific-skills/tree/main/scientific-skills/pubmed-database -->
 
 <!-- Install Flowcharts -->
+
 <!-- https://github.com/lukilabs/beautiful-mermaid -->
 
 <!-- Install PowerPoint -->
+
 <!-- https://github.com/anthropics/skills/tree/main/skills/pptx -->
 
 <!-- Install PDF -->
+
 <!-- https://github.com/anthropics/skills/tree/main/skills/pdf -->

@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Basics for Physicians | Developing Process Skills</title>
+    <style>
+      :root {
+        --bg: #ffffff;
+        --ink: #111827;
+        --muted: #4b5563;
+        --subtle: #6b7280;
+        --border: #e5e7eb;
+        --teal: #0d9488;
+        --teal-light: #ccfbf1;
+        --amber: #d97706;
+        --amber-light: #fef3c7;
+        --sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, #ffffff 0%, #fbfbfb 70%, #ffffff 100%);
+        color: var(--ink);
+        font-family: var(--sans);
+        line-height: 1.7;
+      }
+      .topbar {
+        position: sticky; top: 0; z-index: 50;
+        background: rgba(255,255,255,0.82);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border);
+      }
+      .topbar-inner {
+        max-width: 860px; margin: 0 auto;
+        padding: 12px 18px;
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .brand {
+        display: inline-flex; align-items: center; gap: 10px;
+        font-weight: 650; color: var(--ink); text-decoration: none;
+      }
+      .brand svg { width: 14px; height: 14px; display: block; }
+      .topbar a.util {
+        font-family: var(--mono); font-size: 12px;
+        color: var(--subtle); text-decoration: none;
+      }
+      .topbar a.util:hover { color: var(--ink); text-decoration: none; }
+      .wrap { max-width: 860px; margin: 0 auto; padding: 28px 18px 80px; }
+
+      header.page-header { padding: 26px 0 22px; border-bottom: 1px solid var(--border); }
+      .title-block { text-align: center; padding-bottom: 20px; }
+      .kicker {
+        font-family: var(--mono); font-size: 12px;
+        letter-spacing: 0.08em; text-transform: uppercase;
+        color: var(--subtle); margin-bottom: 10px;
+      }
+      h1 {
+        font-size: clamp(34px, 4.2vw, 48px);
+        line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 8px;
+      }
+      .subtitle {
+        font-family: var(--mono); font-size: 14px;
+        letter-spacing: 0.04em; color: var(--subtle); margin: 0 0 10px;
+      }
+      .byline {
+        font-family: var(--mono); font-size: 12.5px;
+        color: var(--subtle); margin: -2px 0 14px;
+      }
+      .lede { color: var(--muted); font-size: 17px; margin: 12px 0; }
+      .lede:first-of-type { margin-top: 0; }
+
+      section {
+        padding-top: 22px; margin-top: 22px;
+        border-top: 1px solid var(--border);
+      }
+      h2 {
+        font-size: 24px; line-height: 1.25; letter-spacing: -0.01em;
+        margin: 0 0 10px; padding-bottom: 6px;
+        border-bottom: 1px solid var(--border);
+      }
+      .subhead { color: var(--muted); margin: 0 0 10px; }
+      .aside {
+        border-left: 3px solid var(--border);
+        padding-left: 14px; margin: 16px 0; color: var(--muted);
+      }
+
+      .contrast { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      @media (max-width: 600px) { .contrast { grid-template-columns: 1fr; } }
+
+      .panel {
+        border: 1px solid var(--border); border-radius: 12px;
+        background: #fff; overflow: hidden;
+      }
+      .panel-head {
+        padding: 12px 14px 8px;
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .panel-label {
+        font-family: var(--mono); font-size: 11px; font-weight: 600;
+        letter-spacing: 0.08em; text-transform: uppercase;
+      }
+      .panel-label.teal { color: var(--teal); }
+      .panel-label.amber { color: var(--amber); }
+
+      .run-btn {
+        font-family: var(--mono); font-size: 11px; padding: 4px 10px;
+        border-radius: 6px; border: 1px solid var(--border);
+        background: #fff; cursor: pointer; transition: background 0.15s;
+      }
+      .run-btn:hover { background: #f9fafb; }
+      .run-btn:disabled { cursor: not-allowed; opacity: 0.4; }
+
+      .panel-body {
+        padding: 16px 14px;
+        border-top: 1px solid var(--border);
+        min-height: 220px;
+        position: relative;
+      }
+
+      .panel-foot {
+        padding: 8px 14px; font-family: var(--mono); font-size: 11px;
+        line-height: 1.4; border-top: 1px solid var(--border);
+        min-height: 34px; transition: background 0.4s, color 0.4s;
+      }
+      .panel-foot.neutral { background: #f9fafb; color: var(--subtle); }
+      .panel-foot.teal { background: var(--teal-light); color: var(--teal); }
+      .panel-foot.amber { background: var(--amber-light); color: var(--amber); }
+
+      footer {
+        margin-top: 28px; padding-top: 18px;
+        border-top: 1px solid var(--border);
+        color: var(--subtle); font-size: 13px;
+      }
+
+      /* Toy 1: App vs Skill comparison */
+      .toy1-item {
+        display: flex; align-items: flex-start; gap: 10px;
+        padding: 8px 0;
+        opacity: 0;
+        transform: translateY(6px);
+        transition: opacity 0.5s, transform 0.5s;
+      }
+      .toy1-item.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .toy1-icon {
+        flex-shrink: 0; width: 28px; height: 28px;
+        border-radius: 6px; display: flex; align-items: center; justify-content: center;
+        font-size: 14px;
+      }
+      .toy1-icon.amber-bg { background: var(--amber-light); }
+      .toy1-icon.teal-bg { background: var(--teal-light); }
+      .toy1-label {
+        font-family: var(--mono); font-size: 12px; font-weight: 600;
+        margin-bottom: 2px;
+      }
+      .toy1-desc {
+        font-size: 13px; color: var(--muted); line-height: 1.45;
+      }
+      .toy1-separator {
+        height: 1px; background: var(--border); margin: 4px 0;
+        opacity: 0; transition: opacity 0.4s;
+      }
+      .toy1-separator.visible { opacity: 1; }
+
+      .toy1-verdict {
+        margin-top: 10px; padding: 8px 12px;
+        border-radius: 8px; font-size: 13px; line-height: 1.5;
+        opacity: 0; transform: translateY(6px);
+        transition: opacity 0.6s, transform 0.6s;
+      }
+      .toy1-verdict.visible { opacity: 1; transform: translateY(0); }
+      .toy1-verdict.amber-verdict { background: var(--amber-light); color: var(--amber); }
+      .toy1-verdict.teal-verdict { background: var(--teal-light); color: var(--teal); }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="draft.html">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
+            <circle cx="8" cy="8" r="2" fill="currentColor"></circle>
+          </svg>
+          IRL Explainer
+        </a>
+        <div style="display:flex;gap:16px;align-items:center">
+          <a class="util" href="draft.html">Home</a>
+          <a class="util" href="lit-review.html">Tutorial</a>
+        </div>
+      </div>
+    </header>
+    <div class="wrap">
+
+      <!-- ═══════════════════════════════════════════════
+           HEADER / LEDE
+           ═══════════════════════════════════════════════ -->
+      <header class="page-header">
+        <div class="title-block">
+          <div class="kicker">Not another app to learn</div>
+          <h1>AI Basics for Physicians</h1>
+          <div class="subtitle">Developing Process Skills, Not Product Dependencies</div>
+          <div class="byline">Ernest Pedapati, MD</div>
+        </div>
+
+        <p class="lede">
+          This is not a sales pitch for a product. There is no subscription to
+          sign up for, no platform to commit to, and no app that will be
+          obsolete in six months. What follows is a way of thinking about AI as
+          a clinical and research tool, one that belongs to you the same way a
+          stethoscope belongs to you. You learn how to use it. You develop
+          judgment about when and how to apply it. The skill travels with you
+          regardless of which technology you happen to be using.
+        </p>
+
+        <p class="lede">
+          The AI landscape changes fast. A product that dominates today may not
+          exist next year. If your entire workflow depends on one company's
+          interface, you start over every time the market shifts. But the
+          physicians who will get the most out of AI are not the ones who
+          memorize which buttons to click in a particular app. They are the ones
+          who develop a repeatable process: formulate a clear question, give the
+          AI structured instructions, review the output critically, and refine.
+          That process works with any AI system, today or five years from now.
+        </p>
+
+        <p class="lede">
+          Think about how you learned to use a stethoscope. Nobody taught you
+          "how to use the Littmann Cardiology IV." They taught you auscultation.
+          The instrument is interchangeable. What matters is the skill: knowing
+          where to listen, what to listen for, and what the findings mean in
+          context. AI is the same. The model is the instrument. The skill is
+          knowing how to direct it, evaluate its work, and integrate the results
+          into your professional judgment.
+        </p>
+      </header>
+
+      <!-- ═══════════════════════════════════════════════
+           SECTION 1: APP VS SKILL
+           ═══════════════════════════════════════════════ -->
+      <section>
+        <h2>1. App-Based AI vs. Professional AI Skills</h2>
+        <p class="subhead">
+          Two ways to use AI. One makes you dependent on a product. The other
+          makes you better at your work.
+        </p>
+
+        <p>
+          Most physicians encounter AI through apps: a chatbot with a friendly
+          interface, a "summarize this" button in a note-taking tool, a
+          pre-built template in a commercial platform. These can be useful. But
+          they train you to rely on someone else's decisions about what AI
+          should do and how it should do it. When the app changes its interface,
+          raises its price, or disappears entirely, your "AI skills" go with it.
+        </p>
+
+        <p>
+          The alternative is to develop process skills that you own. You learn
+          how to write clear instructions for any AI. You learn how to structure
+          a task so the output is reviewable. You learn how to catch errors,
+          request revisions, and build on previous work. These skills are yours.
+          They work across every AI system and they compound over time.
+        </p>
+
+        <p class="aside">
+          The interactive comparison below walks through the key differences.
+          Watch how app-based AI locks your workflow to a product, while
+          process skills give you something portable and lasting.
+        </p>
+
+        <!-- TOY 1: App-Based AI vs. Professional AI Skills -->
+        <div class="contrast" id="toy1">
+          <!-- LEFT: App-Based AI -->
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-label amber">App-Based AI</span>
+              <button class="run-btn" id="toy1-reset">Reset</button>
+            </div>
+            <div class="panel-body" id="toy1-left">
+            </div>
+            <div class="panel-foot neutral" id="toy1-foot-left">
+              Familiar pattern: open app, click buttons, get output.
+            </div>
+          </div>
+          <!-- RIGHT: Process Skills -->
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-label teal">Process Skills</span>
+            </div>
+            <div class="panel-body" id="toy1-right">
+            </div>
+            <div class="panel-foot neutral" id="toy1-foot-right">
+              Different pattern: write instructions, review output, refine.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════
+           SECTION 2: WHAT PROCESS SKILLS LOOK LIKE
+           ═══════════════════════════════════════════════ -->
+      <section>
+        <h2>2. What Process Skills Look Like in Practice</h2>
+        <p class="subhead">
+          A repeatable method that works with any AI, for any task.
+        </p>
+
+        <p>
+          A process skill has a simple structure. You write down what you want
+          the AI to do, in plain text. You specify your inputs, your
+          assumptions, and what the output should look like. The AI reads your
+          instructions and produces files: a summary, a draft, a data table.
+          You review the output, note what needs to change, and run it again.
+          Each round gets better because the instructions accumulate your
+          reasoning.
+        </p>
+
+        <p>
+          This is not fundamentally different from how you work with a human
+          research assistant or a medical student. You would not hand someone a
+          stack of papers and say "do something useful." You would give them a
+          specific question, point them to the relevant sources, and tell them
+          what format you need the answer in. Then you would review their work
+          and give feedback. AI works the same way. The difference is that AI
+          never gets tired, never takes the feedback personally, and can
+          reprocess the entire task from scratch in minutes.
+        </p>
+
+        <p>
+          The plan file is where your reasoning lives. It is a plain text
+          document that any AI can read. No proprietary format, no vendor
+          lock-in. If you switch from one AI to another, the plan file still
+          works. Your instructions, your accumulated revisions, your quality
+          checks: all of it travels with you.
+        </p>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════
+           SECTION 3: WHY THIS MATTERS FOR PHYSICIANS
+           ═══════════════════════════════════════════════ -->
+      <section>
+        <h2>3. Why This Matters for Physicians</h2>
+        <p class="subhead">
+          Clinical judgment is not something you outsource. AI should amplify
+          it, not replace it.
+        </p>
+
+        <p>
+          Physicians are trained to synthesize complex information under
+          uncertainty. That is exactly the skill AI needs from you. An AI can
+          search a database, summarize 50 papers, or draft a protocol. But it
+          cannot decide whether the question is the right question. It cannot
+          judge whether the summary missed the one finding that changes the
+          clinical picture. It cannot notice that the protocol makes an
+          assumption that does not hold for your patient population.
+        </p>
+
+        <p>
+          Your job is not to use AI. Your job is to direct it with the same
+          rigor you bring to everything else in medicine. Write down your
+          reasoning. Specify what you need. Review the output like you would
+          review a resident's note. Push back when something is wrong. The AI
+          improves because your instructions improve, not because the software
+          got an update.
+        </p>
+
+        <p>
+          This approach also protects you. When your workflow is a documented
+          series of instructions and reviewed outputs, you have a clear record
+          of what was done and why. You can trace any result back to the
+          reasoning that produced it. That matters for research reproducibility,
+          for clinical documentation, and for your own confidence in the work.
+        </p>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════
+           SECTION 4: GETTING STARTED
+           ═══════════════════════════════════════════════ -->
+      <section>
+        <h2>4. Getting Started</h2>
+        <p class="subhead">
+          You do not need to install anything to begin. You need a text file
+          and access to any AI assistant.
+        </p>
+
+        <p>
+          Start with a single question you want AI to help you with. It could
+          be a literature search, a data summary, a draft of a methods section.
+          Write down what you want in a plain text file: what the input is,
+          what assumptions you are making, and what the output should look like.
+          Then give those instructions to an AI and review what comes back.
+        </p>
+
+        <p>
+          That is the entire method. Write instructions. Run them. Review the
+          output. Revise the instructions based on what you learned. Each
+          iteration makes the work better and your instructions sharper. Over
+          time, you build a library of plan files that capture how you think
+          about different types of problems. That library is your AI skill set,
+          and it works with whatever AI tool you happen to be using.
+        </p>
+
+        <p>
+          For a hands-on walkthrough of this process applied to a real task,
+          see the <a href="lit-review.html" style="color:var(--teal);text-decoration:none;border-bottom:1px solid var(--teal)">literature review tutorial</a>,
+          which walks through a complete example from first instructions to
+          finished output. For a broader overview of the pattern and its
+          components, see the <a href="draft.html" style="color:var(--teal);text-decoration:none;border-bottom:1px solid var(--teal)">main explainer</a>.
+        </p>
+      </section>
+
+      <footer>
+        <p>
+          Part of the <a href="draft.html" style="color:var(--teal)">IRL Explainer</a> series.
+          Source and templates on
+          <a href="https://github.com/drpedapati/irl-template" target="_blank" rel="noopener noreferrer" style="color:var(--teal)">GitHub</a>.
+        </p>
+      </footer>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         TOY 1 SCRIPT: App-Based AI vs. Process Skills
+         ═══════════════════════════════════════════════ -->
+    <script>
+    (function () {
+      var leftEl = document.getElementById("toy1-left");
+      var rightEl = document.getElementById("toy1-right");
+      var footL = document.getElementById("toy1-foot-left");
+      var footR = document.getElementById("toy1-foot-right");
+      var timer;
+
+      var appItems = [
+        { icon: "📱", label: "Vendor interface", desc: "Your workflow lives inside their product. You learn their buttons, their layout, their terminology." },
+        { icon: "🔒", label: "Locked-in data", desc: "Your prompts, context, and history are stored on their servers in their format." },
+        { icon: "💸", label: "Subscription dependency", desc: "Access disappears when you stop paying or the company pivots." },
+        { icon: "🔄", label: "Starts over", desc: "New version, new interface, new learning curve. Previous work may not transfer." },
+        { icon: "📋", label: "Pre-built templates", desc: "Someone else decided what questions to ask and how to structure the output." }
+      ];
+
+      var skillItems = [
+        { icon: "📝", label: "Your instructions", desc: "A plain text file with your reasoning, your questions, your structure. Works with any AI." },
+        { icon: "📂", label: "Your files", desc: "All inputs, outputs, and revisions live on your computer. Nothing is stored in a platform." },
+        { icon: "🔓", label: "No lock-in", desc: "Switch AI providers tomorrow. Your plan files and process still work exactly the same." },
+        { icon: "📈", label: "Compounds over time", desc: "Each project builds on the last. Your instructions get sharper, your reviews faster." },
+        { icon: "🧠", label: "Your expertise drives it", desc: "You decide what matters, what to check, when to push back. The AI executes; you direct." }
+      ];
+
+      var step = 0;
+      var totalSteps = appItems.length + 2; // items + verdict
+
+      function showStep() {
+        if (step < appItems.length) {
+          addItem(leftEl, appItems[step], "amber");
+          addItem(rightEl, skillItems[step], "teal");
+
+          // Update footers progressively
+          var footTexts = [
+            ["Open the app, find the feature.", "Open any text editor, write what you need."],
+            ["Your work lives on their servers.", "Your work lives on your machine."],
+            ["Access requires a subscription.", "Access requires a text file."],
+            ["Platform changes, you adapt.", "AI changes, your process stays."],
+            ["Their templates, their choices.", "Your reasoning, your structure."]
+          ];
+          footL.textContent = footTexts[step][0];
+          footR.textContent = footTexts[step][1];
+
+          step++;
+          timer = setTimeout(showStep, 900);
+        } else if (step === appItems.length) {
+          // Show verdicts
+          var verdictL = document.createElement("div");
+          verdictL.className = "toy1-verdict amber-verdict";
+          verdictL.textContent = "You learned an app. When it changes, you start over.";
+          leftEl.appendChild(verdictL);
+          setTimeout(function () { verdictL.classList.add("visible"); }, 50);
+
+          var verdictR = document.createElement("div");
+          verdictR.className = "toy1-verdict teal-verdict";
+          verdictR.textContent = "You developed a skill. It works with any tool, forever.";
+          rightEl.appendChild(verdictR);
+          setTimeout(function () { verdictR.classList.add("visible"); }, 200);
+
+          footL.textContent = "Product knowledge has a shelf life.";
+          footL.className = "panel-foot amber";
+          footR.textContent = "Process skills compound indefinitely.";
+          footR.className = "panel-foot teal";
+
+          step++;
+        }
+      }
+
+      function addItem(container, item, color) {
+        // Add separator if not first item
+        if (container.children.length > 0) {
+          var sep = document.createElement("div");
+          sep.className = "toy1-separator";
+          container.appendChild(sep);
+          setTimeout(function () { sep.classList.add("visible"); }, 50);
+        }
+
+        var row = document.createElement("div");
+        row.className = "toy1-item";
+
+        var iconEl = document.createElement("div");
+        iconEl.className = "toy1-icon " + color + "-bg";
+        iconEl.textContent = item.icon;
+
+        var textWrap = document.createElement("div");
+
+        var labelEl = document.createElement("div");
+        labelEl.className = "toy1-label";
+        labelEl.textContent = item.label;
+
+        var descEl = document.createElement("div");
+        descEl.className = "toy1-desc";
+        descEl.textContent = item.desc;
+
+        textWrap.appendChild(labelEl);
+        textWrap.appendChild(descEl);
+        row.appendChild(iconEl);
+        row.appendChild(textWrap);
+        container.appendChild(row);
+
+        setTimeout(function () { row.classList.add("visible"); }, 80);
+      }
+
+      function reset() {
+        clearTimeout(timer);
+        step = 0;
+        leftEl.innerHTML = "";
+        rightEl.innerHTML = "";
+        footL.textContent = "Familiar pattern: open app, click buttons, get output.";
+        footL.className = "panel-foot neutral";
+        footR.textContent = "Different pattern: write instructions, review output, refine.";
+        footR.className = "panel-foot neutral";
+        timer = setTimeout(showStep, 600);
+      }
+
+      document.getElementById("toy1-reset").addEventListener("click", reset);
+
+      // Auto-play on load
+      timer = setTimeout(showStep, 800);
+    })();
+    </script>
+  </body>
+</html>
