@@ -63,3 +63,4 @@
 - 2026-02-10 (b040330): Added `irl adopt` CLI command and TUI wizard for adopting existing folders into the IRL workspace with scaffolding; released as v0.5.13; updated Homebrew.
 - 2026-02-10 (cbac3c5): Added date sort toggle (`s` key) to folder browsers in init, adopt, and folder views; toggles between A-Z and newest-first.
 - 2026-02-11 (37589e4): Created `03-outputs/irl-explainer-site/ai-basics.html` - "AI Basics for Physicians" page with stethoscope analogy, app-vs-skill interactive toy, and 4 prose sections; added "For Physicians" topbar link in draft.html.
+- 2026-02-11 (ac73b03): Applied humanize-text skill to ai-basics.html prose: contractions, varied rhythm, fragments, conversational tone; no em dashes, no AI tells.
