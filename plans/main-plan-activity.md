@@ -67,3 +67,4 @@
 - 2026-02-11 (48d251c): Created `ai-basics-outline.md` paired markdown shadow outline mirroring all prose, toy content, and section structure from `ai-basics.html`; designed for author editing with downstream HTML sync.
 - 2026-02-11 (1535884): Consolidated 3 lede paragraphs into single paragraph per outline revision; synced to ai-basics.html.
 - 2026-02-11 (706990e): Split lede into two paragraphs per outline revision; added hybrid cognition paragraph (process tool, strengths/weaknesses, human judgment + AI speed); synced to ai-basics.html.
+- 2026-02-11 (caedaae): Added Toy 2 (Hybrid Cognition) to ai-basics.html after lede; literature review scenario showing AI alone reaching wrong conclusion vs AI + physician catching population mismatch; auto-plays with verdicts; updated outline.
