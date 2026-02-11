@@ -65,3 +65,4 @@ date,change_summary,git_hash
 2026-02-11,Applied humanize-text skill to ai-basics.html prose,ac73b03
 2026-02-11,Created paired markdown shadow outline for ai-basics.html,48d251c
 2026-02-11,Consolidated 3 lede paragraphs into single paragraph per outline revision,1535884
+2026-02-11,Split lede; added hybrid cognition paragraph per outline revision,706990e
