@@ -30,6 +30,7 @@ Revisions to outline:
 1. Lede
   after "market shifts" add a new paragraph; current content is not great
   move to physicians who get most out of AI are those understand the usefulness as a process tool; strengths and weaknesses; understanding hybrid cognition where human excel and AI excel.
+  add an elegant toy to brutally illustrate hybrid cogntion
 
 ### One-Time Instructions — Tasks that should only execute once
 

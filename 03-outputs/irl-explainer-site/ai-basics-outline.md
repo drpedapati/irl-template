@@ -15,6 +15,45 @@ This isn't a sales pitch. There's no subscription, no platform to commit to, no 
 
 The physicians who'll get the most out of AI aren't the ones chasing the newest app. They're the ones who understand what AI actually is: a process tool. It's fast at retrieval, summarization, and grinding through large volumes of text. It doesn't get tired or lose focus on page 40 of a literature review. But it can't tell whether the question you're asking is the right question. It can't notice that a study's population doesn't match yours, or that a statistical result is technically correct but clinically meaningless. That's hybrid cognition: you bring the judgment, the context, the "wait, that doesn't fit." The AI brings speed and consistency. Neither one is sufficient alone. The skill is learning how to combine them.
 
+### Toy 2: Hybrid Cognition
+
+**aside:** Here's what that looks like in practice. Same literature review, two approaches. Watch what happens.
+
+#### AI Alone (amber side)
+
+| Step | Marker | Label | Detail |
+|------|--------|-------|--------|
+| 1 | ok | Searched 847 papers | 3 minutes. Every database, every keyword combination. |
+| 2 | ok | Filtered to 23 relevant studies | Title, abstract, methods. Standard inclusion criteria. |
+| 3 | ok | 12 show positive outcomes | Effect sizes extracted. Forest plot generated. |
+| 4 | ok | Conclusion: strong evidence for efficacy | Confident summary delivered. Ready for your protocol. |
+| 5 | fail | Missed: 4 studies used adult cohorts | Your patients are pediatric. The finding doesn't transfer. |
+
+**verdict:** Fast. Thorough. Confident. Wrong.
+
+#### AI + You (teal side)
+
+| Step | Marker | Label | Detail |
+|------|--------|-------|--------|
+| 1 | ok | Searched 847 papers | Same speed. Same coverage. AI handles this. |
+| 2 | ok | Filtered to 23 relevant studies | You scan the list. Criteria look reasonable. |
+| 3 | you | You: "4 of these used adult populations" | You know your patients. AI doesn't. |
+| 4 | ok | Re-analyzed: 8 applicable studies | AI re-runs with your filter. Takes 30 seconds. |
+| 5 | ok | Moderate evidence. Gaps identified. | Honest conclusion. Knows what it doesn't know. |
+
+**verdict:** Fast. Checked. Honest. Useful.
+
+#### Footer text (progressive, per step)
+
+| Step | AI Alone | AI + You |
+|------|----------|----------|
+| 1 | Searching... | Searching... |
+| 2 | Filtering by inclusion criteria. | Filtering. You're watching. |
+| 3 | Extracting effect sizes. | You flag a problem. |
+| 4 | Done. Conclusion delivered. | AI re-runs your revised query. |
+| 5 | Confident. Complete. Wrong. | Accurate. Honest. Useful. |
+| final footer | Nobody caught the error. | You caught it in 10 seconds. |
+
 ---
 
 ## 1. App-Based AI vs. Professional AI Skills

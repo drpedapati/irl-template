@@ -178,6 +178,41 @@
       .toy1-verdict.visible { opacity: 1; transform: translateY(0); }
       .toy1-verdict.amber-verdict { background: var(--amber-light); color: var(--amber); }
       .toy1-verdict.teal-verdict { background: var(--teal-light); color: var(--teal); }
+
+      /* Toy 2: Hybrid Cognition */
+      .toy2-step {
+        display: flex; align-items: flex-start; gap: 10px;
+        padding: 7px 0;
+        opacity: 0;
+        transform: translateY(6px);
+        transition: opacity 0.5s, transform 0.5s;
+      }
+      .toy2-step.visible { opacity: 1; transform: translateY(0); }
+      .toy2-marker {
+        flex-shrink: 0; width: 22px; height: 22px;
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        font-size: 11px; font-weight: 700; line-height: 1;
+      }
+      .toy2-marker.ok { background: #d1fae5; color: #065f46; }
+      .toy2-marker.warn { background: var(--amber-light); color: var(--amber); }
+      .toy2-marker.fail { background: #fee2e2; color: #991b1b; }
+      .toy2-marker.you { background: var(--teal-light); color: var(--teal); }
+      .toy2-text { font-size: 13px; line-height: 1.45; }
+      .toy2-text strong { font-weight: 600; }
+      .toy2-text .detail { color: var(--muted); }
+      .toy2-separator {
+        height: 1px; background: var(--border); margin: 3px 0;
+        opacity: 0; transition: opacity 0.4s;
+      }
+      .toy2-separator.visible { opacity: 1; }
+      .toy2-verdict {
+        margin-top: 10px; padding: 8px 12px;
+        border-radius: 8px; font-size: 13px; line-height: 1.5;
+        font-weight: 600;
+        opacity: 0; transform: translateY(6px);
+        transition: opacity 0.6s, transform 0.6s;
+      }
+      .toy2-verdict.visible { opacity: 1; transform: translateY(0); }
     </style>
   </head>
   <body>
@@ -233,6 +268,36 @@
           doesn't fit." The AI brings speed and consistency. Neither one is
           sufficient alone. The skill is learning how to combine them.
         </p>
+
+        <p class="aside">
+          Here's what that looks like in practice. Same literature review,
+          two approaches. Watch what happens.
+        </p>
+
+        <!-- TOY 2: Hybrid Cognition -->
+        <div class="contrast" id="toy2">
+          <!-- LEFT: AI Alone -->
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-label amber">AI Alone</span>
+              <button class="run-btn" id="toy2-reset">Reset</button>
+            </div>
+            <div class="panel-body" id="toy2-left"></div>
+            <div class="panel-foot neutral" id="toy2-foot-left">
+              Literature review: efficacy of Drug X.
+            </div>
+          </div>
+          <!-- RIGHT: AI + You -->
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-label teal">AI + You</span>
+            </div>
+            <div class="panel-body" id="toy2-right"></div>
+            <div class="panel-foot neutral" id="toy2-foot-right">
+              Same review. You're in the loop.
+            </div>
+          </div>
+        </div>
       </header>
 
       <!-- ═══════════════════════════════════════════════
@@ -541,6 +606,118 @@
 
       // Auto-play on load
       timer = setTimeout(showStep, 800);
+    })();
+    </script>
+
+    <!-- ═══════════════════════════════════════════════
+         TOY 2 SCRIPT: Hybrid Cognition
+         ═══════════════════════════════════════════════ -->
+    <script>
+    (function () {
+      var leftEl = document.getElementById("toy2-left");
+      var rightEl = document.getElementById("toy2-right");
+      var footL = document.getElementById("toy2-foot-left");
+      var footR = document.getElementById("toy2-foot-right");
+      var timer;
+
+      var soloSteps = [
+        { marker: "ok", symbol: "\u2713", text: "<strong>Searched 847 papers</strong><br><span class='detail'>3 minutes. Every database, every keyword combination.</span>" },
+        { marker: "ok", symbol: "\u2713", text: "<strong>Filtered to 23 relevant studies</strong><br><span class='detail'>Title, abstract, methods. Standard inclusion criteria.</span>" },
+        { marker: "ok", symbol: "\u2713", text: "<strong>12 show positive outcomes</strong><br><span class='detail'>Effect sizes extracted. Forest plot generated.</span>" },
+        { marker: "ok", symbol: "\u2713", text: "<strong>Conclusion: strong evidence for efficacy</strong><br><span class='detail'>Confident summary delivered. Ready for your protocol.</span>" },
+        { marker: "fail", symbol: "\u2717", text: "<strong>Missed: 4 studies used adult cohorts</strong><br><span class='detail'>Your patients are pediatric. The finding doesn't transfer.</span>" }
+      ];
+
+      var hybridSteps = [
+        { marker: "ok", symbol: "\u2713", text: "<strong>Searched 847 papers</strong><br><span class='detail'>Same speed. Same coverage. AI handles this.</span>" },
+        { marker: "ok", symbol: "\u2713", text: "<strong>Filtered to 23 relevant studies</strong><br><span class='detail'>You scan the list. Criteria look reasonable.</span>" },
+        { marker: "you", symbol: "\u2691", text: "<strong>You: \"4 of these used adult populations\"</strong><br><span class='detail'>You know your patients. AI doesn't.</span>" },
+        { marker: "ok", symbol: "\u2713", text: "<strong>Re-analyzed: 8 applicable studies</strong><br><span class='detail'>AI re-runs with your filter. Takes 30 seconds.</span>" },
+        { marker: "ok", symbol: "\u2713", text: "<strong>Moderate evidence. Gaps identified.</strong><br><span class='detail'>Honest conclusion. Knows what it doesn't know.</span>" }
+      ];
+
+      var footTexts = [
+        ["Searching...", "Searching..."],
+        ["Filtering by inclusion criteria.", "Filtering. You're watching."],
+        ["Extracting effect sizes.", "You flag a problem."],
+        ["Done. Conclusion delivered.", "AI re-runs your revised query."],
+        ["Confident. Complete. Wrong.", "Accurate. Honest. Useful."]
+      ];
+
+      var step = 0;
+
+      function showStep() {
+        if (step < soloSteps.length) {
+          addStep(leftEl, soloSteps[step]);
+          addStep(rightEl, hybridSteps[step]);
+          footL.textContent = footTexts[step][0];
+          footR.textContent = footTexts[step][1];
+          step++;
+          timer = setTimeout(showStep, 1200);
+        } else if (step === soloSteps.length) {
+          // Verdicts
+          var vL = document.createElement("div");
+          vL.className = "toy2-verdict";
+          vL.style.background = "#fee2e2";
+          vL.style.color = "#991b1b";
+          vL.textContent = "Fast. Thorough. Confident. Wrong.";
+          leftEl.appendChild(vL);
+          setTimeout(function () { vL.classList.add("visible"); }, 50);
+
+          var vR = document.createElement("div");
+          vR.className = "toy2-verdict";
+          vR.style.background = "var(--teal-light)";
+          vR.style.color = "var(--teal)";
+          vR.textContent = "Fast. Checked. Honest. Useful.";
+          rightEl.appendChild(vR);
+          setTimeout(function () { vR.classList.add("visible"); }, 200);
+
+          footL.textContent = "Nobody caught the error.";
+          footL.className = "panel-foot amber";
+          footR.textContent = "You caught it in 10 seconds.";
+          footR.className = "panel-foot teal";
+          step++;
+        }
+      }
+
+      function addStep(container, item) {
+        if (container.children.length > 0) {
+          var sep = document.createElement("div");
+          sep.className = "toy2-separator";
+          container.appendChild(sep);
+          setTimeout(function () { sep.classList.add("visible"); }, 50);
+        }
+        var row = document.createElement("div");
+        row.className = "toy2-step";
+
+        var mk = document.createElement("div");
+        mk.className = "toy2-marker " + item.marker;
+        mk.textContent = item.symbol;
+
+        var txt = document.createElement("div");
+        txt.className = "toy2-text";
+        txt.innerHTML = item.text;
+
+        row.appendChild(mk);
+        row.appendChild(txt);
+        container.appendChild(row);
+        setTimeout(function () { row.classList.add("visible"); }, 80);
+      }
+
+      function reset() {
+        clearTimeout(timer);
+        step = 0;
+        leftEl.innerHTML = "";
+        rightEl.innerHTML = "";
+        footL.textContent = "Literature review: efficacy of Drug X.";
+        footL.className = "panel-foot neutral";
+        footR.textContent = "Same review. You're in the loop.";
+        footR.className = "panel-foot neutral";
+        timer = setTimeout(showStep, 600);
+      }
+
+      document.getElementById("toy2-reset").addEventListener("click", reset);
+      timer = setTimeout(showStep, 1800);
     })();
     </script>
   </body>
