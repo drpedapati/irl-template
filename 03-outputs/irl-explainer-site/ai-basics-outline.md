@@ -15,9 +15,9 @@ This isn't a sales pitch. There's no subscription, no platform to commit to, no 
 
 The physicians who'll get the most out of AI aren't the ones chasing the newest app. They're the ones who understand what AI actually is: a process tool. It's fast at retrieval, summarization, and grinding through large volumes of text. It doesn't get tired or lose focus on page 40 of a literature review. But it can't tell whether the question you're asking is the right question. It can't notice that a study's population doesn't match yours, or that a statistical result is technically correct but clinically meaningless. That's hybrid cognition: you bring the judgment, the context, the "wait, that doesn't fit." The AI brings speed and consistency. Neither one is sufficient alone. The skill is learning how to combine them.
 
-### Toy 2: Hybrid Cognition
+### Exercise 1: Hybrid Cognition
 
-**aside:** Here's what that looks like in practice. Same literature review, two approaches. Watch what happens.
+**intro:** Watch both sides of this literature review. On the left, AI works alone. On the right, a physician stays in the loop. Pay attention to where the two paths diverge.
 
 #### AI Alone (amber side)
 
@@ -54,6 +54,8 @@ The physicians who'll get the most out of AI aren't the ones chasing the newest 
 | 5 | Confident. Complete. Wrong. | Accurate. Honest. Useful. |
 | final footer | Nobody caught the error. | You caught it in 10 seconds. |
 
+**takeaway:** AI is fast and thorough, but clinical judgment catches what speed alone misses. The skill isn't using AI. It's knowing when to intervene.
+
 ---
 
 ## 1. App-Based AI vs. Professional AI Skills
@@ -66,9 +68,9 @@ Most physicians first encounter AI through apps. A chatbot with a friendly inter
 
 The alternative is developing process skills you actually own. You learn to write clear instructions for any AI. You learn to structure a task so you can review the output properly. You learn to catch errors, request revisions, build on previous work. These skills are yours. They work across every AI system, and they compound over time.
 
-### Toy 1: App-Based AI vs. Process Skills
+### Exercise 2: App-Based AI vs. Process Skills
 
-**aside:** The comparison below walks through the key differences. Notice how app-based AI locks your workflow to a product, while process skills give you something portable and lasting.
+**intro:** Compare what you keep and what you lose with each approach to AI. The left shows app-based AI. The right shows process skills you own.
 
 #### App-Based AI (amber side)
 
@@ -104,6 +106,8 @@ The alternative is developing process skills you actually own. You learn to writ
 | 4 | Platform changes, you adapt. | AI changes, your process stays. |
 | 5 | Their templates, their choices. | Your reasoning, your structure. |
 | final | Product knowledge has a shelf life. | Process skills compound indefinitely. |
+
+**takeaway:** Apps teach you a product. Process skills teach you a method. One has a shelf life. The other compounds.
 
 ---
 

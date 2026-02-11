@@ -213,6 +213,32 @@
         transition: opacity 0.6s, transform 0.6s;
       }
       .toy2-verdict.visible { opacity: 1; transform: translateY(0); }
+
+      /* Exercise wrapper */
+      .exercise {
+        margin: 20px 0;
+        padding: 20px 20px 18px;
+        background: #fafafa;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+      }
+      .exercise-num {
+        font-family: var(--mono); font-size: 11px; font-weight: 600;
+        letter-spacing: 0.08em; text-transform: uppercase;
+        color: var(--teal); margin-bottom: 6px;
+      }
+      .exercise-intro {
+        font-size: 14px; color: var(--muted);
+        margin-bottom: 16px; line-height: 1.55;
+      }
+      .exercise-takeaway {
+        font-size: 14px; color: var(--ink);
+        margin-top: 14px; padding: 10px 14px;
+        background: var(--teal-light); border-radius: 8px;
+        line-height: 1.55;
+      }
+      .exercise .contrast { margin: 0; }
+      .exercise .panel-body { height: 340px; overflow-y: auto; }
     </style>
   </head>
   <body>
@@ -269,33 +295,39 @@
           sufficient alone. The skill is learning how to combine them.
         </p>
 
-        <p class="aside">
-          Here's what that looks like in practice. Same literature review,
-          two approaches. Watch what happens.
-        </p>
-
-        <!-- TOY 2: Hybrid Cognition -->
-        <div class="contrast" id="toy2">
-          <!-- LEFT: AI Alone -->
-          <div class="panel">
-            <div class="panel-head">
-              <span class="panel-label amber">AI Alone</span>
-              <button class="run-btn" id="toy2-reset">Reset</button>
+        <!-- EXERCISE 1: Hybrid Cognition -->
+        <div class="exercise">
+          <div class="exercise-num">Exercise 1</div>
+          <div class="exercise-intro">
+            Watch both sides of this literature review. On the left, AI works
+            alone. On the right, a physician stays in the loop. Pay attention
+            to where the two paths diverge.
+          </div>
+          <div class="contrast" id="toy2">
+            <div class="panel">
+              <div class="panel-head">
+                <span class="panel-label amber">AI Alone</span>
+                <button class="run-btn" id="toy2-reset">Replay</button>
+              </div>
+              <div class="panel-body" id="toy2-left"></div>
+              <div class="panel-foot neutral" id="toy2-foot-left">
+                Literature review: efficacy of Drug X.
+              </div>
             </div>
-            <div class="panel-body" id="toy2-left"></div>
-            <div class="panel-foot neutral" id="toy2-foot-left">
-              Literature review: efficacy of Drug X.
+            <div class="panel">
+              <div class="panel-head">
+                <span class="panel-label teal">AI + You</span>
+              </div>
+              <div class="panel-body" id="toy2-right"></div>
+              <div class="panel-foot neutral" id="toy2-foot-right">
+                Same review. You're in the loop.
+              </div>
             </div>
           </div>
-          <!-- RIGHT: AI + You -->
-          <div class="panel">
-            <div class="panel-head">
-              <span class="panel-label teal">AI + You</span>
-            </div>
-            <div class="panel-body" id="toy2-right"></div>
-            <div class="panel-foot neutral" id="toy2-foot-right">
-              Same review. You're in the loop.
-            </div>
+          <div class="exercise-takeaway">
+            AI is fast and thorough, but clinical judgment catches what speed
+            alone misses. The skill isn't using AI. It's knowing when to
+            intervene.
           </div>
         </div>
       </header>
@@ -329,36 +361,38 @@
           time.
         </p>
 
-        <p class="aside">
-          The comparison below walks through the key differences. Notice how
-          app-based AI locks your workflow to a product, while process skills
-          give you something portable and lasting.
-        </p>
-
-        <!-- TOY 1: App-Based AI vs. Professional AI Skills -->
-        <div class="contrast" id="toy1">
-          <!-- LEFT: App-Based AI -->
-          <div class="panel">
-            <div class="panel-head">
-              <span class="panel-label amber">App-Based AI</span>
-              <button class="run-btn" id="toy1-reset">Reset</button>
+        <!-- EXERCISE 2: App vs Skill -->
+        <div class="exercise">
+          <div class="exercise-num">Exercise 2</div>
+          <div class="exercise-intro">
+            Compare what you keep and what you lose with each approach to AI.
+            The left shows app-based AI. The right shows process skills you
+            own.
+          </div>
+          <div class="contrast" id="toy1">
+            <div class="panel">
+              <div class="panel-head">
+                <span class="panel-label amber">App-Based AI</span>
+                <button class="run-btn" id="toy1-reset">Replay</button>
+              </div>
+              <div class="panel-body" id="toy1-left"></div>
+              <div class="panel-foot neutral" id="toy1-foot-left">
+                Familiar pattern: open app, click buttons, get output.
+              </div>
             </div>
-            <div class="panel-body" id="toy1-left">
-            </div>
-            <div class="panel-foot neutral" id="toy1-foot-left">
-              Familiar pattern: open app, click buttons, get output.
+            <div class="panel">
+              <div class="panel-head">
+                <span class="panel-label teal">Process Skills</span>
+              </div>
+              <div class="panel-body" id="toy1-right"></div>
+              <div class="panel-foot neutral" id="toy1-foot-right">
+                Different pattern: write instructions, review output, refine.
+              </div>
             </div>
           </div>
-          <!-- RIGHT: Process Skills -->
-          <div class="panel">
-            <div class="panel-head">
-              <span class="panel-label teal">Process Skills</span>
-            </div>
-            <div class="panel-body" id="toy1-right">
-            </div>
-            <div class="panel-foot neutral" id="toy1-foot-right">
-              Different pattern: write instructions, review output, refine.
-            </div>
+          <div class="exercise-takeaway">
+            Apps teach you a product. Process skills teach you a method. One
+            has a shelf life. The other compounds.
           </div>
         </div>
       </section>
@@ -531,7 +565,7 @@
           footR.textContent = footTexts[step][1];
 
           step++;
-          timer = setTimeout(showStep, 900);
+          timer = setTimeout(showStep, 1600);
         } else if (step === appItems.length) {
           // Show verdicts
           var verdictL = document.createElement("div");
@@ -552,6 +586,8 @@
           footR.className = "panel-foot teal";
 
           step++;
+          // Auto-repeat after pause
+          timer = setTimeout(reset, 6000);
         }
       }
 
@@ -653,7 +689,7 @@
           footL.textContent = footTexts[step][0];
           footR.textContent = footTexts[step][1];
           step++;
-          timer = setTimeout(showStep, 1200);
+          timer = setTimeout(showStep, 2000);
         } else if (step === soloSteps.length) {
           // Verdicts
           var vL = document.createElement("div");
@@ -677,6 +713,8 @@
           footR.textContent = "You caught it in 10 seconds.";
           footR.className = "panel-foot teal";
           step++;
+          // Auto-repeat after pause
+          timer = setTimeout(reset, 6000);
         }
       }
 
