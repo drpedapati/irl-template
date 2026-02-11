@@ -71,3 +71,4 @@
 - 2026-02-11 (07c520f): Redesigned both toys as numbered exercises with `.exercise` wrapper, intro instructions, takeaway sentences, fixed 340px panel height, slower pace (1600ms/2000ms), auto-repeat after 6s, Replay buttons; updated outline.
 - 2026-02-11 (def6966): Fixed exercise panel height: replaced `height: 340px; overflow-y: auto` with `min-height: 420px` so verdicts display fully without scroll box.
 - 2026-02-11 (22d5dce): Dropped shadow outline workflow; deleted `ai-basics-outline.md`; switched plan to direct HTML editing.
+- 2026-02-11 (9d33ac4): Added explicit educational structure to ai-basics.html: learning objectives list after lede, section transitions, pedagogical exercise intros, Section 3 retitled for physician specificity.
