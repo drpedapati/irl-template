@@ -65,3 +65,4 @@
 - 2026-02-11 (37589e4): Created `03-outputs/irl-explainer-site/ai-basics.html` - "AI Basics for Physicians" page with stethoscope analogy, app-vs-skill interactive toy, and 4 prose sections; added "For Physicians" topbar link in draft.html.
 - 2026-02-11 (ac73b03): Applied humanize-text skill to ai-basics.html prose: contractions, varied rhythm, fragments, conversational tone; no em dashes, no AI tells.
 - 2026-02-11 (48d251c): Created `ai-basics-outline.md` paired markdown shadow outline mirroring all prose, toy content, and section structure from `ai-basics.html`; designed for author editing with downstream HTML sync.
+- 2026-02-11 (1535884): Consolidated 3 lede paragraphs into single paragraph per outline revision; synced to ai-basics.html.
