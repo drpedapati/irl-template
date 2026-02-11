@@ -69,3 +69,4 @@ date,change_summary,git_hash
 2026-02-11,Added hybrid cognition toy (AI alone vs AI + physician) to ai-basics,caedaae
 2026-02-11,Redesigned toys as numbered exercises with fixed height and auto-repeat,07c520f
 2026-02-11,Fixed exercise panel height to min-height 420px; removed scroll box,def6966
+2026-02-11,Dropped shadow outline workflow; direct HTML editing,22d5dce
