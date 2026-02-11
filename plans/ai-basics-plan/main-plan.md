@@ -23,6 +23,8 @@ Install https://github.com/henrybloomingdale/skills-monorepo/blob/main/humanize-
 Plan for for revising 03-outputs/irl-explainer-site/ai-basics.html and related pages
 
 1. Install and apply humanize text
+2. generate a paired markdown shadow outline for this html. goal is for me to edit this outline and it can generate downstream html changes.
+3. On each loop check outline and reasoning plan and execute changes
 
 ### One-Time Instructions — Tasks that should only execute once
 
