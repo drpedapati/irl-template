@@ -26,6 +26,11 @@ Plan for for revising 03-outputs/irl-explainer-site/ai-basics.html and related p
 2. generate a paired markdown shadow outline for this html. goal is for me to edit this outline and it can generate downstream html changes.
 3. On each loop check outline and reasoning plan and execute changes
 
+Revisions to outline:
+1. Lede
+  after "market shifts" add a new paragraph; current content is not great
+  move to physicians who get most out of AI are those understand the usefulness as a process tool; strengths and weaknesses; understanding hybrid cognition where human excel and AI excel.
+
 ### One-Time Instructions — Tasks that should only execute once
 
 <!-- 👤 AUTHOR AREA: Add one-time tasks below -->
