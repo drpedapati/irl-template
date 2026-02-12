@@ -12,7 +12,7 @@ Install Quarto Skill: https://github.com/posit-dev/skills/tree/main/quarto/autho
 
 - Script designed to be **idempotent**
 - **Version control**: clean tree (`git status`), commit baseline, `.gitignore` enforced
-- The **only permitted modification** is within the `## One-Time Instructions` section.
+- In `plans/main-plan.md`, the **only permitted content edits** are within the `## One-Time Instructions` section.
 - New agents: review existing outputs before recreating; don’t overwrite unless explicitly instructed. Seek clarification if unsure.
 ---
 
@@ -27,6 +27,7 @@ Install Quarto Skill: https://github.com/posit-dev/skills/tree/main/quarto/autho
 ### Formatting Guidelines — Rules for output style and structure
 
 <!-- 👤 AUTHOR AREA: Add formatting rules below -->
+
 
 ---
 
@@ -50,7 +51,7 @@ Install Quarto Skill: https://github.com/posit-dev/skills/tree/main/quarto/autho
 
 - **Update plan log**: Update `plans/main-plan-log.csv`
 
-- **Version control**: Commit intended changes + plan files only; verify no ignored or unintended files staged.
+- **Version control**: Commit intended changes + `plans/main-plan.md` + plan files only in every loop; verify no ignored or unintended files staged.
 
 - **Give feedback to the AUTHOR** — concise and actionable:
   1. What was done, decisions needed, next steps
