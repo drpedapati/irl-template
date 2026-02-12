@@ -50,7 +50,7 @@ Install Quarto Skill: https://github.com/posit-dev/skills/tree/main/quarto/autho
 
 - **Update plan log**: Update `plans/main-plan-log.csv`
 
-- **Version control**: Commit intended changes only; verify no ignored or unintended files staged.
+- **Version control**: Commit intended changes + plan files only; verify no ignored or unintended files staged.
 
 - **Give feedback to the AUTHOR** — concise and actionable:
   1. What was done, decisions needed, next steps
