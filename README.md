@@ -64,6 +64,7 @@ Everything is versioned. Diffs become your audit trail.
 | `irl adopt ~/folder --rename` | Adopt with YYMMDD prefix |
 | `irl list` | List all projects (table) |
 | `irl list --json` | List projects as JSON |
+| `irl list --dir ~/path` | Scope to specific directory |
 | `irl open my-project` | Open project in preferred editor |
 | `irl open my-project --editor code` | Open in specific editor |
 

@@ -13,7 +13,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var listJSONFlag bool
+var (
+	listJSONFlag bool
+	listDirFlag  string
+)
 
 var listCmd = &cobra.Command{
 	Use:   "list",
@@ -23,8 +26,9 @@ var listCmd = &cobra.Command{
 A folder is considered a project if it contains a main-plan.md file.
 
 Examples:
-  irl list          # Table output
-  irl list --json   # JSON for agents`,
+  irl list                        # Table output
+  irl list --json                 # JSON for agents
+  irl list --json --dir ~/Research  # Scope to specific directory`,
 	Aliases: []string{"ls"},
 	RunE:    runList,
 }
@@ -32,6 +36,7 @@ Examples:
 func init() {
 	rootCmd.AddCommand(listCmd)
 	listCmd.Flags().BoolVar(&listJSONFlag, "json", false, "Output as JSON")
+	listCmd.Flags().StringVar(&listDirFlag, "dir", "", "Workspace directory to scan (overrides configured default)")
 }
 
 // listResponse is the stable JSON schema for irl list --json
@@ -40,7 +45,12 @@ type listResponse struct {
 }
 
 func runList(cmd *cobra.Command, args []string) error {
-	baseDir := config.GetDefaultDirectory()
+	baseDir := listDirFlag
+	if baseDir != "" {
+		baseDir = expandPath(baseDir)
+	} else {
+		baseDir = config.GetDefaultDirectory()
+	}
 	if baseDir == "" {
 		if listJSONFlag {
 			// Return empty result with exit 0 for agents

@@ -18,6 +18,9 @@ irl list --json
 # Returns: {"projects":[{"name":"...","path":"...","modified":"..."},...]}
 # Always returns exit 0 with {"projects":[]} on empty sets
 
+# Scope to specific directory without changing global config
+irl list --json --dir ~/Research
+
 # Read configuration
 irl config --json
 # Returns: {"default_directory":"...","profile":{...},"favorite_editors":[...]}
