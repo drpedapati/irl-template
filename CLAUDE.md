@@ -6,48 +6,146 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a template repository for the **Idempotent Research Loop (IRL)** - a document-centric workflow pattern for AI-assisted research. Instead of chat-based interaction, IRL uses a **plan document** (`main-plan.md`) as the control surface. The AI reads the plan, executes tasks, and produces versioned artifacts.
 
-## Creating IRL Projects
+## CLI Agent Specification
 
-### Via CLI (for users)
+The `irl` CLI is fully non-interactive when flags/args are provided. Every command below runs without prompts, making it safe for agent use.
+
+### Discovery
+
 ```bash
-# Install (via Homebrew, coming soon)
-brew install drpedapati/tap/irl
+# List all projects in workspace (JSON for parsing)
+irl list --json
+# Returns: [{"name":"...","path":"...","modified":"..."},...]
 
-# Create project - auto-names as YYMMDD-slug
-irl init "ERP correlation analysis"    # → 260129-erp-correlation-analysis/
-irl init "APA poster" -t irl-basic
-irl init                               # Interactive mode
+# Read configuration
+irl config --json
+# Returns: {"default_directory":"...","profile":{...},"favorite_editors":[...]}
+
+# Read profile
+irl profile --json
+# Returns: {"name":"...","title":"...","institution":"...","department":"...","email":"...","instructions":"..."}
+
+# List templates
+irl templates
+irl templates show <name>   # Print raw template content to stdout
 ```
 
-### Via Agent (when user asks)
-When a user asks to create an IRL project, run:
+### Project Creation
+
 ```bash
-./irl init "PURPOSE" -t TEMPLATE
-```
-Or build and use: `go build -o irl . && ./irl init "PURPOSE"`
+# Non-interactive: provide purpose as arg, defaults to irl-basic template
+irl init "ERP correlation analysis"
+# → Creates YYMMDD-slug directory with plan, .gitignore, git init
+# → Injects profile (author/affiliation) into plan front matter
 
-### Via Makefile (legacy)
+# With specific template
+irl init "my study" -t irl-basic
+
+# With exact name (skip auto-naming)
+irl init -n my-exact-name -t irl-basic
+
+# In specific directory
+irl init "purpose" -d ~/Research
+
+# Adopt existing folder into workspace
+irl adopt ~/Downloads/my-data
+irl adopt ~/Downloads/my-data --rename -t irl-basic
+```
+
+**Important for agents:** When purpose is provided as an argument (non-interactive mode), the template defaults to `irl-basic` if `-t` is not specified. No prompts will appear.
+
+### Configuration
+
 ```bash
-make irl                    # Interactive
-make irl my-project         # Named project
+# Set workspace directory
+irl config --dir ~/Research
+
+# Set preferred editor
+irl config --editor cursor
+
+# Set profile (merged with existing — only specified fields change)
+irl profile --name "Jane Doe" --title "MD" --institution "UCSF"
+irl profile --department "Neurology" --email "jane@ucsf.edu"
+irl profile --instructions "Always cite sources in APA format"
+
+# Clear profile
+irl profile --clear
 ```
 
-## Directory Structure
+### Template Management
 
-- `main-plan.md` - The control surface
-- `01-plans/templates/` - Reusable templates (repo source)
-- `02-data/` - Data files (raw/, derived/)
-- `03-outputs/` - Rendered outputs
-- `04-logs/` - Activity logs
+```bash
+# List all templates (built-in + custom)
+irl templates
+
+# Show template content (pipe to file, parse, etc.)
+irl templates show irl-basic
+
+# Create custom template (stored in workspace/_templates/<name>/main-plan.md)
+irl templates create my-template                    # Copy from irl-basic
+irl templates create my-template --from irl-basic   # Explicit source
+
+# Delete custom template
+irl templates delete my-template
+```
+
+### Open Projects
+
+```bash
+irl open my-project                # Uses configured editor
+irl open my-project --editor code  # Specific editor
+```
+
+### Environment
+
+```bash
+irl doctor    # Check tools and environment
+irl update    # Refresh templates from GitHub
+```
+
+## Project Structure (created by `irl init`)
+
+```
+my-project/
+├── .gitignore
+├── plans/
+│   └── main-plan.md    ← Control surface (with profile front matter)
+```
+
+Additional directories (`02-data/`, `03-outputs/`, `04-logs/`) are defined in the plan and created by the AI on first run.
+
+## Profile Injection
+
+When a profile is configured, `irl init` and `irl adopt` automatically prepend YAML front matter to the plan:
+
+```yaml
+---
+author: Jane Doe, MD
+affiliation: UCSF, Neurology
+email: jane@ucsf.edu
+---
+
+<!-- AI Instructions:
+Always cite sources in APA format
+-->
+
+# IRL Basic Template
+...
+```
 
 ## CLI Development
 
 The `irl` CLI is written in Go:
 ```
-cmd/           # Cobra commands
+cmd/           # Cobra commands (init, adopt, list, open, profile, config, templates, doctor, update)
 pkg/naming/    # YYMMDD-slug generation
-pkg/scaffold/  # Project structure creation
+pkg/scaffold/  # Project structure creation + profile injection
 pkg/templates/ # GitHub template fetching + caching
+pkg/projects/  # Project scanning (shared between CLI and TUI)
+pkg/config/    # Configuration + profile persistence (~/.irl/config.json)
+pkg/editor/    # Editor detection and launching
+pkg/doctor/    # Environment checks
+pkg/theme/     # Terminal styling
 internal/tui/  # Bubble Tea TUI (launched with bare `irl` command)
 ```
 

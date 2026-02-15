@@ -5,6 +5,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
+
+	"github.com/drpedapati/irl-template/pkg/config"
 )
 
 // Create sets up a minimal IRL project - just the plan file
@@ -48,6 +51,51 @@ func GitInit(projectPath string) error {
 	}
 
 	return nil
+}
+
+// InjectProfile adds profile information (author, affiliation, AI instructions)
+// as YAML front matter to plan content. Returns content unchanged if no profile is set.
+func InjectProfile(content string) string {
+	profile := config.GetProfile()
+
+	// If no profile set, return content unchanged
+	if profile.Name == "" && profile.Institution == "" && profile.Instructions == "" {
+		return content
+	}
+
+	var header strings.Builder
+
+	// Build author/affiliation block
+	if profile.Name != "" || profile.Institution != "" {
+		header.WriteString("---\n")
+		if profile.Name != "" {
+			header.WriteString("author: " + profile.Name)
+			if profile.Title != "" {
+				header.WriteString(", " + profile.Title)
+			}
+			header.WriteString("\n")
+		}
+		if profile.Institution != "" {
+			header.WriteString("affiliation: " + profile.Institution)
+			if profile.Department != "" {
+				header.WriteString(", " + profile.Department)
+			}
+			header.WriteString("\n")
+		}
+		if profile.Email != "" {
+			header.WriteString("email: " + profile.Email + "\n")
+		}
+		header.WriteString("---\n\n")
+	}
+
+	// Add AI instructions as a comment block if set
+	if profile.Instructions != "" {
+		header.WriteString("<!-- AI Instructions:\n")
+		header.WriteString(profile.Instructions)
+		header.WriteString("\n-->\n\n")
+	}
+
+	return header.String() + content
 }
 
 var gitignoreContent = `# OS

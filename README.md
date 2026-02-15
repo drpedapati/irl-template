@@ -15,6 +15,9 @@ brew install irl
 # Set your projects directory (one time)
 irl config --dir ~/Research
 
+# Set your profile (one time)
+irl profile --name "Jane Doe" --institution "UCSF" --title "MD"
+
 # Create a project
 irl init "ERP correlation analysis"
 # → Creates ~/Research/260129-erp-correlation-analysis
@@ -29,7 +32,8 @@ IRL is a document-centric workflow for working with AI assistants. Instead of ch
 
 ```
 my-project/
-├── main-plan.md    ← Your control surface
+├── plans/
+│   └── main-plan.md    ← Your control surface
 ├── 02-data/
 │   ├── raw/
 │   └── derived/
@@ -47,17 +51,62 @@ Everything is versioned. Diffs become your audit trail.
 
 ## Commands
 
+### Projects
+
 | Command | Description |
 |---------|-------------|
-| `irl init "purpose"` | Create project with auto-naming |
-| `irl init` | Interactive mode |
+| `irl init "purpose"` | Create project with auto-naming (YYMMDD-slug) |
+| `irl init` | Interactive mode with directory browser |
 | `irl init -t template` | Use specific template |
-| `irl init -d ~/path` | Override directory |
-| `irl config` | View configuration |
-| `irl config --dir ~/path` | Set default directory |
-| `irl templates` | List available templates |
-| `irl update` | Refresh templates from GitHub |
+| `irl init -n name` | Use exact project name |
+| `irl init -d ~/path` | Override workspace directory |
+| `irl adopt ~/folder` | Copy existing folder into workspace |
+| `irl adopt ~/folder --rename` | Adopt with YYMMDD prefix |
+| `irl list` | List all projects (table) |
+| `irl list --json` | List projects as JSON |
+| `irl open my-project` | Open project in preferred editor |
+| `irl open my-project --editor code` | Open in specific editor |
+
+### Templates
+
+| Command | Description |
+|---------|-------------|
+| `irl templates` | List all templates (built-in + custom) |
+| `irl templates show <name>` | Print template content |
+| `irl templates create <name>` | Create custom template from irl-basic |
+| `irl templates create <name> --from X` | Create from another template |
+| `irl templates delete <name>` | Delete a custom template |
+| `irl update` | Refresh built-in templates from GitHub |
+
+### Configuration
+
+| Command | Description |
+|---------|-------------|
+| `irl config` | View current configuration |
+| `irl config --json` | Configuration as JSON |
+| `irl config --dir ~/path` | Set default workspace directory |
+| `irl config --editor cursor` | Set preferred editor |
+| `irl profile` | View current profile |
+| `irl profile --json` | Profile as JSON |
+| `irl profile --name "..." --institution "..."` | Set profile fields |
+| `irl profile --clear` | Clear all profile fields |
 | `irl doctor` | Check environment and tools |
+
+### TUI (Terminal UI)
+
+Run `irl` with no arguments to launch the interactive terminal UI, which provides all the above capabilities plus a project browser, editor configuration, and visual template management.
+
+## Agent Usage
+
+The CLI is designed for both humans and AI agents. Every TUI capability has a non-interactive CLI equivalent. See `CLAUDE.md` for agent-specific patterns, or use `--json` flags for machine-readable output:
+
+```bash
+irl list --json          # Discover projects
+irl config --json        # Read configuration
+irl profile --json       # Read profile
+irl templates show X     # Get template content
+irl init "purpose"       # Create project (no prompts when args provided)
+```
 
 ## Why IRL?
 

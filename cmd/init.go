@@ -121,12 +121,16 @@ func runInit(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("heads up: '%s' already exists", projectPath)
 	}
 
-	// Select template (prompt unless -t flag provided)
+	// Select template (prompt unless -t flag provided or non-interactive)
 	var selectedTemplate string
+	nonInteractive := len(args) > 0 || nameFlag != ""
 	if templateFlag != "" {
 		selectedTemplate = templateFlag
+	} else if nonInteractive {
+		// Non-interactive: default to irl-basic so agents don't get prompted
+		selectedTemplate = "irl-basic"
 	} else {
-		// Always offer template selection if no -t flag
+		// Interactive: offer template selection
 		templateList, err := templates.ListTemplates()
 		if err != nil {
 			fmt.Println(theme.Note("couldn't fetch templates, using basic"))
@@ -171,21 +175,23 @@ func runInit(cmd *cobra.Command, args []string) error {
 	}
 
 	// Apply template
+	var planContent string
 	if selectedTemplate != "" {
 		tmpl, err := templates.GetTemplate(selectedTemplate)
 		if err != nil {
 			fmt.Println(theme.Note(fmt.Sprintf("%v, using basic template", err)))
 			tmpl = templates.EmbeddedTemplates["irl-basic"]
 		}
-		if err := scaffold.WritePlan(projectPath, tmpl.Content); err != nil {
-			return err
-		}
+		planContent = tmpl.Content
 	} else {
-		// Write minimal plan
-		minimalPlan := "# IRL Plan\n\n[Edit this file to define your research plan]\n"
-		if err := scaffold.WritePlan(projectPath, minimalPlan); err != nil {
-			return err
-		}
+		planContent = "# IRL Plan\n\n[Edit this file to define your research plan]\n"
+	}
+
+	// Inject profile information
+	planContent = scaffold.InjectProfile(planContent)
+
+	if err := scaffold.WritePlan(projectPath, planContent); err != nil {
+		return err
 	}
 
 	if err := scaffold.GitInit(projectPath); err != nil {

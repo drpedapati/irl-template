@@ -132,6 +132,9 @@ func runAdopt(cmd *cobra.Command, args []string) error {
 			planContent = templates.EmbeddedTemplates["irl-basic"].Content
 		}
 
+		// Inject profile information
+		planContent = scaffold.InjectProfile(planContent)
+
 		if err := scaffold.WritePlan(destPath, planContent); err != nil {
 			fmt.Println(theme.Note(fmt.Sprintf("couldn't create plan: %v", err)))
 		}

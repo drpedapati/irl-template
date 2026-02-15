@@ -326,7 +326,7 @@ func (m AdoptModel) adoptProject() tea.Cmd {
 			} else {
 				planContent = templates.EmbeddedTemplates["irl-basic"].Content
 			}
-			planContent = injectProfile(planContent)
+			planContent = scaffold.InjectProfile(planContent)
 			scaffold.WritePlan(destPath, planContent)
 		}
 

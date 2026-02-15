@@ -394,50 +394,6 @@ func (m InitModel) loadTemplates() tea.Cmd {
 	}
 }
 
-// injectProfile adds profile information to the plan content
-func injectProfile(content string) string {
-	profile := config.GetProfile()
-
-	// If no profile set, return content unchanged
-	if profile.Name == "" && profile.Institution == "" && profile.Instructions == "" {
-		return content
-	}
-
-	var header strings.Builder
-
-	// Build author/affiliation block
-	if profile.Name != "" || profile.Institution != "" {
-		header.WriteString("---\n")
-		if profile.Name != "" {
-			header.WriteString("author: " + profile.Name)
-			if profile.Title != "" {
-				header.WriteString(", " + profile.Title)
-			}
-			header.WriteString("\n")
-		}
-		if profile.Institution != "" {
-			header.WriteString("affiliation: " + profile.Institution)
-			if profile.Department != "" {
-				header.WriteString(", " + profile.Department)
-			}
-			header.WriteString("\n")
-		}
-		if profile.Email != "" {
-			header.WriteString("email: " + profile.Email + "\n")
-		}
-		header.WriteString("---\n\n")
-	}
-
-	// Add AI instructions as a comment block if set
-	if profile.Instructions != "" {
-		header.WriteString("<!-- AI Instructions:\n")
-		header.WriteString(profile.Instructions)
-		header.WriteString("\n-->\n\n")
-	}
-
-	return header.String() + content
-}
-
 func (m InitModel) createProject() tea.Cmd {
 	return func() tea.Msg {
 		projectPath := filepath.Join(m.baseDir, m.projectName)
@@ -472,7 +428,7 @@ func (m InitModel) createProject() tea.Cmd {
 		}
 
 		// Inject profile information
-		planContent = injectProfile(planContent)
+		planContent = scaffold.InjectProfile(planContent)
 
 		if err := scaffold.WritePlan(projectPath, planContent); err != nil {
 			return InitProjectCreatedMsg{Err: err}
