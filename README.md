@@ -101,12 +101,14 @@ Run `irl` with no arguments to launch the interactive terminal UI, which provide
 The CLI is designed for both humans and AI agents. Every TUI capability has a non-interactive CLI equivalent. See `CLAUDE.md` for agent-specific patterns, or use `--json` flags for machine-readable output:
 
 ```bash
-irl list --json          # Discover projects
-irl config --json        # Read configuration
-irl profile --json       # Read profile
-irl templates show X     # Get template content
+irl list --json          # {"projects":[...]} — always exit 0
+irl config --json        # Full config object
+irl profile --json       # Profile fields
+irl templates show X     # Raw template content to stdout
 irl init "purpose"       # Create project (no prompts when args provided)
 ```
+
+**Default directory resolution** (non-interactive `init`): `--dir` flag > configured default > current working directory. `list` and `adopt` require a configured default directory.
 
 ## Why IRL?
 

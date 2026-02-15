@@ -34,19 +34,39 @@ func init() {
 	listCmd.Flags().BoolVar(&listJSONFlag, "json", false, "Output as JSON")
 }
 
+// listResponse is the stable JSON schema for irl list --json
+type listResponse struct {
+	Projects []projects.Project `json:"projects"`
+}
+
 func runList(cmd *cobra.Command, args []string) error {
 	baseDir := config.GetDefaultDirectory()
 	if baseDir == "" {
+		if listJSONFlag {
+			// Return empty result with exit 0 for agents
+			data, _ := json.MarshalIndent(listResponse{Projects: []projects.Project{}}, "", "  ")
+			fmt.Println(string(data))
+			return nil
+		}
 		return fmt.Errorf("no default directory configured (run 'irl config --dir ~/path' to set one)")
 	}
 
 	list, err := projects.ScanDir(baseDir)
 	if err != nil {
+		if listJSONFlag {
+			data, _ := json.MarshalIndent(listResponse{Projects: []projects.Project{}}, "", "  ")
+			fmt.Println(string(data))
+			return nil
+		}
 		return fmt.Errorf("failed to scan projects: %w", err)
 	}
 
 	if listJSONFlag {
-		data, err := json.MarshalIndent(list, "", "  ")
+		resp := listResponse{Projects: list}
+		if resp.Projects == nil {
+			resp.Projects = []projects.Project{} // Ensure [] not null
+		}
+		data, err := json.MarshalIndent(resp, "", "  ")
 		if err != nil {
 			return err
 		}

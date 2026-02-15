@@ -15,7 +15,8 @@ The `irl` CLI is fully non-interactive when flags/args are provided. Every comma
 ```bash
 # List all projects in workspace (JSON for parsing)
 irl list --json
-# Returns: [{"name":"...","path":"...","modified":"..."},...]
+# Returns: {"projects":[{"name":"...","path":"...","modified":"..."},...]}
+# Always returns exit 0 with {"projects":[]} on empty sets
 
 # Read configuration
 irl config --json
@@ -52,7 +53,10 @@ irl adopt ~/Downloads/my-data
 irl adopt ~/Downloads/my-data --rename -t irl-basic
 ```
 
-**Important for agents:** When purpose is provided as an argument (non-interactive mode), the template defaults to `irl-basic` if `-t` is not specified. No prompts will appear.
+**Important for agents:**
+- When purpose is provided as an argument (non-interactive mode), the template defaults to `irl-basic` if `-t` is not specified. No prompts will appear.
+- **Default directory resolution** (non-interactive): `--dir` flag > `config.default_directory` > current working directory. If no default is configured and no `--dir` is passed, the project is created in `cwd`.
+- `irl list` and `irl adopt` require a configured default directory and will error if none is set. Run `irl config --dir ~/path` first.
 
 ### Configuration
 
